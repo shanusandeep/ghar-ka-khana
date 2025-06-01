@@ -9,7 +9,7 @@ const Index = () => {
   const menuCategories = [
     {
       name: "Starter Items",
-      icon: <Utensils className="h-6 w-6" />,
+      icon: <Utensils className="h-4 w-4 sm:h-6 sm:w-6" />,
       items: [
         { name: "Babycorn/Paneer/Gobi/Soya Chilli", price: "$120", description: "Crispy and flavorful Indo-Chinese appetizers" },
         { name: "Gobi/Paneer Manchurian", price: "$120", description: "Popular Indo-Chinese starter with tangy sauce" },
@@ -25,7 +25,7 @@ const Index = () => {
     },
     {
       name: "Main Course",
-      icon: <ChefHat className="h-6 w-6" />,
+      icon: <ChefHat className="h-4 w-4 sm:h-6 sm:w-6" />,
       items: [
         { name: "Veg Noodles", price: "$120", description: "Stir-fried noodles with fresh vegetables" },
         { name: "Pav Bhaji", price: "$120", description: "Includes 100 Pav - Mumbai street food classic" },
@@ -42,7 +42,7 @@ const Index = () => {
     },
     {
       name: "Breads",
-      icon: <Utensils className="h-6 w-6" />,
+      icon: <Utensils className="h-4 w-4 sm:h-6 sm:w-6" />,
       items: [
         { name: "Roti/Poori", price: "$1", description: "2 pieces - Traditional Indian flatbreads" },
         { name: "Plain Paratha", price: "$1/pc", description: "Layered flatbread, buttered and flaky" },
@@ -51,7 +51,7 @@ const Index = () => {
     },
     {
       name: "Rice",
-      icon: <Utensils className="h-6 w-6" />,
+      icon: <Utensils className="h-4 w-4 sm:h-6 sm:w-6" />,
       items: [
         { name: "Fried Rice", price: "$120", description: "Wok-tossed rice with vegetables and soy sauce" },
         { name: "Veg/Kathal Biryani", price: "$120", description: "Aromatic basmati rice with vegetables or jackfruit" },
@@ -63,7 +63,7 @@ const Index = () => {
     },
     {
       name: "Desserts",
-      icon: <Utensils className="h-6 w-6" />,
+      icon: <Utensils className="h-4 w-4 sm:h-6 sm:w-6" />,
       items: [
         { name: "Baklava", price: "$120", description: "120 pieces - Layered pastry with nuts and honey" },
         { name: "Gulab Jamun", price: "$90", description: "130 pieces - Soft milk dumplings in sugar syrup" },
@@ -113,27 +113,27 @@ Best regards,
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-sm shadow-xl sticky top-0 z-50 border-b border-orange-100">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-full">
-                <ChefHat className="h-8 w-8 text-white" />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="bg-gradient-to-r from-orange-500 to-red-500 p-1.5 sm:p-2 rounded-full">
+                <ChefHat className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
                   Ghar Ka Khana
                 </h1>
-                <p className="text-gray-600 font-medium">Authentic Home Catering</p>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">Authentic Home Catering</p>
               </div>
             </div>
-            <div className="flex space-x-4">
-              <Button onClick={handleWhatsApp} className="bg-green-500 hover:bg-green-600 text-white shadow-lg">
-                <MessageCircle className="mr-2 h-4 w-4" />
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+              <Button onClick={handleWhatsApp} className="bg-green-500 hover:bg-green-600 text-white shadow-lg text-xs sm:text-sm px-3 sm:px-4 py-2">
+                <MessageCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 WhatsApp
               </Button>
-              <Button onClick={handleEmail} variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50 shadow-lg">
-                <Mail className="mr-2 h-4 w-4" />
-                Contact Us
+              <Button onClick={handleEmail} variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50 shadow-lg text-xs sm:text-sm px-3 sm:px-4 py-2">
+                <Mail className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                Contact
               </Button>
             </div>
           </div>
@@ -141,56 +141,56 @@ Best regards,
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 text-center bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 text-white relative overflow-hidden">
+      <section className="py-12 sm:py-20 px-3 sm:px-4 text-center bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto relative z-10">
-          <h2 className="text-6xl font-bold mb-6 leading-tight">
+          <h2 className="text-3xl sm:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
             Bringing Home-Cooked 
             <span className="block text-yellow-300">Flavors to Your Events</span>
           </h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
+          <p className="text-sm sm:text-xl mb-6 sm:mb-8 max-w-3xl mx-auto opacity-90 px-4">
             Experience authentic, delicious meals prepared with love and the finest ingredients. 
             Perfect for weddings, corporate events, and special celebrations.
           </p>
-          <div className="flex justify-center space-x-8 text-center">
-            <div className="flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-              <Star className="h-5 w-5 mr-2 text-yellow-300" />
-              <span className="font-semibold">Premium Quality</span>
+          <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-8 text-center">
+            <div className="flex items-center justify-center bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full">
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-yellow-300" />
+              <span className="font-semibold text-sm sm:text-base">Premium Quality</span>
             </div>
-            <div className="flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-              <Clock className="h-5 w-5 mr-2 text-yellow-300" />
-              <span className="font-semibold">Fresh Daily</span>
+            <div className="flex items-center justify-center bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-yellow-300" />
+              <span className="font-semibold text-sm sm:text-base">Fresh Daily</span>
             </div>
-            <div className="flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-              <MapPin className="h-5 w-5 mr-2 text-yellow-300" />
-              <span className="font-semibold">Local Delivery</span>
+            <div className="flex items-center justify-center bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full">
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-yellow-300" />
+              <span className="font-semibold text-sm sm:text-base">Local Delivery</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Menu Categories */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-12 sm:py-20 px-3 sm:px-4 bg-white">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-5xl font-bold mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+          <div className="text-center mb-8 sm:mb-16">
+            <h3 className="text-3xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
               Our Delicious Menu
             </h3>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               Discover our extensive collection of authentic dishes, prepared with traditional recipes and the finest ingredients
             </p>
           </div>
           
           <Tabs defaultValue="starter" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-12 bg-orange-50 rounded-xl p-2">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-5 mb-8 sm:mb-12 bg-orange-50 rounded-xl p-1 sm:p-2 gap-1 sm:gap-0">
               {menuCategories.map((category, index) => (
                 <TabsTrigger 
                   key={index} 
                   value={category.name.toLowerCase().replace(' ', '')} 
-                  className="flex items-center space-x-2 data-[state=active]:bg-white data-[state=active]:text-orange-600 rounded-lg py-3"
+                  className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 data-[state=active]:bg-white data-[state=active]:text-orange-600 rounded-lg py-2 sm:py-3 text-xs sm:text-sm"
                 >
                   {category.icon}
-                  <span className="font-semibold">{category.name}</span>
+                  <span className="font-semibold text-center">{category.name.replace(' ', ' ')}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -199,21 +199,21 @@ Best regards,
               <TabsContent 
                 key={categoryIndex} 
                 value={category.name.toLowerCase().replace(' ', '')}
-                className="space-y-6"
+                className="space-y-4 sm:space-y-6"
               >
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {category.items.map((item, itemIndex) => (
                     <Card key={itemIndex} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1 bg-gradient-to-br from-white to-orange-50/30">
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start mb-3">
-                          <h5 className="font-bold text-lg text-gray-800 group-hover:text-orange-600 transition-colors leading-tight">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3">
+                          <h5 className="font-bold text-base sm:text-lg text-gray-800 group-hover:text-orange-600 transition-colors leading-tight mb-2 sm:mb-0">
                             {item.name}
                           </h5>
-                          <span className="text-2xl font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+                          <span className="text-xl sm:text-2xl font-bold text-orange-600 bg-orange-100 px-2 sm:px-3 py-1 rounded-full self-start">
                             {item.price}
                           </span>
                         </div>
-                        <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{item.description}</p>
                       </CardContent>
                     </Card>
                   ))}
@@ -225,31 +225,31 @@ Best regards,
       </section>
 
       {/* Special Dishes */}
-      <section className="py-20 px-4 bg-gradient-to-br from-orange-50 to-red-50">
+      <section className="py-12 sm:py-20 px-3 sm:px-4 bg-gradient-to-br from-orange-50 to-red-50">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-5xl font-bold mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+          <div className="text-center mb-8 sm:mb-16">
+            <h3 className="text-3xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
               Special Offerings
             </h3>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               Curated packages perfect for your special occasions and events
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {specialDishes.map((dish, index) => (
               <Card key={index} className="overflow-hidden hover:shadow-2xl transition-all duration-300 group border-0 shadow-lg hover:-translate-y-2">
-                <div className="h-64 overflow-hidden">
+                <div className="h-48 sm:h-64 overflow-hidden">
                   <img 
                     src={dish.image} 
                     alt={dish.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-                <CardContent className="p-6 bg-gradient-to-br from-white to-orange-50/30">
-                  <h4 className="text-2xl font-bold mb-3 text-gray-800 group-hover:text-orange-600 transition-colors">
+                <CardContent className="p-4 sm:p-6 bg-gradient-to-br from-white to-orange-50/30">
+                  <h4 className="text-lg sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-800 group-hover:text-orange-600 transition-colors">
                     {dish.name}
                   </h4>
-                  <p className="text-gray-600 leading-relaxed">{dish.description}</p>
+                  <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{dish.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -258,58 +258,58 @@ Best regards,
       </section>
 
       {/* Contact Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 text-white relative overflow-hidden">
+      <section className="py-12 sm:py-20 px-3 sm:px-4 bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto text-center relative z-10">
-          <h3 className="text-5xl font-bold mb-8">Ready to Order?</h3>
-          <p className="text-xl mb-12 max-w-3xl mx-auto opacity-90">
+          <h3 className="text-3xl sm:text-5xl font-bold mb-6 sm:mb-8">Ready to Order?</h3>
+          <p className="text-sm sm:text-xl mb-8 sm:mb-12 max-w-3xl mx-auto opacity-90 px-4">
             Get in touch with us to discuss your catering needs. We're here to make your event delicious and memorable!
           </p>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
             <Card className="bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 border-white/20 hover:shadow-2xl hover:-translate-y-1">
-              <CardContent className="p-8 text-center">
-                <MessageCircle className="h-16 w-16 mx-auto mb-6 text-green-400" />
-                <h4 className="text-2xl font-bold mb-4">WhatsApp</h4>
-                <p className="mb-6 opacity-90">Quick responses and instant communication</p>
-                <Button onClick={handleWhatsApp} className="bg-green-500 hover:bg-green-600 text-white w-full py-3 text-lg font-semibold">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <MessageCircle className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 sm:mb-6 text-green-400" />
+                <h4 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">WhatsApp</h4>
+                <p className="mb-4 sm:mb-6 opacity-90 text-sm sm:text-base">Quick responses and instant communication</p>
+                <Button onClick={handleWhatsApp} className="bg-green-500 hover:bg-green-600 text-white w-full py-2 sm:py-3 text-sm sm:text-lg font-semibold">
                   Message Us Now
                 </Button>
               </CardContent>
             </Card>
 
             <Card className="bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 border-white/20 hover:shadow-2xl hover:-translate-y-1">
-              <CardContent className="p-8 text-center">
-                <Mail className="h-16 w-16 mx-auto mb-6 text-blue-400" />
-                <h4 className="text-2xl font-bold mb-4">Email</h4>
-                <p className="mb-6 opacity-90">Detailed inquiries and event planning</p>
-                <Button onClick={handleEmail} className="bg-blue-500 hover:bg-blue-600 text-white w-full py-3 text-lg font-semibold">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <Mail className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 sm:mb-6 text-blue-400" />
+                <h4 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Email</h4>
+                <p className="mb-4 sm:mb-6 opacity-90 text-sm sm:text-base">Detailed inquiries and event planning</p>
+                <Button onClick={handleEmail} className="bg-blue-500 hover:bg-blue-600 text-white w-full py-2 sm:py-3 text-sm sm:text-lg font-semibold">
                   Send Email
                 </Button>
               </CardContent>
             </Card>
           </div>
 
-          <div className="mt-16 bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto">
-            <p className="text-2xl mb-4 font-semibold">📞 +1-201-713-1850</p>
-            <p className="text-2xl font-semibold">📧 gharkakhanarva@gmail.com</p>
+          <div className="mt-12 sm:mt-16 bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-2xl mb-2 sm:mb-4 font-semibold">📞 +1-201-713-1850</p>
+            <p className="text-lg sm:text-2xl font-semibold">📧 gharkakhanarva@gmail.com</p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4">
+      <footer className="bg-gray-900 text-white py-8 sm:py-12 px-3 sm:px-4">
         <div className="container mx-auto text-center">
-          <div className="flex items-center justify-center space-x-3 mb-6">
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-full">
-              <ChefHat className="h-8 w-8 text-white" />
+          <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 p-1.5 sm:p-2 rounded-full">
+              <ChefHat className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
-            <h3 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+            <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
               Ghar Ka Khana
             </h3>
           </div>
-          <p className="text-gray-300 mb-6 text-lg">Bringing the taste of home to your special occasions</p>
-          <p className="text-sm text-gray-400">© 2024 Ghar Ka Khana. All rights reserved.</p>
+          <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-lg">Bringing the taste of home to your special occasions</p>
+          <p className="text-xs sm:text-sm text-gray-400">© 2024 Ghar Ka Khana. All rights reserved.</p>
         </div>
       </footer>
     </div>
