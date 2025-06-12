@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -88,15 +87,15 @@ const MenuManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Menu Management</h2>
-          <p className="text-gray-600">Manage menu categories and items</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Menu Management</h2>
+          <p className="text-gray-600 text-sm sm:text-base">Manage menu categories and items</p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Sheet open={isNewCategoryOpen} onOpenChange={setIsNewCategoryOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" className="flex items-center space-x-2">
+              <Button variant="outline" className="flex items-center space-x-2 w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
                 <span>Category</span>
               </Button>
@@ -117,7 +116,7 @@ const MenuManagement = () => {
           
           <Sheet open={isNewItemOpen} onOpenChange={setIsNewItemOpen}>
             <SheetTrigger asChild>
-              <Button className="flex items-center space-x-2">
+              <Button className="flex items-center space-x-2 w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
                 <span>Menu Item</span>
               </Button>
@@ -163,13 +162,13 @@ const MenuManagement = () => {
                   ) : (
                     <div className="grid gap-4">
                       {categoryItems.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div key={item.id} className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 border rounded-lg gap-4">
                           <div className="flex-1">
                             <h4 className="font-semibold">{item.name}</h4>
                             {item.description && (
                               <p className="text-sm text-gray-600 mt-1">{item.description}</p>
                             )}
-                            <div className="flex space-x-4 mt-2 text-sm">
+                            <div className="flex flex-col sm:flex-row sm:space-x-4 mt-2 text-sm gap-1 sm:gap-0">
                               {item.price_per_plate && (
                                 <span>Plate: ${item.price_per_plate}</span>
                               )}
@@ -181,7 +180,7 @@ const MenuManagement = () => {
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center space-x-4">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                             <div className="flex items-center space-x-2">
                               <Label htmlFor={`available-${item.id}`} className="text-sm">
                                 Available
@@ -192,16 +191,18 @@ const MenuManagement = () => {
                                 onCheckedChange={(checked) => toggleItemAvailability(item.id, checked)}
                               />
                             </div>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setEditingItem(item)}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <div className="flex space-x-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => setEditingItem(item)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -218,8 +219,8 @@ const MenuManagement = () => {
             {categories.map((category) => (
               <Card key={category.id}>
                 <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                    <div className="flex-1">
                       <CardTitle>{category.name}</CardTitle>
                       {category.description && (
                         <CardDescription>{category.description}</CardDescription>
@@ -236,7 +237,7 @@ const MenuManagement = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-gray-600 gap-2 sm:gap-0">
                     <span>Display Order: {category.display_order}</span>
                     <Badge variant={category.is_active ? "default" : "secondary"}>
                       {category.is_active ? "Active" : "Inactive"}

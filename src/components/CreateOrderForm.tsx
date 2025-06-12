@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react'
 import { ordersApi, menuItemsApi, customersApi } from '@/services/api'
-import { MenuItem, Customer } from '@/config/supabase'
+import { MenuItem, Customer, Order } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import CustomerInfoForm from './forms/CustomerInfoForm'
 import DeliveryInfoForm from './forms/DeliveryInfoForm'
@@ -22,9 +21,10 @@ interface OrderItem {
 interface CreateOrderFormProps {
   onOrderCreated: () => void
   onClose: () => void
+  existingOrder?: Order
 }
 
-const CreateOrderForm = ({ onOrderCreated, onClose }: CreateOrderFormProps) => {
+const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrderFormProps) => {
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [deliveryDate, setDeliveryDate] = useState('')
@@ -40,6 +40,22 @@ const CreateOrderForm = ({ onOrderCreated, onClose }: CreateOrderFormProps) => {
   useEffect(() => {
     loadMenuItems()
   }, [])
+
+  useEffect(() => {
+    // Populate form when editing existing order
+    if (existingOrder) {
+      setCustomerName(existingOrder.customer_name)
+      setCustomerPhone(existingOrder.customer_phone)
+      setDeliveryDate(existingOrder.delivery_date)
+      setDeliveryTime(existingOrder.delivery_time || '')
+      setDeliveryAddress(existingOrder.delivery_address || '')
+      setSpecialInstructions(existingOrder.special_instructions || '')
+      
+      // TODO: Load order items if needed
+      // You might need to fetch order items from the order_items table
+      // and convert them to the OrderItem format used by this form
+    }
+  }, [existingOrder])
 
   const loadMenuItems = async () => {
     try {
@@ -66,44 +82,63 @@ const CreateOrderForm = ({ onOrderCreated, onClose }: CreateOrderFormProps) => {
 
     setLoading(true)
     try {
-      // Create or get customer
-      let customerId = existingCustomer?.id
-      if (!existingCustomer) {
-        const newCustomer = await customersApi.create({
-          name: customerName,
-          phone: customerPhone,
-          address: deliveryAddress || undefined
+      if (existingOrder) {
+        // Update existing order
+        const updatedOrder = {
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          delivery_date: deliveryDate,
+          delivery_time: deliveryTime || undefined,
+          delivery_address: deliveryAddress || undefined,
+          special_instructions: specialInstructions || undefined,
+          total_amount: getTotalAmount()
+        }
+
+        await ordersApi.update(existingOrder.id, updatedOrder)
+        
+        toast({
+          title: "Success",
+          description: "Order updated successfully"
         })
-        customerId = newCustomer.id
-      }
+      } else {
+        // Create new order
+        let customerId = existingCustomer?.id
+        if (!existingCustomer) {
+          const newCustomer = await customersApi.create({
+            name: customerName,
+            phone: customerPhone,
+            address: deliveryAddress || undefined
+          })
+          customerId = newCustomer.id
+        }
 
-      // Create order
-      const order = {
-        customer_id: customerId,
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        delivery_date: deliveryDate,
-        delivery_time: deliveryTime || undefined,
-        delivery_address: deliveryAddress || undefined,
-        special_instructions: specialInstructions || undefined,
-        total_amount: getTotalAmount(),
-        status: 'pending' as const
-      }
+        const order = {
+          customer_id: customerId,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          delivery_date: deliveryDate,
+          delivery_time: deliveryTime || undefined,
+          delivery_address: deliveryAddress || undefined,
+          special_instructions: specialInstructions || undefined,
+          total_amount: getTotalAmount(),
+          status: 'pending' as const
+        }
 
-      await ordersApi.create(order, orderItems)
-      
-      toast({
-        title: "Success",
-        description: "Order created successfully"
-      })
+        await ordersApi.create(order, orderItems)
+        
+        toast({
+          title: "Success",
+          description: "Order created successfully"
+        })
+      }
       
       onOrderCreated()
       onClose()
     } catch (error) {
-      console.error('Error creating order:', error)
+      console.error('Error saving order:', error)
       toast({
         title: "Error",
-        description: "Failed to create order",
+        description: `Failed to ${existingOrder ? 'update' : 'create'} order`,
         variant: "destructive"
       })
     } finally {

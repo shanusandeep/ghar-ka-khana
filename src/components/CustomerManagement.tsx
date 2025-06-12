@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -69,14 +68,14 @@ const CustomerManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Customer Management</h2>
-          <p className="text-gray-600">Manage your customer database</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Customer Management</h2>
+          <p className="text-gray-600 text-sm sm:text-base">Manage your customer database</p>
         </div>
         <Sheet open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
           <SheetTrigger asChild>
-            <Button className="flex items-center space-x-2">
+            <Button className="flex items-center space-x-2 w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               <span>Add Customer</span>
             </Button>
@@ -120,24 +119,24 @@ const CustomerManagement = () => {
           filteredCustomers.map((customer) => (
             <Card key={customer.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                  <div className="space-y-2 flex-1">
                     <h3 className="font-semibold text-lg">{customer.name}</h3>
                     <div className="space-y-1 text-sm text-gray-600">
                       <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4" />
-                        <span>{customer.phone}</span>
+                        <Phone className="w-4 h-4 flex-shrink-0" />
+                        <span className="break-all">{customer.phone}</span>
                       </div>
                       {customer.email && (
                         <div className="flex items-center space-x-2">
-                          <Mail className="w-4 h-4" />
-                          <span>{customer.email}</span>
+                          <Mail className="w-4 h-4 flex-shrink-0" />
+                          <span className="break-all">{customer.email}</span>
                         </div>
                       )}
                       {customer.address && (
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="w-4 h-4" />
-                          <span>{customer.address}</span>
+                        <div className="flex items-start space-x-2">
+                          <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          <span className="break-words">{customer.address}</span>
                         </div>
                       )}
                     </div>
@@ -145,7 +144,7 @@ const CustomerManagement = () => {
                       Customer since {new Date(customer.created_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 self-start">
                     <Button
                       size="sm"
                       variant="outline"

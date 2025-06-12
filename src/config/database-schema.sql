@@ -1,6 +1,6 @@
 
 -- Enable RLS (Row Level Security)
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
+ALTER DATABASE postgres SET "app.jwt_secret" TO 'Cz@P3#v93^sRqKm6Ix1pWn9Yt*UaE8A!';
 
 -- Create profiles table for user management
 CREATE TABLE IF NOT EXISTS profiles (

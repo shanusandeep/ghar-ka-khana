@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,6 +14,7 @@ const OrderManagement = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false)
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -78,14 +78,14 @@ const OrderManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Order Management</h2>
-          <p className="text-gray-600">Manage and track all customer orders</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Order Management</h2>
+          <p className="text-gray-600 text-sm sm:text-base">Manage and track all customer orders</p>
         </div>
         <Sheet open={isNewOrderOpen} onOpenChange={setIsNewOrderOpen}>
           <SheetTrigger asChild>
-            <Button className="flex items-center space-x-2">
+            <Button className="flex items-center space-x-2 w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               <span>New Order</span>
             </Button>
@@ -118,15 +118,15 @@ const OrderManagement = () => {
           orders.map((order) => (
             <Card key={order.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="flex-1">
                     <CardTitle className="text-lg">Order #{order.order_number}</CardTitle>
-                    <CardDescription className="flex items-center space-x-4 mt-1">
+                    <CardDescription className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
                       <span className="flex items-center space-x-1">
                         <Phone className="w-4 h-4" />
                         <span>{order.customer_name}</span>
                       </span>
-                      <span>{order.customer_phone}</span>
+                      <span className="text-sm">{order.customer_phone}</span>
                     </CardDescription>
                   </div>
                   <Badge className={getStatusColor(order.status)}>
@@ -136,20 +136,22 @@ const OrderManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    <span>Delivery: {new Date(order.delivery_date).toLocaleDateString()}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-gray-600">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Delivery: {new Date(order.delivery_date).toLocaleDateString()}</span>
+                    </div>
                     {order.delivery_time && (
-                      <>
-                        <Clock className="w-4 h-4 ml-2" />
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-4 h-4" />
                         <span>{order.delivery_time}</span>
-                      </>
+                      </div>
                     )}
                   </div>
                   {order.delivery_address && (
-                    <div className="flex items-center space-x-2 text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span>{order.delivery_address}</span>
+                    <div className="flex items-start space-x-2 text-gray-600">
+                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="break-words">{order.delivery_address}</span>
                     </div>
                   )}
                   {order.total_amount && (
@@ -159,9 +161,9 @@ const OrderManagement = () => {
                   )}
                 </div>
                 
-                <div className="flex space-x-2 mt-4">
+                <div className="flex flex-col sm:flex-row gap-2 mt-4">
                   <Select onValueChange={(value) => updateOrderStatus(order.id, value)}>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue placeholder="Update Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -172,7 +174,7 @@ const OrderManagement = () => {
                       <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => setEditingOrder(order)} className="w-full sm:w-auto">
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
@@ -182,6 +184,28 @@ const OrderManagement = () => {
           ))
         )}
       </div>
+
+      {/* Edit Order Sheet */}
+      <Sheet open={editingOrder !== null} onOpenChange={(open) => !open && setEditingOrder(null)}>
+        <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Edit Order #{editingOrder?.order_number}</SheetTitle>
+            <SheetDescription>Update order details and items</SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {editingOrder && (
+              <CreateOrderForm 
+                existingOrder={editingOrder}
+                onOrderCreated={() => {
+                  loadOrders()
+                  setEditingOrder(null)
+                }} 
+                onClose={() => setEditingOrder(null)} 
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

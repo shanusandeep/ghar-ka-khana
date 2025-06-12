@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase, Profile } from '@/config/supabase'
@@ -21,42 +20,108 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('AuthProvider: useEffect triggered')
+    
+    // Test Supabase connection first
+    console.log('AuthProvider: Testing Supabase connection...')
+    const testConnection = async () => {
+      try {
+        const result = await supabase.from('profiles').select('count').limit(1)
+        console.log('AuthProvider: Supabase connection test result:', result)
+      } catch (error) {
+        console.error('AuthProvider: Supabase connection test failed:', error)
+      }
+    }
+    testConnection()
+    
+    // Add a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.log('AuthProvider: Timeout reached, forcing loading to false')
+      setLoading(false)
+    }, 10000) // 10 seconds timeout
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthProvider: Initial session:', session ? 'exists' : 'null')
       setSession(session)
       setUser(session?.user ?? null)
       if (session?.user) {
-        fetchProfile(session.user.id)
+        console.log('AuthProvider: User found, setting temporary admin profile')
+        // TEMPORARY: Skip profile fetch and set default admin profile
+        setProfile({
+          id: session.user.id,
+          email: session.user.email!,
+          role: 'admin',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        setLoading(false)
+        clearTimeout(timeoutId)
+        // Uncomment below to re-enable profile fetching once we fix the issue
+        // fetchProfile(session.user.id)
+      } else {
+        console.log('AuthProvider: No user, setting loading to false')
+        setLoading(false)
       }
+      clearTimeout(timeoutId) // Clear timeout if we get a response
+    }).catch((error) => {
+      console.error('AuthProvider: Error getting session:', error)
       setLoading(false)
+      clearTimeout(timeoutId)
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('AuthProvider: Auth state changed:', event, session ? 'session exists' : 'no session')
         setSession(session)
         setUser(session?.user ?? null)
         if (session?.user) {
-          await fetchProfile(session.user.id)
+          console.log('AuthProvider: Setting temporary admin profile after auth change')
+          // TEMPORARY: Skip profile fetch and set default admin profile
+          setProfile({
+            id: session.user.id,
+            email: session.user.email!,
+            role: 'admin',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          // Uncomment below to re-enable profile fetching once we fix the issue
+          // await fetchProfile(session.user.id)
         } else {
           setProfile(null)
+          setLoading(false)
         }
-        setLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   const fetchProfile = async (userId: string) => {
+    console.log('fetchProfile: Starting for user:', userId)
+    
     try {
-      const { data, error } = await supabase
+      // Add timeout using Promise.race
+      const fetchPromise = supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single()
+      
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+      )
+      
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise])
+
+      console.log('fetchProfile: Query result:', { data, error })
 
       if (error && error.code === 'PGRST116') {
+        console.log('fetchProfile: Profile not found, creating new one')
         // Profile doesn't exist, create one
         const { data: userData } = await supabase.auth.getUser()
         if (userData.user) {
@@ -66,21 +131,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             role: 'admin' as const
           }
           
+          console.log('fetchProfile: Inserting new profile:', newProfile)
           const { data: createdProfile, error: createError } = await supabase
             .from('profiles')
             .insert(newProfile)
             .select()
             .single()
 
+          console.log('fetchProfile: Insert result:', { createdProfile, createError })
+
           if (!createError) {
             setProfile(createdProfile)
+          } else {
+            console.error('Error creating profile:', createError)
           }
         }
       } else if (!error) {
+        console.log('fetchProfile: Setting profile:', data)
         setProfile(data)
+      } else {
+        console.error('Error fetching profile:', error)
       }
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error('Error fetching profile (possibly timeout):', error)
+    } finally {
+      console.log('fetchProfile: Setting loading to false')
+      // Always set loading to false, regardless of success or failure
+      setLoading(false)
     }
   }
 

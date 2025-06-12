@@ -93,15 +93,15 @@ const PreparationDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h2 className="text-2xl font-bold flex items-center space-x-2">
+          <h2 className="text-xl sm:text-2xl font-bold flex items-center space-x-2">
             <ChefHat className="w-6 h-6" />
             <span>Kitchen Preparation Dashboard</span>
           </h2>
-          <p className="text-gray-600">View preparation requirements by delivery date</p>
+          <p className="text-gray-600 text-sm sm:text-base">View preparation requirements by delivery date</p>
         </div>
-        <Button onClick={exportPreparationList} disabled={preparationSummary.length === 0}>
+        <Button onClick={exportPreparationList} disabled={preparationSummary.length === 0} className="w-full sm:w-auto">
           <Download className="w-4 h-4 mr-2" />
           Export List
         </Button>
@@ -112,21 +112,21 @@ const PreparationDashboard = () => {
           <CardTitle className="text-lg">Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex space-x-4 items-end">
-            <div className="space-y-2">
+          <div className="flex flex-col sm:flex-row gap-4 items-end">
+            <div className="space-y-2 w-full sm:w-auto">
               <Label htmlFor="delivery-date">Delivery Date</Label>
               <Input
                 id="delivery-date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-40"
+                className="w-full sm:w-40"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 w-full sm:w-auto">
               <Label htmlFor="category-filter">Category</Label>
               <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -139,7 +139,7 @@ const PreparationDashboard = () => {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={loadPreparationSummary} disabled={loading}>
+            <Button onClick={loadPreparationSummary} disabled={loading} className="w-full sm:w-auto">
               <Filter className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -175,7 +175,7 @@ const PreparationDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {variations.map((variation, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
@@ -184,10 +184,10 @@ const PreparationDashboard = () => {
                           </Badge>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-gray-900">
+                          <div className="text-xl sm:text-2xl font-bold text-gray-900">
                             {variation.total_quantity}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs sm:text-sm text-gray-500">
                             {variation.size_type === 'plate' ? 'plates' : 'trays'}
                           </div>
                         </div>
