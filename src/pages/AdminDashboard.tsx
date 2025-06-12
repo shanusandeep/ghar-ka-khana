@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogOut, Plus, Package, ClipboardList, Users, BarChart3 } from 'lucide-react'
+import { LogOut, Plus, Package, ClipboardList, Users, BarChart3, Home } from 'lucide-react'
 import OrderManagement from '@/components/OrderManagement'
 import MenuManagement from '@/components/MenuManagement'
 import PreparationDashboard from '@/components/PreparationDashboard'
@@ -38,15 +39,28 @@ const AdminDashboard = () => {
                 <p className="text-sm font-medium text-gray-900">{profile?.full_name || 'Admin'}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleSignOut}
-                className="flex items-center space-x-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden xs:inline">Sign Out</span>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  asChild
+                  className="flex items-center space-x-2"
+                >
+                  <Link to="/">
+                    <Home className="w-4 h-4" />
+                    <span className="hidden xs:inline">Home</span>
+                  </Link>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden xs:inline">Sign Out</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

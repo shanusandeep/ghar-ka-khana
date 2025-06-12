@@ -33,14 +33,25 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
     }
   }
 
+  const formatDate = (dateString: string) => {
+    // Handle both timestamp and date-only strings consistently
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'numeric', 
+      day: 'numeric',
+      timeZone: 'UTC'
+    })
+  }
+
   return (
     <div className="space-y-4">
       {/* Consolidated Order Header with Customer Info */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold">Order #{order.order_number} - {order.customer_name}</h3>
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
+          <div className="space-y-1 flex-1">
+            <h3 className="text-lg font-bold">{order.customer_name}</h3>
+            <div className="flex items-center space-x-1 text-sm text-gray-600">
               <a 
                 href={`https://wa.me/${order.customer_phone.replace(/\D/g, '')}`}
                 target="_blank"
@@ -51,7 +62,6 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
                 <Phone className="w-4 h-4" />
                 <span>{order.customer_phone}</span>
               </a>
-              <span>Created {new Date(order.created_at).toLocaleDateString()}</span>
             </div>
             {order.delivery_address && (
               <div className="flex items-start space-x-1 text-sm text-gray-600">
@@ -59,22 +69,33 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
                 <span>{order.delivery_address}</span>
               </div>
             )}
+            <div className="sm:hidden mt-2">
+              <Badge className={`${getStatusColor(order.status)} w-fit`}>
+                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              </Badge>
+            </div>
           </div>
           <div className="flex flex-col items-start sm:items-end gap-2">
-            <Badge className={getStatusColor(order.status)}>
-              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-            </Badge>
-            <div className="text-sm text-gray-600 text-left sm:text-right">
+            <div className="hidden sm:block">
+              <Badge className={`${getStatusColor(order.status)} w-fit`}>
+                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              </Badge>
+            </div>
+            <div className="text-sm text-gray-600 text-left sm:text-right space-y-1">
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                <span>{new Date(order.delivery_date).toLocaleDateString()}</span>
+                <span>Created {formatDate(order.created_at)}</span>
               </div>
-              {order.delivery_time && (
-                <div className="flex items-center gap-1 mt-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{order.delivery_time}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span>Delivery {formatDate(order.delivery_date)}</span>
+                {order.delivery_time && (
+                  <>
+                    <Clock className="w-4 h-4 ml-1" />
+                    <span>{order.delivery_time}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -184,6 +205,17 @@ const OrderManagement = () => {
       case 'cancelled': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
+  }
+
+  const formatDate = (dateString: string) => {
+    // Handle both timestamp and date-only strings consistently
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'numeric', 
+      day: 'numeric',
+      timeZone: 'UTC'
+    })
   }
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
@@ -317,7 +349,7 @@ const OrderManagement = () => {
                 <div className="space-y-2 text-xs">
                   <div className="flex items-center space-x-1 text-gray-600">
                     <Calendar className="w-3 h-3" />
-                    <span>{new Date(order.delivery_date).toLocaleDateString()}</span>
+                    <span>{formatDate(order.delivery_date)}</span>
                     {order.delivery_time && (
                       <>
                         <Clock className="w-3 h-3 ml-2" />
@@ -401,7 +433,13 @@ const OrderManagement = () => {
       {/* View Order Sheet */}
       <Sheet open={viewingOrder !== null} onOpenChange={(open) => !open && setViewingOrder(null)}>
         <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
-          {viewingOrder && <OrderDetailsView order={viewingOrder} />}
+          <SheetHeader>
+            <SheetTitle>Order #{viewingOrder?.order_number}</SheetTitle>
+            <SheetDescription>View order details and items</SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {viewingOrder && <OrderDetailsView order={viewingOrder} />}
+          </div>
         </SheetContent>
       </Sheet>
 
