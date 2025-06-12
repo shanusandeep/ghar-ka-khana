@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Plus, Phone, Calendar, MapPin, Clock, Edit, Trash2 } from 'lucide-react'
 import { ordersApi } from '@/services/api'
 import { Order } from '@/config/supabase'
@@ -15,6 +16,8 @@ const OrderManagement = () => {
   const [loading, setLoading] = useState(true)
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false)
   const [editingOrder, setEditingOrder] = useState<Order | null>(null)
+  const [deletingOrder, setDeletingOrder] = useState<Order | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -63,6 +66,30 @@ const OrderManagement = () => {
         description: "Failed to update order status",
         variant: "destructive"
       })
+    }
+  }
+
+  const deleteOrder = async () => {
+    if (!deletingOrder) return
+
+    setDeleteLoading(true)
+    try {
+      await ordersApi.delete(deletingOrder.id)
+      await loadOrders()
+      setDeletingOrder(null)
+      toast({
+        title: "Success",
+        description: "Order deleted successfully"
+      })
+    } catch (error) {
+      console.error('Error deleting order:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete order",
+        variant: "destructive"
+      })
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -174,10 +201,21 @@ const OrderManagement = () => {
                       <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="outline" size="sm" onClick={() => setEditingOrder(order)} className="w-full sm:w-auto">
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setEditingOrder(order)} className="flex-1 sm:flex-none">
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setDeletingOrder(order)}
+                      className="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -206,6 +244,38 @@ const OrderManagement = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Delete Order Confirmation Dialog */}
+      <Dialog open={deletingOrder !== null} onOpenChange={(open) => !open && setDeletingOrder(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Order</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete Order #{deletingOrder?.order_number}?
+              <br />
+              <span className="font-medium text-gray-900">Customer: {deletingOrder?.customer_name}</span>
+              <br />
+              This action cannot be undone and will permanently remove the order and all its items.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setDeletingOrder(null)}
+              disabled={deleteLoading}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={deleteOrder}
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? "Deleting..." : "Delete Order"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

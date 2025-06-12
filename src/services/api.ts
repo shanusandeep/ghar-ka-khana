@@ -1,4 +1,3 @@
-
 import { supabase, MenuCategory, MenuItem, Customer, Order, OrderItem } from '@/config/supabase'
 
 // Menu Categories API
@@ -169,6 +168,24 @@ export const ordersApi = {
     
     if (error) throw error
     return data as Order
+  },
+
+  delete: async (id: string) => {
+    // First delete order items (due to foreign key constraint)
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .delete()
+      .eq('order_id', id)
+    
+    if (itemsError) throw itemsError
+
+    // Then delete the order
+    const { error: orderError } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', id)
+    
+    if (orderError) throw orderError
   },
 
   getPreparationSummary: async (date: string) => {
