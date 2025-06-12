@@ -3,15 +3,13 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Plus, Phone, Calendar, MapPin, Clock, Edit, Trash2 } from 'lucide-react'
 import { ordersApi } from '@/services/api'
 import { Order } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
+import CreateOrderForm from './CreateOrderForm'
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState<Order[]>([])
@@ -92,13 +90,16 @@ const OrderManagement = () => {
               <span>New Order</span>
             </Button>
           </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-md">
+          <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
             <SheetHeader>
               <SheetTitle>Create New Order</SheetTitle>
               <SheetDescription>Add a new order from WhatsApp or phone call</SheetDescription>
             </SheetHeader>
             <div className="mt-6">
-              <p className="text-center text-gray-500">Order creation form coming soon...</p>
+              <CreateOrderForm 
+                onOrderCreated={loadOrders} 
+                onClose={() => setIsNewOrderOpen(false)} 
+              />
             </div>
           </SheetContent>
         </Sheet>

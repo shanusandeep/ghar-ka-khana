@@ -235,5 +235,26 @@ export const customersApi = {
     
     if (error) throw error
     return data as Customer
+  },
+
+  update: async (id: string, updates: Partial<Customer>) => {
+    const { data, error } = await supabase
+      .from('customers')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as Customer
+  },
+
+  delete: async (id: string) => {
+    const { error } = await supabase
+      .from('customers')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
   }
 }

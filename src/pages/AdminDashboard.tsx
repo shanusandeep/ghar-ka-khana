@@ -8,6 +8,7 @@ import { LogOut, Plus, Package, ClipboardList, Users, BarChart3 } from 'lucide-r
 import OrderManagement from '@/components/OrderManagement'
 import MenuManagement from '@/components/MenuManagement'
 import PreparationDashboard from '@/components/PreparationDashboard'
+import CustomerManagement from '@/components/CustomerManagement'
 
 const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth()
@@ -87,15 +88,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="customers" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Management</CardTitle>
-                <CardDescription>Manage your customer database</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">Customer management features coming soon...</p>
-              </CardContent>
-            </Card>
+            <CustomerManagement />
           </TabsContent>
         </Tabs>
       </main>
