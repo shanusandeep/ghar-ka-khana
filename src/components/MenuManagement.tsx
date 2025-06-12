@@ -3,16 +3,16 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Plus, Edit, Trash2, Package } from 'lucide-react'
 import { menuCategoriesApi, menuItemsApi } from '@/services/api'
 import { MenuCategory, MenuItem } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
+import AddCategoryForm from './AddCategoryForm'
+import MenuItemForm from './MenuItemForm'
 
 const MenuManagement = () => {
   const [categories, setCategories] = useState<MenuCategory[]>([])
@@ -20,6 +20,7 @@ const MenuManagement = () => {
   const [loading, setLoading] = useState(true)
   const [isNewItemOpen, setIsNewItemOpen] = useState(false)
   const [isNewCategoryOpen, setIsNewCategoryOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -64,6 +65,17 @@ const MenuManagement = () => {
     }
   }
 
+  const handleCategoryAdded = () => {
+    loadData()
+    setIsNewCategoryOpen(false)
+  }
+
+  const handleItemSaved = () => {
+    loadData()
+    setIsNewItemOpen(false)
+    setEditingItem(null)
+  }
+
   if (loading) {
     return (
       <Card>
@@ -95,7 +107,10 @@ const MenuManagement = () => {
                 <SheetDescription>Create a new menu category</SheetDescription>
               </SheetHeader>
               <div className="mt-6">
-                <p className="text-center text-gray-500">Category form coming soon...</p>
+                <AddCategoryForm 
+                  onCategoryAdded={handleCategoryAdded}
+                  onClose={() => setIsNewCategoryOpen(false)}
+                />
               </div>
             </SheetContent>
           </Sheet>
@@ -113,7 +128,10 @@ const MenuManagement = () => {
                 <SheetDescription>Create a new menu item</SheetDescription>
               </SheetHeader>
               <div className="mt-6">
-                <p className="text-center text-gray-500">Menu item form coming soon...</p>
+                <MenuItemForm 
+                  onItemSaved={handleItemSaved}
+                  onClose={() => setIsNewItemOpen(false)}
+                />
               </div>
             </SheetContent>
           </Sheet>
@@ -174,7 +192,11 @@ const MenuManagement = () => {
                                 onCheckedChange={(checked) => toggleItemAvailability(item.id, checked)}
                               />
                             </div>
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setEditingItem(item)}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button variant="outline" size="sm">
@@ -226,6 +248,25 @@ const MenuManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Item Sheet */}
+      <Sheet open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Edit Menu Item</SheetTitle>
+            <SheetDescription>Update menu item details</SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {editingItem && (
+              <MenuItemForm 
+                item={editingItem}
+                onItemSaved={handleItemSaved}
+                onClose={() => setEditingItem(null)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

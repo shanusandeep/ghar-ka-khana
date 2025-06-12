@@ -199,12 +199,13 @@ const CustomerManagement = () => {
               onClick={async () => {
                 if (deleteCustomerId) {
                   try {
-                    // Note: We need to add delete method to customersApi
+                    await customersApi.delete(deleteCustomerId)
                     toast({
-                      title: "Info",
-                      description: "Delete functionality will be implemented soon"
+                      title: "Success",
+                      description: "Customer deleted successfully"
                     })
                     setDeleteCustomerId(null)
+                    loadCustomers()
                   } catch (error) {
                     toast({
                       title: "Error",
@@ -263,10 +264,10 @@ const CustomerForm = ({ customer, onCustomerSaved }: CustomerFormProps) => {
       }
 
       if (isEditing) {
-        // Note: We need to add update method to customersApi
+        await customersApi.update(customer.id, customerData)
         toast({
-          title: "Info",
-          description: "Update functionality will be implemented soon"
+          title: "Success",
+          description: "Customer updated successfully"
         })
       } else {
         await customersApi.create(customerData)
