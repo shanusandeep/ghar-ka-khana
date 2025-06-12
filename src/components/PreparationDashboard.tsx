@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,7 +30,7 @@ const PreparationDashboard = () => {
     setLoading(true)
     try {
       const data = await ordersApi.getPreparationSummary(selectedDate)
-      setPreparationSummary(data)
+      setPreparationSummary(data as PreparationSummaryItem[])
     } catch (error) {
       console.error('Error loading preparation summary:', error)
       toast({
