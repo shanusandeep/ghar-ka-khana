@@ -166,37 +166,34 @@ const PreparationDashboard = () => {
               </CardContent>
             </Card>
           ) : (
-            Object.entries(groupedItems).map(([itemName, variations]) => (
-              <Card key={itemName}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{itemName}</CardTitle>
-                  <CardDescription>
-                    Total variations: {variations.length}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {variations.map((variation, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <Badge className={getSizeBadgeColor(variation.size_type)}>
-                            {getSizeDisplayName(variation.size_type)}
-                          </Badge>
-                        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {preparationSummary.map((item, index) => (
+                <Card key={index} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold truncate" title={item.item_name}>
+                      {item.item_name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Badge className={getSizeBadgeColor(item.size_type)}>
+                          {getSizeDisplayName(item.size_type)}
+                        </Badge>
                         <div className="text-right">
-                          <div className="text-xl sm:text-2xl font-bold text-gray-900">
-                            {variation.total_quantity}
+                          <div className="text-2xl font-bold text-gray-900">
+                            {item.total_quantity}
                           </div>
-                          <div className="text-xs sm:text-sm text-gray-500">
-                            {variation.size_type === 'plate' ? 'plates' : 'trays'}
+                          <div className="text-xs text-gray-500">
+                            {item.size_type === 'plate' ? 'plates' : 'trays'}
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       )}

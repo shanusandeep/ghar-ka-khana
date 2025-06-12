@@ -6,9 +6,10 @@ interface OrderSummaryProps {
   orderItems: any[]
   onSubmit: () => void
   onClose: () => void
+  isEditing?: boolean
 }
 
-const OrderSummary = ({ loading, orderItems, onSubmit, onClose }: OrderSummaryProps) => {
+const OrderSummary = ({ loading, orderItems, onSubmit, onClose, isEditing = false }: OrderSummaryProps) => {
   return (
     <div className="flex space-x-4">
       <Button 
@@ -16,7 +17,7 @@ const OrderSummary = ({ loading, orderItems, onSubmit, onClose }: OrderSummaryPr
         disabled={loading || orderItems.length === 0}
         onClick={onSubmit}
       >
-        {loading ? 'Creating...' : 'Create Order'}
+        {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Order' : 'Create Order')}
       </Button>
       <Button type="button" variant="outline" onClick={onClose}>
         Cancel

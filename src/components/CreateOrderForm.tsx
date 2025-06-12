@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ordersApi, menuItemsApi, customersApi } from '@/services/api'
-import { MenuItem, Customer, Order } from '@/config/supabase'
+import { MenuItem, Customer, Order, OrderItem as DBOrderItem } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import CustomerInfoForm from './forms/CustomerInfoForm'
 import DeliveryInfoForm from './forms/DeliveryInfoForm'
@@ -18,10 +18,15 @@ interface OrderItem {
   special_instructions?: string
 }
 
+// Extended Order type that includes order_items
+interface OrderWithItems extends Order {
+  order_items?: DBOrderItem[]
+}
+
 interface CreateOrderFormProps {
   onOrderCreated: () => void
   onClose: () => void
-  existingOrder?: Order
+  existingOrder?: OrderWithItems
 }
 
 const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrderFormProps) => {
@@ -29,7 +34,6 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   const [customerPhone, setCustomerPhone] = useState('')
   const [deliveryDate, setDeliveryDate] = useState('')
   const [deliveryTime, setDeliveryTime] = useState('')
-  const [deliveryAddress, setDeliveryAddress] = useState('')
   const [specialInstructions, setSpecialInstructions] = useState('')
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
@@ -48,12 +52,26 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
       setCustomerPhone(existingOrder.customer_phone)
       setDeliveryDate(existingOrder.delivery_date)
       setDeliveryTime(existingOrder.delivery_time || '')
-      setDeliveryAddress(existingOrder.delivery_address || '')
       setSpecialInstructions(existingOrder.special_instructions || '')
       
-      // TODO: Load order items if needed
-      // You might need to fetch order items from the order_items table
-      // and convert them to the OrderItem format used by this form
+      // Load existing customer if customer_id exists
+      if (existingOrder.customer_id) {
+        loadExistingCustomer(existingOrder.customer_id)
+      }
+      
+      // Load order items if they exist
+      if (existingOrder.order_items) {
+        const formattedOrderItems = existingOrder.order_items.map(item => ({
+          menu_item_id: item.menu_item_id || '',
+          item_name: item.item_name,
+          size_type: item.size_type,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.total_price,
+          special_instructions: item.special_instructions
+        }))
+        setOrderItems(formattedOrderItems)
+      }
     }
   }, [existingOrder])
 
@@ -63,6 +81,18 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
       setMenuItems(data)
     } catch (error) {
       console.error('Error loading menu items:', error)
+    }
+  }
+
+  const loadExistingCustomer = async (customerId: string) => {
+    try {
+      const customers = await customersApi.getAll()
+      const customer = customers.find(c => c.id === customerId)
+      if (customer) {
+        setExistingCustomer(customer)
+      }
+    } catch (error) {
+      console.error('Error loading existing customer:', error)
     }
   }
 
@@ -89,7 +119,6 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           customer_phone: customerPhone,
           delivery_date: deliveryDate,
           delivery_time: deliveryTime || undefined,
-          delivery_address: deliveryAddress || undefined,
           special_instructions: specialInstructions || undefined,
           total_amount: getTotalAmount()
         }
@@ -106,8 +135,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
         if (!existingCustomer) {
           const newCustomer = await customersApi.create({
             name: customerName,
-            phone: customerPhone,
-            address: deliveryAddress || undefined
+            phone: customerPhone
           })
           customerId = newCustomer.id
         }
@@ -118,7 +146,6 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           customer_phone: customerPhone,
           delivery_date: deliveryDate,
           delivery_time: deliveryTime || undefined,
-          delivery_address: deliveryAddress || undefined,
           special_instructions: specialInstructions || undefined,
           total_amount: getTotalAmount(),
           status: 'pending' as const
@@ -148,33 +175,33 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
 
   return (
     <div className="space-y-6">
-      <CustomerInfoForm
-        customerName={customerName}
-        setCustomerName={setCustomerName}
-        customerPhone={customerPhone}
-        setCustomerPhone={setCustomerPhone}
-        deliveryAddress={deliveryAddress}
-        setDeliveryAddress={setDeliveryAddress}
-        existingCustomer={existingCustomer}
-        setExistingCustomer={setExistingCustomer}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CustomerInfoForm
+          customerName={customerName}
+          setCustomerName={setCustomerName}
+          customerPhone={customerPhone}
+          setCustomerPhone={setCustomerPhone}
+          existingCustomer={existingCustomer}
+          setExistingCustomer={setExistingCustomer}
+        />
 
-      <DeliveryInfoForm
-        deliveryDate={deliveryDate}
-        setDeliveryDate={setDeliveryDate}
-        deliveryTime={deliveryTime}
-        setDeliveryTime={setDeliveryTime}
-        specialInstructions={specialInstructions}
-        setSpecialInstructions={setSpecialInstructions}
-      />
+        <DeliveryInfoForm
+          deliveryDate={deliveryDate}
+          setDeliveryDate={setDeliveryDate}
+          deliveryTime={deliveryTime}
+          setDeliveryTime={setDeliveryTime}
+          specialInstructions={specialInstructions}
+          setSpecialInstructions={setSpecialInstructions}
+        />
+      </div>
 
-      <MenuItemSelector
-        menuItems={menuItems}
+      <OrderItemsList
         orderItems={orderItems}
         setOrderItems={setOrderItems}
       />
 
-      <OrderItemsList
+      <MenuItemSelector
+        menuItems={menuItems}
         orderItems={orderItems}
         setOrderItems={setOrderItems}
       />
@@ -184,6 +211,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
         orderItems={orderItems}
         onSubmit={handleSubmit}
         onClose={onClose}
+        isEditing={!!existingOrder}
       />
     </div>
   )
