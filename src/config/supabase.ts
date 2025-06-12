@@ -1,0 +1,87 @@
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Database types
+export interface Profile {
+  id: string
+  email: string
+  full_name?: string
+  role: 'admin' | 'staff'
+  created_at: string
+  updated_at: string
+}
+
+export interface MenuCategory {
+  id: string
+  name: string
+  description?: string
+  display_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface MenuItem {
+  id: string
+  category_id: string
+  name: string
+  description?: string
+  price_per_plate?: number
+  price_half_tray?: number
+  price_full_tray?: number
+  ingredients?: string[]
+  image_url?: string
+  is_available: boolean
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface Customer {
+  id: string
+  name: string
+  phone: string
+  email?: string
+  address?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Order {
+  id: string
+  order_number: string
+  customer_id?: string
+  customer_name: string
+  customer_phone: string
+  delivery_date: string
+  delivery_time?: string
+  delivery_address?: string
+  status: 'pending' | 'confirmed' | 'preparing' | 'delivered' | 'cancelled'
+  special_instructions?: string
+  total_amount?: number
+  created_by?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface OrderItem {
+  id: string
+  order_id: string
+  menu_item_id?: string
+  item_name: string
+  size_type: 'plate' | 'half_tray' | 'full_tray'
+  quantity: number
+  unit_price: number
+  total_price: number
+  special_instructions?: string
+  created_at: string
+}
