@@ -151,6 +151,31 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
         }
 
         await ordersApi.update(existingOrder.id, updatedOrder)
+
+        // Handle adding new items and updating existing ones
+        for (const newItem of orderItems) {
+          const existingItem = existingOrder.order_items?.find(origItem =>
+            origItem.menu_item_id === newItem.menu_item_id && origItem.size_type === newItem.size_type
+          )
+
+          if (existingItem) {
+            // Update existing item if quantity or price changed
+            if (existingItem.quantity !== newItem.quantity || 
+                existingItem.unit_price !== newItem.unit_price ||
+                existingItem.total_price !== newItem.total_price ||
+                existingItem.special_instructions !== newItem.special_instructions) {
+              await ordersApi.updateOrderItem(existingItem.id, {
+                quantity: newItem.quantity,
+                unit_price: newItem.unit_price,
+                total_price: newItem.total_price,
+                special_instructions: newItem.special_instructions
+              })
+            }
+          } else {
+            // Add new item
+            await ordersApi.addOrderItem(existingOrder.id, newItem)
+          }
+        }
         
         toast({
           title: "Success",

@@ -239,6 +239,32 @@ export const ordersApi = {
       .delete()
       .eq('id', id)
     if (error) throw error
+  },
+
+  updateOrderItem: async (id: string, updates: Partial<OrderItem>) => {
+    const { data, error } = await supabase
+      .from('order_items')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as OrderItem
+  },
+
+  addOrderItem: async (orderId: string, orderItem: Omit<OrderItem, 'id' | 'order_id' | 'created_at'>) => {
+    const { data, error } = await supabase
+      .from('order_items')
+      .insert({
+        ...orderItem,
+        order_id: orderId
+      })
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as OrderItem
   }
 }
 
