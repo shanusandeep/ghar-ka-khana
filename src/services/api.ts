@@ -135,6 +135,20 @@ export const ordersApi = {
     return data
   },
 
+  getByCustomerId: async (customerId: string) => {
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        order_items (*)
+      `)
+      .eq('customer_id', customerId)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
   create: async (order: Omit<Order, 'id' | 'order_number' | 'created_at' | 'updated_at'>, orderItems: Omit<OrderItem, 'id' | 'order_id' | 'created_at'>[]) => {
     const { data: orderData, error: orderError } = await supabase
       .from('orders')

@@ -41,9 +41,8 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
-      month: 'numeric', 
-      day: 'numeric',
-      timeZone: 'UTC'
+      month: 'short', 
+      day: 'numeric'
     })
   }
 
@@ -216,9 +215,8 @@ const OrderManagement = () => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
-      month: 'numeric', 
-      day: 'numeric',
-      timeZone: 'UTC'
+      month: 'short', 
+      day: 'numeric'
     })
   }
 
