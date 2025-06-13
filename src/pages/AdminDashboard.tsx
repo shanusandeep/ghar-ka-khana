@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogOut, Plus, Package, ClipboardList, Users, BarChart3, Home } from 'lucide-react'
+import { LogOut, Plus, Package, ClipboardList, Users, BarChart3, Home, DollarSign } from 'lucide-react'
 import OrderManagement from '@/components/OrderManagement'
 import MenuManagement from '@/components/MenuManagement'
 import PreparationDashboard from '@/components/PreparationDashboard'
 import CustomerManagement from '@/components/CustomerManagement'
+import FinancialDashboard from '@/components/FinancialDashboard'
 
 const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth()
@@ -70,7 +71,7 @@ const AdminDashboard = () => {
       <main className="container mx-auto px-4 py-6 lg:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {/* Desktop Tab Navigation - Hidden on mobile */}
-          <TabsList className="hidden md:grid w-full grid-cols-4 h-auto p-1">
+          <TabsList className="hidden md:grid w-full grid-cols-5 h-auto p-1">
             <TabsTrigger value="orders" className="flex items-center justify-center gap-2 p-3">
               <ClipboardList className="w-4 h-4" />
               <span>Orders</span>
@@ -86,6 +87,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="customers" className="flex items-center justify-center gap-2 p-3">
               <Users className="w-4 h-4" />
               <span>Customers</span>
+            </TabsTrigger>
+            <TabsTrigger value="financial" className="flex items-center justify-center gap-2 p-3">
+              <DollarSign className="w-4 h-4" />
+              <span>Financial</span>
             </TabsTrigger>
           </TabsList>
 
@@ -104,12 +109,16 @@ const AdminDashboard = () => {
           <TabsContent value="customers" className="space-y-6">
             <CustomerManagement />
           </TabsContent>
+
+          <TabsContent value="financial" className="space-y-6">
+            <FinancialDashboard />
+          </TabsContent>
         </Tabs>
       </main>
 
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-50">
-        <div className="grid grid-cols-4 h-16">
+        <div className="grid grid-cols-5 h-16">
           <button
             onClick={() => setActiveTab('orders')}
             className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
@@ -156,6 +165,18 @@ const AdminDashboard = () => {
           >
             <Users className="w-5 h-5" />
             <span className="text-xs font-medium">Customers</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('financial')}
+            className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
+              activeTab === 'financial' 
+                ? 'text-orange-600 bg-orange-50' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <DollarSign className="w-5 h-5" />
+            <span className="text-xs font-medium">Finance</span>
           </button>
         </div>
       </div>

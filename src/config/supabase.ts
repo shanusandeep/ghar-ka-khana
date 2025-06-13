@@ -61,7 +61,7 @@ export interface Order {
   delivery_date: string
   delivery_time?: string
   delivery_address?: string
-  status: 'pending' | 'confirmed' | 'preparing' | 'delivered' | 'cancelled'
+  status: 'received' | 'delivered' | 'paid'
   special_instructions?: string
   total_amount?: number
   created_by?: string

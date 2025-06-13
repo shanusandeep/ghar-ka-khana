@@ -13,9 +13,13 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+        let toastVariant: 'default' | 'destructive' | 'success' | 'warning' = 'success';
+        if (variant === 'destructive') toastVariant = 'warning';
+        else if (variant === 'success') toastVariant = 'success';
+        else if (variant === 'warning') toastVariant = 'warning';
         return (
-          <Toast key={id} {...props}>
+          <Toast key={id} variant={toastVariant} {...props}>
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
@@ -27,7 +31,7 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport className="fixed top-4 right-4 left-auto bottom-auto" />
     </ToastProvider>
   )
 }

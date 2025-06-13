@@ -46,6 +46,14 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   }, [])
 
   useEffect(() => {
+    // Set default delivery date to today for new orders
+    if (!existingOrder && !deliveryDate) {
+      const today = new Date().toISOString().split('T')[0]
+      setDeliveryDate(today)
+    }
+  }, [existingOrder, deliveryDate])
+
+  useEffect(() => {
     // Populate form when editing existing order
     if (existingOrder) {
       setCustomerName(existingOrder.customer_name)
@@ -123,6 +131,21 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           total_amount: getTotalAmount()
         }
 
+        // Find and delete removed items
+        if (existingOrder.order_items) {
+          const removedItems = existingOrder.order_items.filter(origItem => {
+            // Try to match by menu_item_id and size_type (or use id if available)
+            return !orderItems.some(newItem =>
+              (origItem.menu_item_id === newItem.menu_item_id && origItem.size_type === newItem.size_type)
+            )
+          })
+          for (const item of removedItems) {
+            if (item.id) {
+              await ordersApi.deleteOrderItem(item.id)
+            }
+          }
+        }
+
         await ordersApi.update(existingOrder.id, updatedOrder)
         
         toast({
@@ -148,7 +171,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           delivery_time: deliveryTime || undefined,
           special_instructions: specialInstructions || undefined,
           total_amount: getTotalAmount(),
-          status: 'pending' as const
+          status: 'received' as const
         }
 
         await ordersApi.create(order, orderItems)

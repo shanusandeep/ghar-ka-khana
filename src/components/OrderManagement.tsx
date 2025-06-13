@@ -6,11 +6,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
-import { Plus, Phone, Calendar, MapPin, Clock, Edit, Trash2, Eye, Package } from 'lucide-react'
+import { Plus, Phone, MapPin, Clock, Edit, Trash2, Eye, Package } from 'lucide-react'
+import { Calendar as CalendarIcon } from 'lucide-react'
 import { ordersApi } from '@/services/api'
 import { Order, OrderItem } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import CreateOrderForm from './CreateOrderForm'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import { Filter as FilterIcon } from 'lucide-react'
+import { format, parseISO, isSameDay } from 'date-fns'
+import { Calendar } from '@/components/ui/calendar'
 
 // Extended Order type that includes order_items from the API response
 interface OrderWithItems extends Order {
@@ -24,11 +29,9 @@ interface OrderDetailsViewProps {
 const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'confirmed': return 'bg-blue-100 text-blue-800'
-      case 'preparing': return 'bg-orange-100 text-orange-800'
-      case 'delivered': return 'bg-green-100 text-green-800'
-      case 'cancelled': return 'bg-red-100 text-red-800'
+      case 'received': return 'bg-yellow-100 text-yellow-800'
+      case 'delivered': return 'bg-blue-100 text-blue-800'
+      case 'paid': return 'bg-green-100 text-green-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -83,11 +86,11 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
             </div>
             <div className="text-sm text-gray-600 text-left sm:text-right space-y-1">
               <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
+                <CalendarIcon className="w-4 h-4" />
                 <span>Created {formatDate(order.created_at)}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
+                <CalendarIcon className="w-4 h-4" />
                 <span>Delivery {formatDate(order.delivery_date)}</span>
                 {order.delivery_time && (
                   <>
@@ -175,6 +178,9 @@ const OrderManagement = () => {
   const [deletingOrder, setDeletingOrder] = useState<OrderWithItems | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const { toast } = useToast()
+  const [filterPopoverOpen, setFilterPopoverOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [dateFilter, setDateFilter] = useState<Date | null>(new Date())
 
   useEffect(() => {
     loadOrders()
@@ -198,11 +204,9 @@ const OrderManagement = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'confirmed': return 'bg-blue-100 text-blue-800'
-      case 'preparing': return 'bg-orange-100 text-orange-800'
-      case 'delivered': return 'bg-green-100 text-green-800'
-      case 'cancelled': return 'bg-red-100 text-red-800'
+      case 'received': return 'bg-yellow-100 text-yellow-800'
+      case 'delivered': return 'bg-blue-100 text-blue-800'
+      case 'paid': return 'bg-green-100 text-green-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -260,6 +264,17 @@ const OrderManagement = () => {
     }
   }
 
+  // Filtered orders
+  const filteredOrders = orders.filter(order => {
+    let statusMatch = statusFilter === 'all' || order.status === statusFilter
+    let dateMatch = true
+    if (dateFilter) {
+      const orderDate = parseISO(order.delivery_date)
+      dateMatch = isSameDay(orderDate, dateFilter)
+    }
+    return statusMatch && dateMatch
+  })
+
   if (loading) {
     return (
       <Card>
@@ -272,35 +287,57 @@ const OrderManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold">Order Management</h2>
-          <p className="text-gray-600 text-sm sm:text-base">Manage and track all customer orders</p>
+      <div className="flex justify-between items-center mb-4">
+        <div></div>
+        <div className="flex items-center gap-2">
+          <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button size="icon" variant="outline">
+                <FilterIcon className="w-5 h-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1">Status</label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="received">Received</SelectItem>
+                      <SelectItem value="delivered">Delivered</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">Date</label>
+                  <Calendar
+                    mode="single"
+                    selected={dateFilter}
+                    onSelect={setDateFilter}
+                    className="rounded-md border"
+                  />
+                  {dateFilter && (
+                    <Button size="sm" variant="ghost" className="mt-2" onClick={() => setDateFilter(null)}>
+                      Clear Date
+                    </Button>
+                  )}
+                </div>
+                <Button size="sm" variant="outline" className="w-full" onClick={() => { setStatusFilter('all'); setDateFilter(null); }}>Clear Filters</Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <Button onClick={() => setIsNewOrderOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" /> New Order
+          </Button>
         </div>
-        <Sheet open={isNewOrderOpen} onOpenChange={setIsNewOrderOpen}>
-          <SheetTrigger asChild>
-            <Button className="flex items-center space-x-2 w-full sm:w-auto">
-              <Plus className="w-4 h-4" />
-              <span>New Order</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>Create New Order</SheetTitle>
-              <SheetDescription>Add a new order from WhatsApp or phone call</SheetDescription>
-            </SheetHeader>
-            <div className="mt-6">
-              <CreateOrderForm 
-                onOrderCreated={loadOrders} 
-                onClose={() => setIsNewOrderOpen(false)} 
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {orders.length === 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {filteredOrders.length === 0 ? (
           <div className="col-span-full">
             <Card>
               <CardContent className="p-6">
@@ -311,7 +348,7 @@ const OrderManagement = () => {
             </Card>
           </div>
         ) : (
-          orders.map((order) => (
+          filteredOrders.map((order) => (
             <Card 
               key={order.id} 
               className="hover:shadow-lg transition-shadow cursor-pointer group hover:scale-[1.02] duration-200"
@@ -348,7 +385,7 @@ const OrderManagement = () => {
               <CardContent className="pt-0">
                 <div className="space-y-2 text-xs">
                   <div className="flex items-center space-x-1 text-gray-600">
-                    <Calendar className="w-3 h-3" />
+                    <CalendarIcon className="w-3 h-3" />
                     <span>{formatDate(order.delivery_date)}</span>
                     {order.delivery_time && (
                       <>
@@ -363,50 +400,87 @@ const OrderManagement = () => {
                       <span className="truncate text-xs">{order.delivery_address}</span>
                     </div>
                   )}
+                  
+                  {/* Order Items Preview */}
+                  {order.order_items && order.order_items.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {order.order_items.slice(0, 2).map((item, index) => (
+                        <div key={index} className="flex justify-between items-center text-xs bg-gray-50 p-1 rounded">
+                          <span className="truncate">{item.quantity}x {item.item_name}</span>
+                          <span className="text-gray-600">${item.total_price}</span>
+                        </div>
+                      ))}
+                      {order.order_items.length > 2 && (
+                        <div className="text-xs text-gray-500 text-center">
+                          +{order.order_items.length - 2} more items
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {order.total_amount && (
                     <div className="text-sm font-semibold text-green-600 mt-2">
                       ${order.total_amount}
                     </div>
                   )}
-                  <div className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Click to view details
-                  </div>
                 </div>
                 
-                <div className="flex flex-col gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
-                  <Select onValueChange={(value) => updateOrderStatus(order.id, value)}>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue placeholder="Update Status" />
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                  <Select 
+                    onValueChange={(value) => updateOrderStatus(order.id, value)}
+                    defaultValue={order.status}
+                  >
+                    <SelectTrigger className="h-8 text-xs flex-1">
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="confirmed">Confirmed</SelectItem>
-                      <SelectItem value="preparing">Preparing</SelectItem>
+                      <SelectItem value="received">Received</SelectItem>
                       <SelectItem value="delivered">Delivered</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
                     </SelectContent>
                   </Select>
-                  <div className="flex gap-1">
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditingOrder(order); }} className="flex-1 text-xs h-8">
-                      <Edit className="w-3 h-3 mr-1" />
-                      Edit
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={(e) => { e.stopPropagation(); setDeletingOrder(order); }}
-                      className="flex-1 text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-3 h-3 mr-1" />
-                      Delete
-                    </Button>
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={(e) => { e.stopPropagation(); setEditingOrder(order); }} 
+                    className="text-xs h-8 flex-1"
+                  >
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={(e) => { e.stopPropagation(); setDeletingOrder(order); }}
+                    className="text-xs h-8 flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           ))
         )}
       </div>
+
+      {/* New Order Sheet */}
+      <Sheet open={isNewOrderOpen} onOpenChange={setIsNewOrderOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>New Order</SheetTitle>
+            <SheetDescription>Create a new customer order</SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <CreateOrderForm
+              onOrderCreated={() => {
+                loadOrders();
+                setIsNewOrderOpen(false);
+              }}
+              onClose={() => setIsNewOrderOpen(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Edit Order Sheet */}
       <Sheet open={editingOrder !== null} onOpenChange={(open) => !open && setEditingOrder(null)}>

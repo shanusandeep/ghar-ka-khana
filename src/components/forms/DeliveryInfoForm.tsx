@@ -3,6 +3,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar as CalendarComponent } from '@/components/ui/calendar'
+import { Calendar } from 'lucide-react'
+import { format } from 'date-fns'
 
 interface DeliveryInfoFormProps {
   deliveryDate: string
@@ -39,13 +43,34 @@ const DeliveryInfoForm = ({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="delivery-date">Delivery Date *</Label>
-            <Input
-              id="delivery-date"
-              type="date"
-              value={deliveryDate}
-              onChange={(e) => setDeliveryDate(e.target.value)}
-              required
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="relative">
+                  <Input
+                    id="delivery-date"
+                    type="text"
+                    value={deliveryDate ? format(new Date(deliveryDate), 'PPP') : ''}
+                    placeholder="Select delivery date"
+                    readOnly
+                    required
+                    className="pl-10 cursor-pointer"
+                  />
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 cursor-pointer" />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={deliveryDate ? new Date(deliveryDate) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      setDeliveryDate(format(date, 'yyyy-MM-dd'))
+                    }
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <Label htmlFor="delivery-time">Delivery Time</Label>

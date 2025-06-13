@@ -198,7 +198,7 @@ export const ordersApi = {
         orders!inner (delivery_date, status)
       `)
       .eq('orders.delivery_date', date)
-      .in('orders.status', ['confirmed', 'preparing'])
+      .in('orders.status', ['received'])
     
     if (error) throw error
     
@@ -217,6 +217,14 @@ export const ordersApi = {
     }, {})
     
     return Object.values(summary)
+  },
+
+  deleteOrderItem: async (id: string) => {
+    const { error } = await supabase
+      .from('order_items')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
   }
 }
 
