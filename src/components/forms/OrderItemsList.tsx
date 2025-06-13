@@ -86,8 +86,8 @@ const OrderItemsList = ({ orderItems, setOrderItems }: OrderItemsListProps) => {
           </div>
         ))}
         <div className="border-t pt-4">
-          <div className="flex justify-between items-center text-lg font-semibold">
-            <span>Total Amount:</span>
+          <div className="flex justify-between items-center text-base font-medium">
+            <span>Subtotal:</span>
             <span>${getTotalAmount().toFixed(2)}</span>
           </div>
         </div>

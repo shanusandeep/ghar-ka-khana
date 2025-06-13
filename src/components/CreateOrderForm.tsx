@@ -6,6 +6,7 @@ import CustomerInfoForm from './forms/CustomerInfoForm'
 import DeliveryInfoForm from './forms/DeliveryInfoForm'
 import MenuItemSelector from './forms/MenuItemSelector'
 import OrderItemsList from './forms/OrderItemsList'
+import DiscountForm from './forms/DiscountForm'
 import OrderSummary from './forms/OrderSummary'
 
 interface OrderItem {
@@ -38,6 +39,8 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [existingCustomer, setExistingCustomer] = useState<Customer | null>(null)
+  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
+  const [discountValue, setDiscountValue] = useState<number>(0)
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
@@ -65,6 +68,8 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
       setDeliveryDate(existingOrder.delivery_date)
       setDeliveryTime(existingOrder.delivery_time || '')
       setSpecialInstructions(existingOrder.special_instructions || '')
+      setDiscountType(existingOrder.discount_type || 'percentage')
+      setDiscountValue(existingOrder.discount_value || 0)
       
       // Load existing customer if customer_id exists
       if (existingOrder.customer_id) {
@@ -108,8 +113,23 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
     }
   }
 
-  const getTotalAmount = () => {
+  const getSubtotalAmount = () => {
     return orderItems.reduce((sum, item) => sum + item.total_price, 0)
+  }
+
+  const getDiscountAmount = () => {
+    const subtotal = getSubtotalAmount()
+    if (discountValue <= 0) return 0
+    
+    if (discountType === 'percentage') {
+      return (subtotal * discountValue) / 100
+    } else {
+      return Math.min(discountValue, subtotal) // Don't allow discount to exceed subtotal
+    }
+  }
+
+  const getTotalAmount = () => {
+    return getSubtotalAmount() - getDiscountAmount()
   }
 
   const handleSubmit = async () => {
@@ -132,6 +152,10 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           delivery_date: deliveryDate,
           delivery_time: deliveryTime || undefined,
           special_instructions: specialInstructions || undefined,
+          subtotal_amount: getSubtotalAmount(),
+          discount_type: discountValue > 0 ? discountType : undefined,
+          discount_value: discountValue > 0 ? discountValue : undefined,
+          discount_amount: getDiscountAmount(),
           total_amount: getTotalAmount()
         }
 
@@ -199,6 +223,10 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           delivery_date: deliveryDate,
           delivery_time: deliveryTime || undefined,
           special_instructions: specialInstructions || undefined,
+          subtotal_amount: getSubtotalAmount(),
+          discount_type: discountValue > 0 ? discountType : undefined,
+          discount_value: discountValue > 0 ? discountValue : undefined,
+          discount_amount: getDiscountAmount(),
           total_amount: getTotalAmount(),
           status: 'received' as const
         }
@@ -256,6 +284,16 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
         menuItems={menuItems}
         orderItems={orderItems}
         setOrderItems={setOrderItems}
+      />
+
+      <DiscountForm
+        discountType={discountType}
+        setDiscountType={setDiscountType}
+        discountValue={discountValue}
+        setDiscountValue={setDiscountValue}
+        subtotalAmount={getSubtotalAmount()}
+        discountAmount={getDiscountAmount()}
+        totalAmount={getTotalAmount()}
       />
 
       <OrderSummary

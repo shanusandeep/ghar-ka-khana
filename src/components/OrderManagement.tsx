@@ -38,12 +38,24 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
 
   const formatDate = (dateString: string) => {
     // Handle both timestamp and date-only strings consistently
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
-    })
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      // This is a timestamp (created_at), use normal date parsing
+      const date = new Date(dateString)
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+      })
+    } else {
+      // This is a date-only string (delivery_date), parse without timezone conversion
+      const [year, month, day] = dateString.split('-')
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+      })
+    }
   }
 
   return (
@@ -156,11 +168,29 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
       {/* Order Total */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex justify-between items-center">
-            <span className="text-base font-semibold">Total Amount</span>
-            <span className="text-xl font-bold text-green-600">
-              ${order.total_amount || 0}
-            </span>
+          <div className="space-y-2">
+            {order.subtotal_amount && (
+              <div className="flex justify-between items-center text-sm">
+                <span>Subtotal:</span>
+                <span>${order.subtotal_amount.toFixed(2)}</span>
+              </div>
+            )}
+            
+            {order.discount_amount && order.discount_amount > 0 && (
+              <div className="flex justify-between items-center text-sm text-red-600">
+                <span>
+                  Discount ({order.discount_type === 'percentage' ? `${order.discount_value}%` : `$${order.discount_value}`}):
+                </span>
+                <span>-${order.discount_amount.toFixed(2)}</span>
+              </div>
+            )}
+            
+            <div className="flex justify-between items-center border-t pt-2">
+              <span className="text-base font-semibold">Total Amount</span>
+              <span className="text-xl font-bold text-green-600">
+                ${order.total_amount || 0}
+              </span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -212,12 +242,24 @@ const OrderManagement = () => {
 
   const formatDate = (dateString: string) => {
     // Handle both timestamp and date-only strings consistently
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
-    })
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      // This is a timestamp (created_at), use normal date parsing
+      const date = new Date(dateString)
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+      })
+    } else {
+      // This is a date-only string (delivery_date), parse without timezone conversion
+      const [year, month, day] = dateString.split('-')
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+      })
+    }
   }
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
@@ -267,11 +309,10 @@ const OrderManagement = () => {
     let statusMatch = statusFilter === 'all' || order.status === statusFilter
     let dateMatch = true
     if (dateFilter) {
-      // Parse the order delivery date and compare just the date part
-      const orderDate = new Date(order.delivery_date + 'T00:00:00')
-      const filterDate = new Date(dateFilter.getFullYear(), dateFilter.getMonth(), dateFilter.getDate())
-      const orderDateOnly = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate())
-      dateMatch = orderDateOnly.getTime() === filterDate.getTime()
+      // Compare just the date strings directly to avoid timezone issues
+      const orderDateStr = order.delivery_date // This is already in YYYY-MM-DD format
+      const filterDateStr = format(dateFilter, 'yyyy-MM-dd')
+      dateMatch = orderDateStr === filterDateStr
     }
     return statusMatch && dateMatch
   })

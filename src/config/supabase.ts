@@ -63,6 +63,10 @@ export interface Order {
   delivery_address?: string
   status: 'received' | 'delivered' | 'paid'
   special_instructions?: string
+  subtotal_amount?: number
+  discount_type?: 'percentage' | 'fixed'
+  discount_value?: number
+  discount_amount?: number
   total_amount?: number
   created_by?: string
   created_at: string

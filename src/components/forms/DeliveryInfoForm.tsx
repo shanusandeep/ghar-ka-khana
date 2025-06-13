@@ -49,7 +49,7 @@ const DeliveryInfoForm = ({
                   <Input
                     id="delivery-date"
                     type="text"
-                    value={deliveryDate ? format(new Date(deliveryDate), 'PPP') : ''}
+                    value={deliveryDate ? format(new Date(deliveryDate + 'T00:00:00'), 'PPP') : ''}
                     placeholder="Select delivery date"
                     readOnly
                     required
@@ -61,7 +61,7 @@ const DeliveryInfoForm = ({
               <PopoverContent className="w-auto p-0" align="start">
                 <CalendarComponent
                   mode="single"
-                  selected={deliveryDate ? new Date(deliveryDate) : undefined}
+                  selected={deliveryDate ? new Date(deliveryDate + 'T00:00:00') : undefined}
                   onSelect={(date) => {
                     if (date) {
                       setDeliveryDate(format(date, 'yyyy-MM-dd'))

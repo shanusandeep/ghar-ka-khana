@@ -139,12 +139,25 @@ const CustomerManagement = () => {
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
-    })
+    // Handle both timestamp and date-only strings consistently
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      // This is a timestamp (created_at), use normal date parsing
+      const date = new Date(dateString)
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+      })
+    } else {
+      // This is a date-only string (delivery_date), parse without timezone conversion
+      const [year, month, day] = dateString.split('-')
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+      })
+    }
   }
 
   if (loading) {
@@ -266,11 +279,29 @@ const CustomerManagement = () => {
           {/* Order Total */}
           <Card>
             <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <span className="text-base font-semibold">Total Amount</span>
-                <span className="text-xl font-bold text-green-600">
-                  ${selectedOrder.total_amount || 0}
-                </span>
+              <div className="space-y-2">
+                {selectedOrder.subtotal_amount && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Subtotal:</span>
+                    <span>${selectedOrder.subtotal_amount.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                {selectedOrder.discount_amount && selectedOrder.discount_amount > 0 && (
+                  <div className="flex justify-between items-center text-sm text-red-600">
+                    <span>
+                      Discount ({selectedOrder.discount_type === 'percentage' ? `${selectedOrder.discount_value}%` : `$${selectedOrder.discount_value}`}):
+                    </span>
+                    <span>-${selectedOrder.discount_amount.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center border-t pt-2">
+                  <span className="text-base font-semibold">Total Amount</span>
+                  <span className="text-xl font-bold text-green-600">
+                    ${selectedOrder.total_amount || 0}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
