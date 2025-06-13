@@ -267,8 +267,11 @@ const OrderManagement = () => {
     let statusMatch = statusFilter === 'all' || order.status === statusFilter
     let dateMatch = true
     if (dateFilter) {
-      const orderDate = parseISO(order.delivery_date)
-      dateMatch = isSameDay(orderDate, dateFilter)
+      // Parse the order delivery date and compare just the date part
+      const orderDate = new Date(order.delivery_date + 'T00:00:00')
+      const filterDate = new Date(dateFilter.getFullYear(), dateFilter.getMonth(), dateFilter.getDate())
+      const orderDateOnly = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate())
+      dateMatch = orderDateOnly.getTime() === filterDate.getTime()
     }
     return statusMatch && dateMatch
   })

@@ -48,8 +48,12 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   useEffect(() => {
     // Set default delivery date to today for new orders
     if (!existingOrder && !deliveryDate) {
-      const today = new Date().toISOString().split('T')[0]
-      setDeliveryDate(today)
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const day = String(today.getDate()).padStart(2, '0')
+      const todayString = `${year}-${month}-${day}`
+      setDeliveryDate(todayString)
     }
   }, [existingOrder, deliveryDate])
 
