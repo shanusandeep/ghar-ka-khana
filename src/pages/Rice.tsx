@@ -17,21 +17,21 @@ const Rice = () => {
       name: "Fried Rice", 
       price: "$120 / $70", 
       note: "Full tray / Half tray",
-      image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
       ingredients: ["Basmati rice", "Mixed vegetables (carrots, beans, peas)", "Onions", "Garlic", "Ginger", "Soy sauce", "Vinegar", "Spring onions", "Oil", "Salt", "Black pepper"]
     },
     { 
       name: "Veg/Kathal Biryani", 
       price: "$120 / $70", 
       note: "Full tray / Half tray",
-      image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
       ingredients: ["Basmati rice", "Mixed vegetables/Jackfruit", "Onions", "Yogurt", "Garlic", "Ginger", "Biryani masala", "Saffron", "Mint leaves", "Coriander leaves", "Bay leaves", "Cardamom", "Cinnamon", "Cloves", "Ghee", "Oil", "Salt"]
     },
     { 
       name: "Chicken Biryani", 
       price: "$130 / $75", 
       note: "Full tray / Half tray",
-      image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      image: "https://images.unsplash.com/photo-1563379091339-03246963d24a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
       ingredients: ["Basmati rice", "Chicken", "Onions", "Yogurt", "Garlic", "Ginger", "Biryani masala", "Red chili powder", "Turmeric", "Saffron", "Mint leaves", "Coriander leaves", "Bay leaves", "Cardamom", "Cinnamon", "Cloves", "Ghee", "Oil", "Salt"]
     },
     { 
@@ -45,7 +45,7 @@ const Rice = () => {
       name: "Paneer Tawa Pulao", 
       price: "$130 / $75", 
       note: "Full tray / Half tray",
-      image: "https://images.unsplash.com/photo-1596797038530-2c107229654b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      image: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
       ingredients: ["Basmati rice", "Paneer", "Mixed vegetables", "Onions", "Tomatoes", "Bell peppers", "Garlic", "Ginger", "Pav bhaji masala", "Red chili powder", "Turmeric", "Cumin seeds", "Butter", "Oil", "Coriander leaves", "Salt"]
     },
     { 

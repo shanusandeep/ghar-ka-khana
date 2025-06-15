@@ -189,10 +189,14 @@ export type Database = {
           delivery_address: string | null
           delivery_date: string
           delivery_time: string | null
+          discount_amount: number | null
+          discount_type: string | null
+          discount_value: number | null
           id: string
           order_number: string
           special_instructions: string | null
           status: string | null
+          subtotal_amount: number | null
           total_amount: number | null
           updated_at: string | null
         }
@@ -205,10 +209,14 @@ export type Database = {
           delivery_address?: string | null
           delivery_date: string
           delivery_time?: string | null
+          discount_amount?: number | null
+          discount_type?: string | null
+          discount_value?: number | null
           id?: string
           order_number: string
           special_instructions?: string | null
           status?: string | null
+          subtotal_amount?: number | null
           total_amount?: number | null
           updated_at?: string | null
         }
@@ -221,10 +229,14 @@ export type Database = {
           delivery_address?: string | null
           delivery_date?: string
           delivery_time?: string | null
+          discount_amount?: number | null
+          discount_type?: string | null
+          discount_value?: number | null
           id?: string
           order_number?: string
           special_instructions?: string | null
           status?: string | null
+          subtotal_amount?: number | null
           total_amount?: number | null
           updated_at?: string | null
         }

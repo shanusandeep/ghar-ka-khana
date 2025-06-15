@@ -24,7 +24,7 @@ const Dessert = () => {
       name: "Gulab Jamun", 
       price: "$90 / $50", 
       note: "130 pieces / 60 pieces",
-      image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
       ingredients: ["Milk powder", "All-purpose flour", "Baking soda", "Ghee", "Milk", "Sugar", "Water", "Cardamom", "Rose water", "Oil for frying"]
     },
     { 
