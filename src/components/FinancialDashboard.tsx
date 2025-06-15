@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ordersApi, customersApi } from '@/services/api'
 import { Order, OrderItem, Customer } from '@/config/supabase'
 import { format, subDays, startOfDay, endOfDay, parseISO, subMonths, subQuarters, subYears } from 'date-fns'
-import { DollarSign, TrendingUp, Package, Calendar, Filter } from 'lucide-react'
+import { DollarSign, TrendingUp, Package, Calendar, Filter, Download, FileText, FileSpreadsheet } from 'lucide-react'
 import {
   LineChart,
   Line,
@@ -249,6 +249,116 @@ const FinancialDashboard = () => {
     return totalOrders > 0 ? getTotalRevenue() / totalOrders : 0
   }
 
+  // Export functions
+  const exportToCSV = () => {
+    const headers = ['Date', 'Revenue (₹)', 'Order Count', 'Average Order Value (₹)', '7-Day Moving Average (₹)']
+    const enhancedData = calculateMovingAverage(dailyStats)
+    
+    const csvContent = [
+      headers.join(','),
+      ...enhancedData.map(row => [
+        `"${row.date}"`,
+        row.total.toFixed(2),
+        row.orderCount,
+        row.averageOrderValue.toFixed(2),
+        row.movingAvg.toFixed(2)
+      ].join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `financial-report-${format(new Date(), 'yyyy-MM-dd')}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const exportToPDF = () => {
+    const enhancedData = calculateMovingAverage(dailyStats)
+    const timePeriodLabel = filterState.timePeriod === 'today' ? 'Today' : 
+                           filterState.timePeriod === '7d' ? 'Last 7 days' :
+                           filterState.timePeriod === '30d' ? 'Last 30 days' :
+                           filterState.timePeriod === 'quarter' ? 'Last quarter' : 'Last year'
+    
+    // Create HTML content for PDF
+    const htmlContent = `
+      <html>
+        <head>
+          <title>Financial Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .summary { display: flex; justify-content: space-around; margin-bottom: 30px; }
+            .summary-card { text-align: center; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+            .summary-card h3 { margin: 0; color: #666; font-size: 14px; }
+            .summary-card p { margin: 10px 0 0 0; font-size: 24px; font-weight: bold; }
+            table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+            th { background-color: #f5f5f5; font-weight: bold; }
+            .date-col { text-align: left; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Financial Dashboard Report</h1>
+            <p>Period: ${timePeriodLabel}</p>
+            <p>Generated on: ${format(new Date(), 'PPP')}</p>
+          </div>
+          
+          <div class="summary">
+            <div class="summary-card">
+              <h3>Total Revenue</h3>
+              <p>₹${getTotalRevenue().toFixed(2)}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Total Orders</h3>
+              <p>${getTotalOrders()}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Average Order Value</h3>
+              <p>₹${getAverageOrderValue().toFixed(2)}</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th class="date-col">Date</th>
+                <th>Revenue</th>
+                <th>Orders</th>
+                <th>Avg Order Value</th>
+                <th>7-Day Moving Avg</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${enhancedData.map(row => `
+                <tr>
+                  <td class="date-col">${row.date}</td>
+                  <td>₹${row.total.toFixed(2)}</td>
+                  <td>${row.orderCount}</td>
+                  <td>₹${row.averageOrderValue.toFixed(2)}</td>
+                  <td>₹${row.movingAvg.toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `
+
+    // Open print dialog for PDF
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+      printWindow.focus()
+      printWindow.print()
+    }
+  }
+
   // Calculate moving average and find min/max in render scope
   const enhancedStats = calculateMovingAverage(dailyStats)
   const maxRevenue = enhancedStats.length > 0 ? Math.max(...enhancedStats.map(d => d.total)) : 0
@@ -283,6 +393,36 @@ const FinancialDashboard = () => {
           <p className="text-gray-600">Track your daily earnings and order metrics</p>
         </div>
         <div className="flex items-center space-x-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                <Download className="w-4 h-4" />
+                <span>Export</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48">
+              <div className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={exportToCSV}
+                >
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Export as CSV
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={exportToPDF}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Export as PDF
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="flex items-center space-x-2">
