@@ -12,8 +12,7 @@ import PreparationDashboard from '@/components/PreparationDashboard'
 import CustomerManagement from '@/components/CustomerManagement'
 import FinancialDashboard from '@/components/FinancialDashboard'
 import ErrorBoundary from '@/components/ErrorBoundary'
-import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp'
-import { useKeyboardShortcuts, createShortcut } from '@/hooks/useKeyboardShortcuts'
+
 
 const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth()
@@ -23,27 +22,7 @@ const AdminDashboard = () => {
     await signOut()
   }
 
-  // Keyboard shortcuts
-  const shortcuts = useKeyboardShortcuts({
-    shortcuts: [
-      createShortcut('1', () => setActiveTab('orders'), 'Switch to Orders', { alt: true }),
-      createShortcut('2', () => setActiveTab('menu'), 'Switch to Menu', { alt: true }),
-      createShortcut('3', () => setActiveTab('preparation'), 'Switch to Preparation', { alt: true }),
-      createShortcut('4', () => setActiveTab('customers'), 'Switch to Customers', { alt: true }),
-      createShortcut('5', () => setActiveTab('financial'), 'Switch to Financial', { alt: true }),
-      createShortcut('n', () => {
-        if (activeTab === 'orders') {
-          // Trigger new order action
-          const newOrderButton = document.querySelector('[data-new-order]') as HTMLButtonElement
-          newOrderButton?.click()
-        }
-      }, 'New Order (when on Orders tab)', { ctrl: true }),
-      createShortcut('?', () => {
-        const shortcutsButton = document.querySelector('[data-shortcuts-help]') as HTMLButtonElement
-        shortcutsButton?.click()
-      }, 'Show this help'),
-    ]
-  })
+
 
   return (
     <ErrorBoundary>
@@ -68,9 +47,6 @@ const AdminDashboard = () => {
                   <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div data-shortcuts-help>
-                    <KeyboardShortcutsHelp shortcuts={shortcuts} />
-                  </div>
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -105,27 +81,22 @@ const AdminDashboard = () => {
               <TabsTrigger value="orders" className="flex items-center justify-center gap-2 p-3">
                 <ClipboardList className="w-4 h-4" />
                 <span>Orders</span>
-                <kbd className="ml-2 px-1 py-0.5 bg-gray-200 rounded text-xs">Alt+1</kbd>
               </TabsTrigger>
               <TabsTrigger value="menu" className="flex items-center justify-center gap-2 p-3">
                 <Package className="w-4 h-4" />
                 <span>Menu</span>
-                <kbd className="ml-2 px-1 py-0.5 bg-gray-200 rounded text-xs">Alt+2</kbd>
               </TabsTrigger>
               <TabsTrigger value="preparation" className="flex items-center justify-center gap-2 p-3">
                 <BarChart3 className="w-4 h-4" />
                 <span>Preparation</span>
-                <kbd className="ml-2 px-1 py-0.5 bg-gray-200 rounded text-xs">Alt+3</kbd>
               </TabsTrigger>
               <TabsTrigger value="customers" className="flex items-center justify-center gap-2 p-3">
                 <Users className="w-4 h-4" />
                 <span>Customers</span>
-                <kbd className="ml-2 px-1 py-0.5 bg-gray-200 rounded text-xs">Alt+4</kbd>
               </TabsTrigger>
               <TabsTrigger value="financial" className="flex items-center justify-center gap-2 p-3">
                 <DollarSign className="w-4 h-4" />
                 <span>Financial</span>
-                <kbd className="ml-2 px-1 py-0.5 bg-gray-200 rounded text-xs">Alt+5</kbd>
               </TabsTrigger>
             </TabsList>
 
