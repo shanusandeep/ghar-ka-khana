@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,6 +14,12 @@ interface PreparationItem {
   size_type: string
   total_quantity: number
   status?: 'pending' | 'in_progress' | 'completed'
+}
+
+interface ApiPreparationItem {
+  item_name: string
+  size_type: string
+  total_quantity: number
 }
 
 const PreparationDashboard = () => {
@@ -35,7 +40,7 @@ const PreparationDashboard = () => {
       console.log('Preparation summary data:', data)
       
       // Add default status to items with proper typing
-      const itemsWithStatus: PreparationItem[] = data.map(item => ({
+      const itemsWithStatus: PreparationItem[] = (data as ApiPreparationItem[]).map(item => ({
         item_name: item.item_name,
         size_type: item.size_type,
         total_quantity: item.total_quantity,

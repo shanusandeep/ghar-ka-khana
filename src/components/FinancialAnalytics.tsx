@@ -32,6 +32,12 @@ interface DayOfWeekStat {
   average: number
 }
 
+interface DayOfWeekAccumulator {
+  day: string
+  total: number
+  count: number
+}
+
 const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalyticsProps) => {
   // Calculate advanced metrics
   const totalRevenue = dailyStats.reduce((sum, day) => sum + (day.total || 0), 0)
@@ -53,7 +59,7 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
     .slice(0, 5)
 
   // Revenue by day of week
-  const dayOfWeekStats = dailyStats.reduce((acc: Record<string, { day: string; total: number; count: number }>, day) => {
+  const dayOfWeekStats = dailyStats.reduce((acc: Record<string, DayOfWeekAccumulator>, day) => {
     const date = new Date(day.date + ' 2024') // Adding year for parsing
     const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })
     if (!acc[dayName]) {
@@ -64,11 +70,11 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
     return acc
   }, {})
 
-  const dayOfWeekData: DayOfWeekStat[] = Object.values(dayOfWeekStats).map(d => ({
+  const dayOfWeekData: DayOfWeekStat[] = Object.values(dayOfWeekStats).map((d: DayOfWeekAccumulator) => ({
     day: d.day,
     total: d.total,
     count: d.count,
-    average: d.total / d.count
+    average: d.count > 0 ? d.total / d.count : 0
   }))
 
   // Order status distribution
@@ -81,7 +87,7 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
   const statusData = Object.entries(statusDistribution).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
     value: count,
-    percentage: ((count / orders.length) * 100).toFixed(1)
+    percentage: orders.length > 0 ? ((count / orders.length) * 100).toFixed(1) : '0.0'
   }))
 
   const COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6']
