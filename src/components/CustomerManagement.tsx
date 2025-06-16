@@ -1,84 +1,62 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus, Edit, Trash2, Phone, Mail, MapPin, Search, ArrowLeft, Eye, Calendar, Clock, Package, ShoppingBag } from 'lucide-react'
+import { Plus, Edit, Trash2, Phone, Mail, User, Search, MapPin } from 'lucide-react'
 import { customersApi, ordersApi } from '@/services/api'
-import { Customer, Order, OrderItem } from '@/config/supabase'
+import { Customer } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
-
-// Extended Order type that includes order_items
-interface OrderWithItems extends Order {
-  order_items?: OrderItem[]
-}
-
-// Group order items by item name
-const groupOrderItems = (items: any[]) => {
-  const grouped = items.reduce((acc, item) => {
-    const key = item.item_name
-    if (!acc[key]) {
-      acc[key] = {
-        item_name: item.item_name,
-        menu_item_id: item.menu_item_id,
-        sizes: [],
-        total_amount: 0,
-        special_instructions: item.special_instructions
-      }
-    }
-    
-    acc[key].sizes.push({
-      size_type: item.size_type,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
-      total_price: item.total_price
-    })
-    acc[key].total_amount += item.total_price
-    
-    return acc
-  }, {})
-  
-  return Object.values(grouped)
-}
+import CustomerOrderHistory from './CustomerOrderHistory'
+import ConfirmationDialog from './ConfirmationDialog'
 
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState<Customer[]>([])
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false)
+  const [isNewCustomerOpen, setIsNewCustomerOpen] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
-  const [deleteCustomerId, setDeleteCustomerId] = useState<string | null>(null)
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
-  const [customerOrders, setCustomerOrders] = useState<OrderWithItems[]>([])
-  const [selectedOrder, setSelectedOrder] = useState<OrderWithItems | null>(null)
-  const [ordersLoading, setOrdersLoading] = useState(false)
-  const [customerOrderCounts, setCustomerOrderCounts] = useState<Record<string, number>>({})
+  const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const { toast } = useToast()
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    address: ''
+  })
 
   useEffect(() => {
     loadCustomers()
   }, [])
 
   useEffect(() => {
-    const filtered = customers.filter(customer =>
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phone.includes(searchTerm) ||
-      (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    setFilteredCustomers(filtered)
-  }, [customers, searchTerm])
+    if (editingCustomer) {
+      setFormData({
+        name: editingCustomer.name || '',
+        phone: editingCustomer.phone || '',
+        email: editingCustomer.email || '',
+        address: editingCustomer.address || ''
+      })
+    } else {
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        address: ''
+      })
+    }
+  }, [editingCustomer])
 
   const loadCustomers = async () => {
     try {
       const data = await customersApi.getAll()
       setCustomers(data)
-      // Load order counts for all customers
-      await loadCustomerOrderCounts(data)
     } catch (error) {
       console.error('Error loading customers:', error)
       toast({
@@ -91,102 +69,76 @@ const CustomerManagement = () => {
     }
   }
 
-  const loadCustomerOrderCounts = async (customers: Customer[]) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!formData.name || !formData.phone) {
+      toast({
+        title: "Error",
+        description: "Name and phone are required",
+        variant: "destructive"
+      })
+      return
+    }
+
     try {
-      // Get all orders to count by customer
-      const allOrders = await ordersApi.getAll()
-      const counts: Record<string, number> = {}
+      if (editingCustomer) {
+        await customersApi.update(editingCustomer.id, formData)
+        toast({
+          title: "Success",
+          description: "Customer updated successfully"
+        })
+      } else {
+        await customersApi.create(formData)
+        toast({
+          title: "Success",
+          description: "Customer created successfully"
+        })
+      }
       
-      // Initialize counts for all customers
-      customers.forEach(customer => {
-        counts[customer.id] = 0
-      })
-      
-      // Count orders for each customer
-      allOrders.forEach(order => {
-        if (order.customer_id && counts.hasOwnProperty(order.customer_id)) {
-          counts[order.customer_id]++
-        }
-      })
-      
-      setCustomerOrderCounts(counts)
+      await loadCustomers()
+      setIsNewCustomerOpen(false)
+      setEditingCustomer(null)
+      setFormData({ name: '', phone: '', email: '', address: '' })
     } catch (error) {
-      console.error('Error loading customer order counts:', error)
+      console.error('Error saving customer:', error)
+      toast({
+        title: "Error",
+        description: `Failed to ${editingCustomer ? 'update' : 'create'} customer`,
+        variant: "destructive"
+      })
     }
   }
 
-  const loadCustomerOrders = async (customerId: string) => {
-    setOrdersLoading(true)
+  const deleteCustomer = async () => {
+    if (!deletingCustomer) return
+
+    setDeleteLoading(true)
     try {
-      const orders = await ordersApi.getByCustomerId(customerId)
-      setCustomerOrders(orders)
+      await customersApi.delete(deletingCustomer.id)
+      await loadCustomers()
+      setDeletingCustomer(null)
+      toast({
+        title: "Success",
+        description: "Customer deleted successfully"
+      })
     } catch (error) {
-      console.error('Error loading customer orders:', error)
+      console.error('Error deleting customer:', error)
       toast({
         title: "Error",
-        description: "Failed to load customer orders",
+        description: "Failed to delete customer",
         variant: "destructive"
       })
     } finally {
-      setOrdersLoading(false)
+      setDeleteLoading(false)
     }
   }
 
-  const handleCustomerClick = async (customer: Customer) => {
-    setSelectedCustomer(customer)
-    await loadCustomerOrders(customer.id)
-  }
-
-  const handleBackToCustomers = () => {
-    setSelectedCustomer(null)
-    setCustomerOrders([])
-    setSelectedOrder(null)
-  }
-
-  const handleOrderClick = (order: OrderWithItems) => {
-    setSelectedOrder(order)
-  }
-
-  const handleBackToOrders = () => {
-    setSelectedOrder(null)
-  }
-
-  const handleCustomerSaved = () => {
-    loadCustomers()
-    setIsAddCustomerOpen(false)
-    setEditingCustomer(null)
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'received': return 'bg-yellow-100 text-yellow-800'
-      case 'delivered': return 'bg-blue-100 text-blue-800'
-      case 'paid': return 'bg-green-100 text-green-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    // Handle both timestamp and date-only strings consistently
-    if (dateString.includes('T') || dateString.includes(' ')) {
-      // This is a timestamp (created_at), use normal date parsing
-      const date = new Date(dateString)
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric'
-      })
-    } else {
-      // This is a date-only string (delivery_date), parse without timezone conversion
-      const [year, month, day] = dateString.split('-')
-      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric'
-      })
-    }
-  }
+  const filteredCustomers = customers.filter(customer =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.phone.includes(searchTerm) ||
+    (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  )
 
   if (loading) {
     return (
@@ -198,296 +150,29 @@ const CustomerManagement = () => {
     )
   }
 
-  // Order Details View
-  if (selectedOrder) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={handleBackToOrders}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Orders
-          </Button>
-          <div>
-            <h2 className="text-xl font-bold">Order #{selectedOrder.order_number}</h2>
-            <p className="text-gray-600">Order details for {selectedCustomer?.name}</p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {/* Order Header */}
-          <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-              <div className="space-y-1 flex-1">
-                <h3 className="text-lg font-bold">{selectedOrder.customer_name}</h3>
-                <div className="flex items-center space-x-1 text-sm text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{selectedOrder.customer_phone}</span>
-                </div>
-                {selectedOrder.delivery_address && (
-                  <div className="flex items-start space-x-1 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>{selectedOrder.delivery_address}</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col items-start sm:items-end gap-2">
-                <Badge className={`${getStatusColor(selectedOrder.status)} w-fit`}>
-                  {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
-                </Badge>
-                <div className="text-sm text-gray-600 text-left sm:text-right space-y-1">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>Created {formatDate(selectedOrder.created_at)}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>Delivery {formatDate(selectedOrder.delivery_date)}</span>
-                    {selectedOrder.delivery_time && (
-                      <>
-                        <Clock className="w-4 h-4 ml-1" />
-                        <span>{selectedOrder.delivery_time}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Order Items */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center space-x-2 text-base">
-                <Package className="w-4 h-4" />
-                <span>Order Items</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
-                <div className="space-y-3">
-                  {groupOrderItems(selectedOrder.order_items).map((groupedItem: any, index) => (
-                    <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-base">{groupedItem.item_name}</h4>
-                        <p className="font-semibold text-green-600">₹{groupedItem.total_amount.toFixed(2)}</p>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        {groupedItem.sizes.map((size: any, sizeIndex: number) => (
-                          <div key={sizeIndex} className="flex justify-between items-center text-sm">
-                            <span className="text-gray-600">
-                              {size.size_type.replace('_', ' ').charAt(0).toUpperCase() + size.size_type.replace('_', ' ').slice(1)}
-                            </span>
-                            <div className="flex items-center space-x-2">
-                              <span>Qty: {size.quantity}</span>
-                              <span className="text-gray-500">@ ₹{size.unit_price}</span>
-                              <span className="font-medium">₹{size.total_price.toFixed(2)}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {groupedItem.special_instructions && (
-                        <p className="text-sm text-gray-600 mt-2 italic">
-                          Instructions: {groupedItem.special_instructions}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No items found for this order.</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Special Instructions */}
-          {selectedOrder.special_instructions && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Special Instructions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">{selectedOrder.special_instructions}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Order Total */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="space-y-2">
-                {selectedOrder.subtotal_amount && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span>Subtotal:</span>
-                    <span>${selectedOrder.subtotal_amount.toFixed(2)}</span>
-                  </div>
-                )}
-                
-                {selectedOrder.discount_amount && selectedOrder.discount_amount > 0 && (
-                  <div className="flex justify-between items-center text-sm text-red-600">
-                    <span>
-                      Discount ({selectedOrder.discount_type === 'percentage' ? `${selectedOrder.discount_value}%` : `$${selectedOrder.discount_value}`}):
-                    </span>
-                    <span>-${selectedOrder.discount_amount.toFixed(2)}</span>
-                  </div>
-                )}
-                
-                <div className="flex justify-between items-center border-t pt-2">
-                  <span className="text-base font-semibold">Total Amount</span>
-                  <span className="text-xl font-bold text-green-600">
-                    ${selectedOrder.total_amount || 0}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
-  }
-
-  // Customer Orders View
-  if (selectedCustomer) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={handleBackToCustomers}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Customers
-          </Button>
-          <div>
-            <h2 className="text-xl font-bold">{selectedCustomer.name}'s Orders</h2>
-            <p className="text-gray-600">View all orders for this customer</p>
-          </div>
-        </div>
-
-        {ordersLoading ? (
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center">Loading orders...</div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {customerOrders.length === 0 ? (
-              <div className="col-span-full">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-center text-gray-500">
-                      No orders found for this customer.
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
-              customerOrders.map((order) => (
-                <Card 
-                  key={order.id} 
-                  className="hover:shadow-lg transition-shadow cursor-pointer group hover:scale-[1.02] duration-200"
-                  onClick={() => handleOrderClick(order)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-base flex items-center gap-2">
-                          #{order.order_number}
-                          <Eye className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </CardTitle>
-                        <Badge className={`${getStatusColor(order.status)} text-xs`}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2 text-xs">
-                      <div className="flex items-center space-x-1 text-gray-600">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDate(order.delivery_date)}</span>
-                        {order.delivery_time && (
-                          <>
-                            <Clock className="w-3 h-3 ml-2" />
-                            <span>{order.delivery_time}</span>
-                          </>
-                        )}
-                      </div>
-                      
-                      {/* Order Items Preview */}
-                      {order.order_items && order.order_items.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          {groupOrderItems(order.order_items).slice(0, 2).map((groupedItem: any, index) => (
-                            <div key={index} className="text-xs bg-gray-50 p-1 rounded">
-                              <div className="flex justify-between items-center">
-                                <span className="truncate font-medium">{groupedItem.item_name}</span>
-                                <span className="text-gray-600">₹{groupedItem.total_amount.toFixed(2)}</span>
-                              </div>
-                              <div className="text-gray-500 text-xs mt-0.5">
-                                {groupedItem.sizes.map((size: any, sizeIndex: number) => (
-                                  <span key={sizeIndex}>
-                                    {size.quantity}x {size.size_type.replace('_', ' ')}
-                                    {sizeIndex < groupedItem.sizes.length - 1 ? ', ' : ''}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                          {groupOrderItems(order.order_items).length > 2 && (
-                            <div className="text-xs text-gray-500 text-center">
-                              +{groupOrderItems(order.order_items).length - 2} more items
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {order.total_amount && (
-                        <div className="text-sm font-semibold text-green-600 mt-2">
-                          ₹{order.total_amount.toFixed(2)}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // Main Customers List View
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold">Customer Management</h2>
-          <p className="text-gray-600 text-sm sm:text-base">Manage your customer database</p>
+          <p className="text-gray-600 text-sm sm:text-base">Manage customer information and order history</p>
         </div>
-        <Sheet open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
-          <SheetTrigger asChild>
-            <Button className="flex items-center space-x-2 w-full sm:w-auto">
-              <Plus className="w-4 h-4" />
-              <span>Add Customer</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Add New Customer</SheetTitle>
-              <SheetDescription>Create a new customer profile</SheetDescription>
-            </SheetHeader>
-            <CustomerForm onCustomerSaved={handleCustomerSaved} />
-          </SheetContent>
-        </Sheet>
+        <Button onClick={() => setIsNewCustomerOpen(true)} className="w-full sm:w-auto">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Customer
+        </Button>
       </div>
 
       {/* Search */}
       <Card>
-        <CardContent className="p-4">
+        <CardHeader>
+          <CardTitle className="text-lg">Search Customers</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              placeholder="Search customers by name, phone, or email..."
+              placeholder="Search by name, phone, or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -497,73 +182,84 @@ const CustomerManagement = () => {
       </Card>
 
       {/* Customers List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid gap-4">
         {filteredCustomers.length === 0 ? (
-          <div className="col-span-full">
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center text-gray-500">
-                  {searchTerm ? 'No customers found matching your search.' : 'No customers found. Add your first customer to get started.'}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-gray-500">
+                {searchTerm ? 'No customers found matching your search.' : 'No customers found. Add your first customer to get started.'}
+              </div>
+            </CardContent>
+          </Card>
         ) : (
           filteredCustomers.map((customer) => (
-            <Card 
-              key={customer.id} 
-              className="hover:shadow-md transition-shadow cursor-pointer hover:scale-[1.02] duration-200"
-              onClick={() => handleCustomerClick(customer)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-base truncate">{customer.name}</CardTitle>
-                    <div className="flex space-x-1" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingCustomer(customer)}
-                        className="h-6 w-6 p-0"
-                      >
-                        <Edit className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => setDeleteCustomerId(customer.id)}
-                        className="h-6 w-6 p-0"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+            <Card key={customer.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <User className="w-5 h-5 text-gray-400" />
+                      <h3 className="text-lg font-semibold">{customer.name}</h3>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 text-sm">
+                        <Phone className="w-4 h-4 text-gray-400" />
+                        <a 
+                          href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-600 hover:text-green-700 hover:underline transition-colors"
+                        >
+                          {customer.phone}
+                        </a>
+                      </div>
+                      
+                      {customer.email && (
+                        <div className="flex items-center space-x-2 text-sm">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <a 
+                            href={`mailto:${customer.email}`}
+                            className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                          >
+                            {customer.email}
+                          </a>
+                        </div>
+                      )}
+                      
+                      {customer.address && (
+                        <div className="flex items-start space-x-2 text-sm">
+                          <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-600">{customer.address}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="text-xs text-gray-500 mt-3">
+                      Customer since {new Date(customer.created_at).toLocaleDateString()}
                     </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center space-x-1 text-gray-600">
-                    <Phone className="w-3 h-3 flex-shrink-0" />
-                    <span className="truncate">{customer.phone}</span>
-                  </div>
-                  {customer.email && (
-                    <div className="flex items-center space-x-1 text-gray-600">
-                      <Mail className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">{customer.email}</span>
-                    </div>
-                  )}
-                  {customer.address && (
-                    <div className="flex items-start space-x-1 text-gray-600">
-                      <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs line-clamp-2">{customer.address}</span>
-                    </div>
-                  )}
-                  <div className="text-xs text-gray-400 mt-2">
-                    Since {new Date(customer.created_at).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center space-x-1 text-xs font-medium text-blue-600 mt-1">
-                    <ShoppingBag className="w-3 h-3" />
-                    <span>{customerOrderCounts[customer.id] || 0} orders</span>
+                  
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <CustomerOrderHistory customer={customer} />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setEditingCustomer(customer)}
+                      className="flex items-center space-x-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setDeletingCustomer(customer)}
+                      className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -572,179 +268,104 @@ const CustomerManagement = () => {
         )}
       </div>
 
-      {/* Edit Customer Sheet */}
-      <Sheet open={!!editingCustomer} onOpenChange={() => setEditingCustomer(null)}>
+      {/* Add/Edit Customer Sheet */}
+      <Sheet open={isNewCustomerOpen || !!editingCustomer} onOpenChange={(open) => {
+        if (!open) {
+          setIsNewCustomerOpen(false)
+          setEditingCustomer(null)
+        }
+      }}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Edit Customer</SheetTitle>
-            <SheetDescription>Update customer information</SheetDescription>
+            <SheetTitle>{editingCustomer ? 'Edit Customer' : 'Add New Customer'}</SheetTitle>
+            <SheetDescription>
+              {editingCustomer ? 'Update customer information' : 'Enter customer details to add them to your database'}
+            </SheetDescription>
           </SheetHeader>
-          {editingCustomer && (
-            <CustomerForm 
-              customer={editingCustomer} 
-              onCustomerSaved={handleCustomerSaved} 
-            />
-          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Customer name"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number *</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="Phone number"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="Email address"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                placeholder="Customer address"
+              />
+            </div>
+            
+            <div className="flex space-x-2 pt-4">
+              <Button type="submit" className="flex-1">
+                {editingCustomer ? 'Update Customer' : 'Add Customer'}
+              </Button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setIsNewCustomerOpen(false)
+                  setEditingCustomer(null)
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
         </SheetContent>
       </Sheet>
 
-      {/* Delete Customer Dialog */}
-      <Dialog open={!!deleteCustomerId} onOpenChange={() => setDeleteCustomerId(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Customer</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this customer? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex space-x-4 mt-4">
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                if (deleteCustomerId) {
-                  try {
-                    await customersApi.delete(deleteCustomerId)
-                    toast({
-                      title: "Success",
-                      description: "Customer deleted successfully"
-                    })
-                    setDeleteCustomerId(null)
-                    loadCustomers()
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: "Failed to delete customer",
-                      variant: "destructive"
-                    })
-                  }
-                }
-              }}
-            >
-              Delete
-            </Button>
-            <Button variant="outline" onClick={() => setDeleteCustomerId(null)}>
-              Cancel
-            </Button>
+      {/* Delete Customer Confirmation */}
+      <ConfirmationDialog
+        open={!!deletingCustomer}
+        onOpenChange={() => setDeletingCustomer(null)}
+        title="Delete Customer"
+        description={
+          <div>
+            Are you sure you want to delete <strong>{deletingCustomer?.name}</strong>?
+            <br />
+            <span className="text-sm text-gray-600">
+              This action cannot be undone. All customer data will be permanently removed.
+            </span>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
-
-interface CustomerFormProps {
-  customer?: Customer
-  onCustomerSaved: () => void
-}
-
-const CustomerForm = ({ customer, onCustomerSaved }: CustomerFormProps) => {
-  const [name, setName] = useState(customer?.name || '')
-  const [phone, setPhone] = useState(customer?.phone || '')
-  const [email, setEmail] = useState(customer?.email || '')
-  const [address, setAddress] = useState(customer?.address || '')
-  const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
-  const isEditing = !!customer
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!name.trim() || !phone.trim()) {
-      toast({
-        title: "Error",
-        description: "Name and phone are required",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setLoading(true)
-    try {
-      const customerData = {
-        name: name.trim(),
-        phone: phone.trim(),
-        email: email.trim() || undefined,
-        address: address.trim() || undefined
-      }
-
-      if (isEditing) {
-        await customersApi.update(customer.id, customerData)
-        toast({
-          title: "Success",
-          description: "Customer updated successfully"
-        })
-      } else {
-        await customersApi.create(customerData)
-        toast({
-          title: "Success",
-          description: "Customer created successfully"
-        })
-      }
-      
-      onCustomerSaved()
-    } catch (error) {
-      console.error('Error saving customer:', error)
-      toast({
-        title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} customer`,
-        variant: "destructive"
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="mt-6">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="customer-name">Name *</Label>
-          <Input
-            id="customer-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter customer name"
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="customer-phone">Phone *</Label>
-          <Input
-            id="customer-phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Enter phone number"
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="customer-email">Email</Label>
-          <Input
-            id="customer-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter email address"
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="customer-address">Address</Label>
-          <Textarea
-            id="customer-address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Enter customer address"
-            rows={3}
-          />
-        </div>
-        
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Saving...' : (isEditing ? 'Update Customer' : 'Create Customer')}
-        </Button>
-      </form>
+        }
+        confirmText="Delete Customer"
+        onConfirm={deleteCustomer}
+        destructive={true}
+        loading={deleteLoading}
+      />
     </div>
   )
 }

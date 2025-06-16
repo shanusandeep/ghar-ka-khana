@@ -16,6 +16,8 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Filter as FilterIcon } from 'lucide-react'
 import { format, parseISO, isSameDay } from 'date-fns'
 import { Calendar } from '@/components/ui/calendar'
+import PrintReceipt from './PrintReceipt'
+import ConfirmationDialog from './ConfirmationDialog'
 
 // Extended Order type that includes order_items from the API response
 interface OrderWithItems extends Order {
@@ -88,6 +90,11 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
 
   return (
     <div className="space-y-4">
+      {/* Print Receipt Button */}
+      <div className="flex justify-end">
+        <PrintReceipt order={order} />
+      </div>
+
       {/* Consolidated Order Header with Customer Info */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
@@ -346,8 +353,7 @@ const OrderManagement = () => {
     let statusMatch = statusFilter === 'all' || order.status === statusFilter
     let dateMatch = true
     if (dateFilter) {
-      // Compare just the date strings directly to avoid timezone issues
-      const orderDateStr = order.delivery_date // This is already in YYYY-MM-DD format
+      const orderDateStr = order.delivery_date
       const filterDateStr = format(dateFilter, 'yyyy-MM-dd')
       dateMatch = orderDateStr === filterDateStr
     }
@@ -409,7 +415,7 @@ const OrderManagement = () => {
               </div>
             </PopoverContent>
           </Popover>
-          <Button onClick={() => setIsNewOrderOpen(true)}>
+          <Button onClick={() => setIsNewOrderOpen(true)} data-new-order>
             <Plus className="w-4 h-4 mr-2" /> New Order
           </Button>
         </div>
@@ -606,37 +612,25 @@ const OrderManagement = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Delete Order Confirmation Dialog */}
-      <Dialog open={deletingOrder !== null} onOpenChange={(open) => !open && setDeletingOrder(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Order</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete Order #{deletingOrder?.order_number}?
-              <br />
-              <span className="font-medium text-gray-900">Customer: {deletingOrder?.customer_name}</span>
-              <br />
-              This action cannot be undone and will permanently remove the order and all its items.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setDeletingOrder(null)}
-              disabled={deleteLoading}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={deleteOrder}
-              disabled={deleteLoading}
-            >
-              {deleteLoading ? "Deleting..." : "Delete Order"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Updated Delete Order Confirmation Dialog */}
+      <ConfirmationDialog
+        open={!!deletingOrder}
+        onOpenChange={() => setDeletingOrder(null)}
+        title="Delete Order"
+        description={
+          <div>
+            Are you sure you want to delete Order #{deletingOrder?.order_number}?
+            <br />
+            <span className="font-medium text-gray-900">Customer: {deletingOrder?.customer_name}</span>
+            <br />
+            This action cannot be undone and will permanently remove the order and all its items.
+          </div>
+        }
+        confirmText="Delete Order"
+        onConfirm={deleteOrder}
+        destructive={true}
+        loading={deleteLoading}
+      />
     </div>
   )
 }
