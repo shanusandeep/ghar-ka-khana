@@ -150,7 +150,7 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
     },
     {
       title: 'Avg Order Value',
-      value: `₹${avgOrderValue.toFixed(2)}`,
+      value: `$${avgOrderValue.toFixed(2)}`,
       icon: DollarSign,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
@@ -204,8 +204,8 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
-                  <YAxis tickFormatter={v => `₹${v}`} />
-                  <Tooltip formatter={(value) => [`₹${value}`, 'Revenue']} />
+                  <YAxis tickFormatter={v => `$${v}`} />
+                  <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
                   <Area
                     type="monotone"
                     dataKey="total"
@@ -262,8 +262,8 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
                 <ComposedChart data={dayOfWeekData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
-                  <YAxis tickFormatter={v => `₹${v}`} />
-                  <Tooltip formatter={(value, name) => [`₹${value}`, name === 'average' ? 'Avg Revenue' : 'Total Revenue']} />
+                  <YAxis tickFormatter={v => `$${v}`} />
+                  <Tooltip formatter={(value, name) => [`$${value}`, name === 'average' ? 'Avg Revenue' : 'Total Revenue']} />
                   <Bar dataKey="total" fill="#3b82f6" opacity={0.6} />
                   <Line type="monotone" dataKey="average" stroke="#ef4444" strokeWidth={2} />
                 </ComposedChart>
@@ -297,7 +297,7 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-green-600">₹{(customer.total_order_value || 0).toFixed(2)}</p>
+                      <p className="font-bold text-green-600">${(customer.total_order_value || 0).toFixed(2)}</p>
                     </div>
                   </div>
                 ))

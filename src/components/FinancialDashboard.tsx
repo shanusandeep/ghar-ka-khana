@@ -253,7 +253,7 @@ const FinancialDashboard = () => {
 
   // Export functions
   const exportToCSV = () => {
-    const headers = ['Date', 'Revenue (₹)', 'Order Count', 'Average Order Value (₹)', '7-Day Moving Average (₹)']
+    const headers = ['Date', 'Revenue ($)', 'Order Count', 'Average Order Value ($)', '7-Day Moving Average ($)']
     const enhancedData = calculateMovingAverage(dailyStats)
     
     const csvContent = [
@@ -313,7 +313,7 @@ const FinancialDashboard = () => {
           <div class="summary">
             <div class="summary-card">
               <h3>Total Revenue</h3>
-              <p>₹${getTotalRevenue().toFixed(2)}</p>
+              <p>${getTotalRevenue().toFixed(2)}</p>
             </div>
             <div class="summary-card">
               <h3>Total Orders</h3>
@@ -321,7 +321,7 @@ const FinancialDashboard = () => {
             </div>
             <div class="summary-card">
               <h3>Average Order Value</h3>
-              <p>₹${getAverageOrderValue().toFixed(2)}</p>
+              <p>${getAverageOrderValue().toFixed(2)}</p>
             </div>
           </div>
 
@@ -339,10 +339,10 @@ const FinancialDashboard = () => {
               ${enhancedData.map(row => `
                 <tr>
                   <td class="date-col">${row.date}</td>
-                  <td>₹${row.total.toFixed(2)}</td>
-                  <td>${row.orderCount}</td>
-                  <td>₹${row.averageOrderValue.toFixed(2)}</td>
-                  <td>₹${row.movingAvg.toFixed(2)}</td>
+                                <td>${row.total.toFixed(2)}</td>
+              <td>${row.orderCount}</td>
+              <td>${row.averageOrderValue.toFixed(2)}</td>
+              <td>${row.movingAvg.toFixed(2)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -521,7 +521,7 @@ const FinancialDashboard = () => {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹{getTotalRevenue().toFixed(2)}</div>
+                <div className="text-2xl font-bold">${getTotalRevenue().toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">
                   {filterState.timePeriod === 'today' ? 'Today' : 
                    filterState.timePeriod === '7d' ? 'Last 7 days' :
@@ -553,7 +553,7 @@ const FinancialDashboard = () => {
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹{getAverageOrderValue().toFixed(2)}</div>
+                <div className="text-2xl font-bold">${getAverageOrderValue().toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">
                   {filterState.timePeriod === 'today' ? 'Today' : 
                    filterState.timePeriod === '7d' ? 'Last 7 days' :
@@ -576,13 +576,13 @@ const FinancialDashboard = () => {
                   <LineChart data={enhancedStats}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tickFormatter={date => date} />
-                    <YAxis tickFormatter={v => `₹${v.toLocaleString()}`} />
+                    <YAxis tickFormatter={v => `$${v.toLocaleString()}`} />
                     <Tooltip
                       formatter={(_, name, props) => {
-                        if (name === 'total') return [`₹${props.payload.total.toFixed(2)}`, 'Revenue']
-                        if (name === 'movingAvg') return [`₹${props.payload.movingAvg.toFixed(2)}`, '7d Avg']
+                        if (name === 'total') return [`$${props.payload.total.toFixed(2)}`, 'Revenue']
+                        if (name === 'movingAvg') return [`$${props.payload.movingAvg.toFixed(2)}`, '7d Avg']
                         if (name === 'orderCount') return [props.payload.orderCount, 'Orders']
-                        if (name === 'averageOrderValue') return [`₹${props.payload.averageOrderValue.toFixed(2)}`, 'Avg Order Value']
+                        if (name === 'averageOrderValue') return [`$${props.payload.averageOrderValue.toFixed(2)}`, 'Avg Order Value']
                         return _
                       }}
                       labelFormatter={label => `Date: ${label}`}
@@ -592,10 +592,10 @@ const FinancialDashboard = () => {
                         return (
                           <div className="bg-white rounded shadow p-3 text-xs space-y-1">
                             <div><b>{label}</b></div>
-                            <div>Revenue: <b>₹{d.total.toFixed(2)}</b></div>
-                            <div>7d Avg: <b>₹{d.movingAvg.toFixed(2)}</b></div>
+                            <div>Revenue: <b>${d.total.toFixed(2)}</b></div>
+                            <div>7d Avg: <b>${d.movingAvg.toFixed(2)}</b></div>
                             <div>Orders: <b>{d.orderCount}</b></div>
-                            <div>Avg Order Value: <b>₹{d.averageOrderValue.toFixed(2)}</b></div>
+                            <div>Avg Order Value: <b>${d.averageOrderValue.toFixed(2)}</b></div>
                           </div>
                         )
                       }}

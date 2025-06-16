@@ -165,7 +165,7 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
                 <div key={index} className="p-3 bg-gray-50 rounded-lg">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium text-base">{groupedItem.item_name}</h4>
-                    <p className="font-semibold text-green-600">₹{groupedItem.total_amount.toFixed(2)}</p>
+                    <p className="font-semibold text-green-600">${groupedItem.total_amount.toFixed(2)}</p>
                   </div>
                   
                   <div className="space-y-1">
@@ -176,8 +176,8 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
                         </span>
                         <div className="flex items-center space-x-2">
                           <span>Qty: {size.quantity}</span>
-                          <span className="text-gray-500">@ ₹{size.unit_price}</span>
-                          <span className="font-medium">₹{size.total_price.toFixed(2)}</span>
+                                                  <span className="text-gray-500">@ ${size.unit_price}</span>
+                        <span className="font-medium">${size.total_price.toFixed(2)}</span>
                         </div>
                       </div>
                     ))}
@@ -216,23 +216,23 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
             {order.subtotal_amount && (
               <div className="flex justify-between items-center text-sm">
                 <span>Subtotal:</span>
-                <span>₹{order.subtotal_amount.toFixed(2)}</span>
+                <span>${order.subtotal_amount.toFixed(2)}</span>
               </div>
             )}
             
             {order.discount_amount && order.discount_amount > 0 && (
               <div className="flex justify-between items-center text-sm text-red-600">
                 <span>
-                  Discount ({order.discount_type === 'percentage' ? `${order.discount_value}%` : `₹${order.discount_value}`}):
+                  Discount ({order.discount_type === 'percentage' ? `${order.discount_value}%` : `$${order.discount_value}`}):
                 </span>
-                <span>-₹{order.discount_amount.toFixed(2)}</span>
+                <span>-${order.discount_amount.toFixed(2)}</span>
               </div>
             )}
             
             <div className="flex justify-between items-center border-t pt-2">
               <span className="text-base font-semibold">Total Amount</span>
               <span className="text-xl font-bold text-green-600">
-                ₹{order.total_amount?.toFixed(2) || '0.00'}
+                ${order.total_amount?.toFixed(2) || '0.00'}
               </span>
             </div>
           </div>
