@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import FinancialAnalytics from './FinancialAnalytics'
 
 interface DailyStats {
   date: string
@@ -64,6 +65,7 @@ const FinancialDashboard = () => {
   })
   const [customers, setCustomers] = useState<Customer[]>([])
   const [items, setItems] = useState<{ id: string; name: string }[]>([])
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     loadOrders()
@@ -505,142 +507,159 @@ const FinancialDashboard = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{getTotalRevenue().toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">
-              {filterState.timePeriod === 'today' ? 'Today' : 
-               filterState.timePeriod === '7d' ? 'Last 7 days' :
-               filterState.timePeriod === '30d' ? 'Last 30 days' :
-               filterState.timePeriod === 'quarter' ? 'Last quarter' :
-               'Last year'}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{getTotalOrders()}</div>
-            <p className="text-xs text-muted-foreground">
-              {filterState.timePeriod === 'today' ? 'Today' : 
-               filterState.timePeriod === '7d' ? 'Last 7 days' :
-               filterState.timePeriod === '30d' ? 'Last 30 days' :
-               filterState.timePeriod === 'quarter' ? 'Last quarter' :
-               'Last year'}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Order Value</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{getAverageOrderValue().toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">
-              {filterState.timePeriod === 'today' ? 'Today' : 
-               filterState.timePeriod === '7d' ? 'Last 7 days' :
-               filterState.timePeriod === '30d' ? 'Last 30 days' :
-               filterState.timePeriod === 'quarter' ? 'Last quarter' :
-               'Last year'}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analytics">Advanced Analytics</TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Revenue Trend</CardTitle>
-          <CardDescription>Daily revenue over time (with 7-day moving average)</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={enhancedStats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={date => date} />
-                <YAxis tickFormatter={v => `₹${v.toLocaleString()}`} />
-                <Tooltip
-                  formatter={(_, name, props) => {
-                    if (name === 'total') return [`₹${props.payload.total.toFixed(2)}`, 'Revenue']
-                    if (name === 'movingAvg') return [`₹${props.payload.movingAvg.toFixed(2)}`, '7d Avg']
-                    if (name === 'orderCount') return [props.payload.orderCount, 'Orders']
-                    if (name === 'averageOrderValue') return [`₹${props.payload.averageOrderValue.toFixed(2)}`, 'Avg Order Value']
-                    return _
-                  }}
-                  labelFormatter={label => `Date: ${label}`}
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload || !payload.length) return null
-                    const d = payload[0].payload
-                    return (
-                      <div className="bg-white rounded shadow p-3 text-xs space-y-1">
-                        <div><b>{label}</b></div>
-                        <div>Revenue: <b>₹{d.total.toFixed(2)}</b></div>
-                        <div>7d Avg: <b>₹{d.movingAvg.toFixed(2)}</b></div>
-                        <div>Orders: <b>{d.orderCount}</b></div>
-                        <div>Avg Order Value: <b>₹{d.averageOrderValue.toFixed(2)}</b></div>
-                      </div>
-                    )
-                  }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                  dot={<CustomDot />}
-                  activeDot={{ r: 7 }}
-                  name="Revenue"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="movingAvg"
-                  stroke="#f59e42"
-                  strokeWidth={2}
-                  dot={false}
-                  name="7d Avg"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">₹{getTotalRevenue().toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {filterState.timePeriod === 'today' ? 'Today' : 
+                   filterState.timePeriod === '7d' ? 'Last 7 days' :
+                   filterState.timePeriod === '30d' ? 'Last 30 days' :
+                   filterState.timePeriod === 'quarter' ? 'Last quarter' :
+                   'Last year'}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                <Package className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{getTotalOrders()}</div>
+                <p className="text-xs text-muted-foreground">
+                  {filterState.timePeriod === 'today' ? 'Today' : 
+                   filterState.timePeriod === '7d' ? 'Last 7 days' :
+                   filterState.timePeriod === '30d' ? 'Last 30 days' :
+                   filterState.timePeriod === 'quarter' ? 'Last quarter' :
+                   'Last year'}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Average Order Value</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">₹{getAverageOrderValue().toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {filterState.timePeriod === 'today' ? 'Today' : 
+                   filterState.timePeriod === '7d' ? 'Last 7 days' :
+                   filterState.timePeriod === '30d' ? 'Last 30 days' :
+                   filterState.timePeriod === 'quarter' ? 'Last quarter' :
+                   'Last year'}
+                </p>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Order Volume</CardTitle>
-          <CardDescription>Daily order count</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dailyStats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar 
-                  dataKey="orderCount" 
-                  fill="#2563eb" 
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Revenue Trend</CardTitle>
+              <CardDescription>Daily revenue over time (with 7-day moving average)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={enhancedStats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tickFormatter={date => date} />
+                    <YAxis tickFormatter={v => `₹${v.toLocaleString()}`} />
+                    <Tooltip
+                      formatter={(_, name, props) => {
+                        if (name === 'total') return [`₹${props.payload.total.toFixed(2)}`, 'Revenue']
+                        if (name === 'movingAvg') return [`₹${props.payload.movingAvg.toFixed(2)}`, '7d Avg']
+                        if (name === 'orderCount') return [props.payload.orderCount, 'Orders']
+                        if (name === 'averageOrderValue') return [`₹${props.payload.averageOrderValue.toFixed(2)}`, 'Avg Order Value']
+                        return _
+                      }}
+                      labelFormatter={label => `Date: ${label}`}
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload || !payload.length) return null
+                        const d = payload[0].payload
+                        return (
+                          <div className="bg-white rounded shadow p-3 text-xs space-y-1">
+                            <div><b>{label}</b></div>
+                            <div>Revenue: <b>₹{d.total.toFixed(2)}</b></div>
+                            <div>7d Avg: <b>₹{d.movingAvg.toFixed(2)}</b></div>
+                            <div>Orders: <b>{d.orderCount}</b></div>
+                            <div>Avg Order Value: <b>₹{d.averageOrderValue.toFixed(2)}</b></div>
+                          </div>
+                        )
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="total"
+                      stroke="#2563eb"
+                      strokeWidth={2}
+                      dot={<CustomDot />}
+                      activeDot={{ r: 7 }}
+                      name="Revenue"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="movingAvg"
+                      stroke="#f59e42"
+                      strokeWidth={2}
+                      dot={false}
+                      name="7d Avg"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Volume</CardTitle>
+              <CardDescription>Daily order count</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dailyStats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar 
+                      dataKey="orderCount" 
+                      fill="#2563eb" 
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <FinancialAnalytics 
+            dailyStats={dailyStats}
+            orders={orders}
+            customers={customers}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
 
-export default FinancialDashboard 
+export default FinancialDashboard

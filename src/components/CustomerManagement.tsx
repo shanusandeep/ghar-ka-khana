@@ -11,6 +11,7 @@ import { customersApi, ordersApi } from '@/services/api'
 import { Customer } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import CustomerOrderHistory from './CustomerOrderHistory'
+import CustomerFilters from './CustomerFilters'
 import ConfirmationDialog from './ConfirmationDialog'
 
 interface CustomerWithTotals extends Customer {
@@ -22,6 +23,10 @@ const CustomerManagement = () => {
   const [customers, setCustomers] = useState<CustomerWithTotals[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState('name')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [minOrderValue, setMinOrderValue] = useState('')
+  const [minOrderCount, setMinOrderCount] = useState('')
   const [isNewCustomerOpen, setIsNewCustomerOpen] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<CustomerWithTotals | null>(null)
   const [deletingCustomer, setDeletingCustomer] = useState<CustomerWithTotals | null>(null)
@@ -139,11 +144,65 @@ const CustomerManagement = () => {
     }
   }
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm) ||
-    (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const clearFilters = () => {
+    setSearchTerm('')
+    setSortBy('name')
+    setSortOrder('asc')
+    setMinOrderValue('')
+    setMinOrderCount('')
+  }
+
+  const getFilteredAndSortedCustomers = () => {
+    let filtered = customers.filter(customer => {
+      // Search filter
+      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.phone.includes(searchTerm) ||
+        (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
+
+      // Order value filter
+      const matchesOrderValue = !minOrderValue || (customer.total_order_value || 0) >= Number(minOrderValue)
+
+      // Order count filter
+      const matchesOrderCount = !minOrderCount || (customer.order_count || 0) >= Number(minOrderCount)
+
+      return matchesSearch && matchesOrderValue && matchesOrderCount
+    })
+
+    // Sort
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any
+
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase()
+          bValue = b.name.toLowerCase()
+          break
+        case 'created_at':
+          aValue = new Date(a.created_at)
+          bValue = new Date(b.created_at)
+          break
+        case 'total_order_value':
+          aValue = a.total_order_value || 0
+          bValue = b.total_order_value || 0
+          break
+        case 'order_count':
+          aValue = a.order_count || 0
+          bValue = b.order_count || 0
+          break
+        default:
+          aValue = a.name.toLowerCase()
+          bValue = b.name.toLowerCase()
+      }
+
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1
+      return 0
+    })
+
+    return filtered
+  }
+
+  const filteredCustomers = getFilteredAndSortedCustomers()
 
   if (loading) {
     return (
@@ -168,44 +227,43 @@ const CustomerManagement = () => {
         </Button>
       </div>
 
-      {/* Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Search Customers</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search by name, phone, or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Enhanced Filters */}
+      <CustomerFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
+        minOrderValue={minOrderValue}
+        onMinOrderValueChange={setMinOrderValue}
+        minOrderCount={minOrderCount}
+        onMinOrderCountChange={setMinOrderCount}
+        onClearFilters={clearFilters}
+      />
 
       {/* Customer Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{customers.length}</div>
-            <div className="text-sm text-gray-600">Total Customers</div>
+            <div className="text-2xl font-bold text-blue-600">{filteredCustomers.length}</div>
+            <div className="text-sm text-gray-600">
+              {filteredCustomers.length === customers.length ? 'Total Customers' : `Filtered Customers (${customers.length} total)`}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
-              ₹{customers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0).toFixed(2)}
+              ₹{filteredCustomers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0).toFixed(2)}
             </div>
-            <div className="text-sm text-gray-600">Total Revenue</div>
+            <div className="text-sm text-gray-600">Total Revenue (Filtered)</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">
-              ₹{customers.length > 0 ? (customers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0) / customers.length).toFixed(2) : '0.00'}
+              ₹{filteredCustomers.length > 0 ? (filteredCustomers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0) / filteredCustomers.length).toFixed(2) : '0.00'}
             </div>
             <div className="text-sm text-gray-600">Avg. Customer Value</div>
           </CardContent>
@@ -218,7 +276,7 @@ const CustomerManagement = () => {
           <Card>
             <CardContent className="p-6">
               <div className="text-center text-gray-500">
-                {searchTerm ? 'No customers found matching your search.' : 'No customers found. Add your first customer to get started.'}
+                {searchTerm || minOrderValue || minOrderCount ? 'No customers found matching your filters.' : 'No customers found. Add your first customer to get started.'}
               </div>
             </CardContent>
           </Card>
