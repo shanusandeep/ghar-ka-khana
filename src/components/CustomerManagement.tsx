@@ -6,20 +6,25 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Plus, Edit, Trash2, Phone, Mail, User, Search, MapPin } from 'lucide-react'
+import { Plus, Edit, Trash2, Phone, Mail, User, Search, MapPin, DollarSign } from 'lucide-react'
 import { customersApi, ordersApi } from '@/services/api'
 import { Customer } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import CustomerOrderHistory from './CustomerOrderHistory'
 import ConfirmationDialog from './ConfirmationDialog'
 
+interface CustomerWithTotals extends Customer {
+  total_order_value?: number
+  order_count?: number
+}
+
 const CustomerManagement = () => {
-  const [customers, setCustomers] = useState<Customer[]>([])
+  const [customers, setCustomers] = useState<CustomerWithTotals[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [isNewCustomerOpen, setIsNewCustomerOpen] = useState(false)
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
-  const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null)
+  const [editingCustomer, setEditingCustomer] = useState<CustomerWithTotals | null>(null)
+  const [deletingCustomer, setDeletingCustomer] = useState<CustomerWithTotals | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const { toast } = useToast()
 
@@ -55,7 +60,7 @@ const CustomerManagement = () => {
 
   const loadCustomers = async () => {
     try {
-      const data = await customersApi.getAll()
+      const data = await customersApi.getAllWithOrderTotals()
       setCustomers(data)
     } catch (error) {
       console.error('Error loading customers:', error)
@@ -181,6 +186,32 @@ const CustomerManagement = () => {
         </CardContent>
       </Card>
 
+      {/* Customer Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-blue-600">{customers.length}</div>
+            <div className="text-sm text-gray-600">Total Customers</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-green-600">
+              ₹{customers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0).toFixed(2)}
+            </div>
+            <div className="text-sm text-gray-600">Total Revenue</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-purple-600">
+              ₹{customers.length > 0 ? (customers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0) / customers.length).toFixed(2) : '0.00'}
+            </div>
+            <div className="text-sm text-gray-600">Avg. Customer Value</div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Customers List */}
       <div className="grid gap-4">
         {filteredCustomers.length === 0 ? (
@@ -233,6 +264,20 @@ const CustomerManagement = () => {
                           <span className="text-gray-600">{customer.address}</span>
                         </div>
                       )}
+
+                      {/* Order Statistics */}
+                      <div className="flex items-center space-x-4 text-sm pt-2 border-t border-gray-100">
+                        <div className="flex items-center space-x-1">
+                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <span className="font-medium text-green-600">
+                            ₹{customer.total_order_value?.toFixed(2) || '0.00'}
+                          </span>
+                          <span className="text-gray-500">total spent</span>
+                        </div>
+                        <div className="text-gray-500">
+                          {customer.order_count || 0} orders
+                        </div>
+                      </div>
                     </div>
                     
                     <div className="text-xs text-gray-500 mt-3">

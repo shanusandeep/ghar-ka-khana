@@ -1,3 +1,4 @@
+
 import { supabase, MenuCategory, MenuItem, Customer, Order, OrderItem } from '@/config/supabase'
 
 // Menu Categories API
@@ -283,6 +284,41 @@ export const customersApi = {
     
     if (error) throw error
     return data as Customer[]
+  },
+
+  getAllWithOrderTotals: async () => {
+    const { data: customers, error: customersError } = await supabase
+      .from('customers')
+      .select('*')
+      .order('name')
+    
+    if (customersError) throw customersError
+
+    // Get order totals for each customer
+    const customersWithTotals = await Promise.all(
+      customers.map(async (customer) => {
+        const { data: orders, error: ordersError } = await supabase
+          .from('orders')
+          .select('total_amount')
+          .eq('customer_id', customer.id)
+        
+        if (ordersError) {
+          console.error('Error fetching orders for customer:', customer.id, ordersError)
+          return { ...customer, total_order_value: 0, order_count: 0 }
+        }
+
+        const totalOrderValue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
+        const orderCount = orders.length
+
+        return {
+          ...customer,
+          total_order_value: totalOrderValue,
+          order_count: orderCount
+        }
+      })
+    )
+
+    return customersWithTotals
   },
 
   findByPhone: async (phone: string) => {
