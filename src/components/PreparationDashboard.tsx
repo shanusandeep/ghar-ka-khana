@@ -1,13 +1,14 @@
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import { Calendar, RefreshCw, Package, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { ordersApi } from '@/services/api'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
-import PreparationStatusCard from './PreparationStatusCard'
 
 interface PreparationItem {
   item_name: string
@@ -40,7 +41,7 @@ const PreparationDashboard = () => {
       console.log('Preparation summary data:', data)
       
       // Add default status to items with proper typing
-      const itemsWithStatus: PreparationItem[] = (data as ApiPreparationItem[]).map(item => ({
+      const itemsWithStatus: PreparationItem[] = (data as ApiPreparationItem[]).map((item: ApiPreparationItem) => ({
         item_name: item.item_name,
         size_type: item.size_type,
         total_quantity: item.total_quantity,
@@ -90,11 +91,44 @@ const PreparationDashboard = () => {
     }
   }
 
+  const getStatusIcon = (status?: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="w-4 h-4 text-green-500" />
+      case 'in_progress':
+        return <Clock className="w-4 h-4 text-orange-500" />
+      default:
+        return <AlertCircle className="w-4 h-4 text-red-500" />
+    }
+  }
+
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800 border-green-200'
+      case 'in_progress':
+        return 'bg-orange-100 text-orange-800 border-orange-200'
+      default:
+        return 'bg-red-100 text-red-800 border-red-200'
+    }
+  }
+
+  const getStatusText = (status?: string) => {
+    switch (status) {
+      case 'completed':
+        return 'Completed'
+      case 'in_progress':
+        return 'In Progress'
+      default:
+        return 'Pending'
+    }
+  }
+
   const stats = getStatusStats()
   const completionPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold">Preparation Dashboard</h2>
@@ -206,10 +240,57 @@ const PreparationDashboard = () => {
               <p className="text-sm">Try selecting a different date or check if there are any orders for this date.</p>
             </div>
           ) : (
-            <PreparationStatusCard 
-              items={preparationItems} 
-              onStatusChange={handleStatusChange}
-            />
+            <div className="space-y-4">
+              {preparationItems.map((item, index) => (
+                <Card key={`${item.item_name}-${item.size_type}-${index}`} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center space-x-3">
+                        <Package className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                        <div>
+                          <h3 className="font-medium">{item.item_name}</h3>
+                          <p className="text-sm text-gray-600">
+                            {item.size_type} • Quantity: {item.total_quantity}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(item.status)}
+                          <Badge className={getStatusColor(item.status)}>
+                            {getStatusText(item.status)}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex space-x-1">
+                          {item.status !== 'in_progress' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleStatusChange(item.item_name, item.size_type, 'in_progress')}
+                              className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                            >
+                              Start
+                            </Button>
+                          )}
+                          {item.status !== 'completed' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleStatusChange(item.item_name, item.size_type, 'completed')}
+                              className="text-green-600 border-green-200 hover:bg-green-50"
+                            >
+                              Complete
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

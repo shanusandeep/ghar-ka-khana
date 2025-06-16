@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrendingUp, TrendingDown, DollarSign, Package, Users, Calendar } from 'lucide-react'
@@ -43,17 +44,18 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
   const totalOrders = dailyStats.reduce((sum, day) => sum + (day.orderCount || 0), 0)
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
 
-  // Calculate growth trends
+  // Calculate growth trends (comparing last 7 days with previous 7 days)
   const recentDays = dailyStats.slice(-7)
   const previousDays = dailyStats.slice(-14, -7)
   
   const recentRevenue = recentDays.reduce((sum, day) => sum + (day.total || 0), 0)
   const previousRevenue = previousDays.reduce((sum, day) => sum + (day.total || 0), 0)
-  const revenueGrowth = previousRevenue > 0 ? ((recentRevenue - previousRevenue) / previousRevenue) * 100 : 0
+  const revenueGrowth = previousRevenue > 0 ? ((recentRevenue - previousRevenue) / previousRevenue) * 100 : 
+                       recentRevenue > 0 ? 100 : 0
 
-  // Top customers by spending
-  const topCustomers = customers
-    .filter(c => (c.total_order_value || 0) > 0)
+  // Top customers by spending - fix the filtering and sorting
+  const customersWithOrders = customers.filter(c => (c.total_order_value || 0) > 0)
+  const topCustomers = customersWithOrders
     .sort((a, b) => (b.total_order_value || 0) - (a.total_order_value || 0))
     .slice(0, 5)
 
@@ -91,6 +93,9 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
 
   const COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6']
 
+  // Calculate active customers (customers with at least one order)
+  const activeCustomersCount = customers.filter(c => (c.order_count || 0) > 0).length
+
   // Performance metrics
   const metrics = [
     {
@@ -102,7 +107,7 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
     },
     {
       title: 'Active Customers',
-      value: customers.filter(c => (c.order_count || 0) > 0).length.toString(),
+      value: activeCustomersCount.toString(),
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
@@ -124,7 +129,7 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Performance Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric) => (
@@ -133,10 +138,10 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">{metric.title}</p>
-                  <p className="text-2xl font-bold">{metric.value}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{metric.value}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${metric.bgColor}`}>
-                  <metric.icon className={`w-6 h-6 ${metric.color}`} />
+                  <metric.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${metric.color}`} />
                 </div>
               </div>
             </CardContent>
@@ -239,22 +244,28 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {topCustomers.map((customer, index) => (
-                <div key={customer.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                      {index + 1}
-                    </Badge>
-                    <div>
-                      <p className="font-medium">{customer.name}</p>
-                      <p className="text-sm text-gray-600">{customer.order_count || 0} orders</p>
+              {topCustomers.length === 0 ? (
+                <div className="text-center text-gray-500 py-4">
+                  No customers with orders found
+                </div>
+              ) : (
+                topCustomers.map((customer, index) => (
+                  <div key={customer.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
+                        {index + 1}
+                      </Badge>
+                      <div>
+                        <p className="font-medium">{customer.name}</p>
+                        <p className="text-sm text-gray-600">{customer.order_count || 0} orders</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-600">₹{(customer.total_order_value || 0).toFixed(2)}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">₹{(customer.total_order_value || 0).toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

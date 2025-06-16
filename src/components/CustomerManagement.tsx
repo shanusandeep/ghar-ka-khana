@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -6,12 +7,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Plus, Edit, Trash2, Phone, Mail, User, Search, MapPin, DollarSign } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Plus, Edit, Trash2, Phone, Mail, User, Search, MapPin, DollarSign, Filter, X } from 'lucide-react'
 import { customersApi, ordersApi } from '@/services/api'
 import { Customer } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import CustomerOrderHistory from './CustomerOrderHistory'
-import CustomerFilters from './CustomerFilters'
 import ConfirmationDialog from './ConfirmationDialog'
 
 interface CustomerWithTotals extends Customer {
@@ -23,8 +25,8 @@ const CustomerManagement = () => {
   const [customers, setCustomers] = useState<CustomerWithTotals[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState('name')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [sortBy, setSortBy] = useState('total_order_value')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [minOrderValue, setMinOrderValue] = useState('')
   const [minOrderCount, setMinOrderCount] = useState('')
   const [isNewCustomerOpen, setIsNewCustomerOpen] = useState(false)
@@ -146,8 +148,8 @@ const CustomerManagement = () => {
 
   const clearFilters = () => {
     setSearchTerm('')
-    setSortBy('name')
-    setSortOrder('asc')
+    setSortBy('total_order_value')
+    setSortOrder('desc')
     setMinOrderValue('')
     setMinOrderCount('')
   }
@@ -203,6 +205,7 @@ const CustomerManagement = () => {
   }
 
   const filteredCustomers = getFilteredAndSortedCustomers()
+  const hasActiveFilters = minOrderValue || minOrderCount || searchTerm || sortBy !== 'total_order_value' || sortOrder !== 'desc'
 
   if (loading) {
     return (
@@ -215,32 +218,108 @@ const CustomerManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold">Customer Management</h2>
           <p className="text-gray-600 text-sm sm:text-base">Manage customer information and order history</p>
         </div>
-        <Button onClick={() => setIsNewCustomerOpen(true)} className="w-full sm:w-auto">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Customer
-        </Button>
-      </div>
+        <div className="flex items-center space-x-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                <Filter className="w-4 h-4" />
+                <span className="hidden sm:inline">Filters</span>
+                {hasActiveFilters && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Filters & Sort</h4>
+                  {hasActiveFilters && (
+                    <Button variant="outline" size="sm" onClick={clearFilters}>
+                      <X className="w-4 h-4 mr-2" />
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Search customers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-      {/* Enhanced Filters */}
-      <CustomerFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-        sortOrder={sortOrder}
-        onSortOrderChange={setSortOrder}
-        minOrderValue={minOrderValue}
-        onMinOrderValueChange={setMinOrderValue}
-        minOrderCount={minOrderCount}
-        onMinOrderCountChange={setMinOrderCount}
-        onClearFilters={clearFilters}
-      />
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Sort By */}
+                  <div className="space-y-2">
+                    <Label>Sort By</Label>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="name">Name</SelectItem>
+                        <SelectItem value="created_at">Date Added</SelectItem>
+                        <SelectItem value="total_order_value">Total Spent</SelectItem>
+                        <SelectItem value="order_count">Order Count</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Sort Order */}
+                  <div className="space-y-2">
+                    <Label>Order</Label>
+                    <Select value={sortOrder} onValueChange={setSortOrder}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="asc">Ascending</SelectItem>
+                        <SelectItem value="desc">Descending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Min Order Value Filter */}
+                <div className="space-y-2">
+                  <Label>Min Total Spent (₹)</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={minOrderValue}
+                    onChange={(e) => setMinOrderValue(e.target.value)}
+                  />
+                </div>
+
+                {/* Min Order Count Filter */}
+                <div className="space-y-2">
+                  <Label>Min Order Count</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={minOrderCount}
+                    onChange={(e) => setMinOrderCount(e.target.value)}
+                  />
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          
+          <Button onClick={() => setIsNewCustomerOpen(true)} className="w-full sm:w-auto">
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Add Customer</span>
+            <span className="sm:hidden">Add</span>
+          </Button>
+        </div>
+      </div>
 
       {/* Customer Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -283,7 +362,7 @@ const CustomerManagement = () => {
         ) : (
           filteredCustomers.map((customer) => (
             <Card key={customer.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
@@ -293,12 +372,12 @@ const CustomerManagement = () => {
                     
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2 text-sm">
-                        <Phone className="w-4 h-4 text-gray-400" />
+                        <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         <a 
                           href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-green-600 hover:text-green-700 hover:underline transition-colors"
+                          className="text-green-600 hover:text-green-700 hover:underline transition-colors break-all"
                         >
                           {customer.phone}
                         </a>
@@ -306,10 +385,10 @@ const CustomerManagement = () => {
                       
                       {customer.email && (
                         <div className="flex items-center space-x-2 text-sm">
-                          <Mail className="w-4 h-4 text-gray-400" />
+                          <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
                           <a 
                             href={`mailto:${customer.email}`}
-                            className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                            className="text-blue-600 hover:text-blue-700 hover:underline transition-colors break-all"
                           >
                             {customer.email}
                           </a>
@@ -324,7 +403,7 @@ const CustomerManagement = () => {
                       )}
 
                       {/* Order Statistics */}
-                      <div className="flex items-center space-x-4 text-sm pt-2 border-t border-gray-100">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm pt-2 border-t border-gray-100">
                         <div className="flex items-center space-x-1">
                           <DollarSign className="w-4 h-4 text-green-500" />
                           <span className="font-medium text-green-600">
