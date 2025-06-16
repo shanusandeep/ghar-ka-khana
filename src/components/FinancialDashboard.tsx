@@ -104,7 +104,7 @@ const FinancialDashboard = () => {
 
   const loadCustomers = async () => {
     try {
-      const data = await customersApi.getAll()
+      const data = await customersApi.getAllWithOrderTotals()
       setCustomers(data)
     } catch (error) {
       console.error('Error loading customers:', error)
@@ -655,6 +655,7 @@ const FinancialDashboard = () => {
             dailyStats={dailyStats}
             orders={orders}
             customers={customers}
+            timePeriod={filterState.timePeriod}
           />
         </TabsContent>
       </Tabs>

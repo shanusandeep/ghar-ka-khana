@@ -23,6 +23,7 @@ interface FinancialAnalyticsProps {
   dailyStats: any[]
   orders: any[]
   customers: any[]
+  timePeriod: string
 }
 
 interface DayOfWeekStat {
@@ -38,7 +39,21 @@ interface DayOfWeekAccumulator {
   count: number
 }
 
-const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalyticsProps) => {
+const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: FinancialAnalyticsProps) => {
+  // Get display label for time period
+  const getTimePeriodLabel = (period: string) => {
+    switch (period) {
+      case 'today': return 'Today'
+      case '7d': return '7d'
+      case '30d': return '30d'
+      case 'quarter': return 'Quarter'
+      case 'year': return 'Year'
+      default: return '7d'
+    }
+  }
+
+  const timePeriodLabel = getTimePeriodLabel(timePeriod)
+
   // Calculate advanced metrics
   const totalRevenue = dailyStats.reduce((sum, day) => sum + (day.total || 0), 0)
   const totalOrders = dailyStats.reduce((sum, day) => sum + (day.orderCount || 0), 0)
@@ -93,20 +108,41 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
 
   const COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6']
 
-  // Calculate active customers (customers with at least one order)
-  const activeCustomersCount = customers.filter(c => (c.order_count || 0) > 0).length
+  // Calculate active customers for the same period as revenue growth (last 7 days)
+  // Get customer IDs from recent orders (last 7 days)
+  const recentOrderCustomerIds = new Set()
+  
+  // Get the date range for last 7 days from dailyStats
+  const last7DaysData = dailyStats.slice(-7)
+  const last7DaysDates = last7DaysData.map(day => day.date)
+  
+  // Filter orders that fall within the last 7 days period
+  const recentOrders = orders.filter(order => {
+    const orderDate = new Date(order.delivery_date)
+    const orderDateStr = orderDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })
+    return last7DaysDates.includes(orderDateStr)
+  })
+  
+  // Get unique customer IDs from recent orders
+  recentOrders.forEach(order => {
+    if (order.customer_id) {
+      recentOrderCustomerIds.add(order.customer_id)
+    }
+  })
+  
+  const activeCustomersCount = recentOrderCustomerIds.size
 
   // Performance metrics
   const metrics = [
     {
-      title: 'Revenue Growth',
+      title: `Revenue Growth (${timePeriodLabel})`,
       value: `${revenueGrowth >= 0 ? '+' : ''}${revenueGrowth.toFixed(1)}%`,
       icon: revenueGrowth >= 0 ? TrendingUp : TrendingDown,
       color: revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600',
       bgColor: revenueGrowth >= 0 ? 'bg-green-50' : 'bg-red-50'
     },
     {
-      title: 'Active Customers',
+      title: 'Active Customers (7d)',
       value: activeCustomersCount.toString(),
       icon: Users,
       color: 'text-blue-600',
