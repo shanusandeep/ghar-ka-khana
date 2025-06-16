@@ -25,47 +25,58 @@ interface FinancialAnalyticsProps {
   customers: any[]
 }
 
+interface DayOfWeekStat {
+  day: string
+  total: number
+  count: number
+  average: number
+}
+
 const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalyticsProps) => {
   // Calculate advanced metrics
-  const totalRevenue = dailyStats.reduce((sum, day) => sum + day.total, 0)
-  const totalOrders = dailyStats.reduce((sum, day) => sum + day.orderCount, 0)
+  const totalRevenue = dailyStats.reduce((sum, day) => sum + (day.total || 0), 0)
+  const totalOrders = dailyStats.reduce((sum, day) => sum + (day.orderCount || 0), 0)
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
 
   // Calculate growth trends
   const recentDays = dailyStats.slice(-7)
   const previousDays = dailyStats.slice(-14, -7)
   
-  const recentRevenue = recentDays.reduce((sum, day) => sum + day.total, 0)
-  const previousRevenue = previousDays.reduce((sum, day) => sum + day.total, 0)
+  const recentRevenue = recentDays.reduce((sum, day) => sum + (day.total || 0), 0)
+  const previousRevenue = previousDays.reduce((sum, day) => sum + (day.total || 0), 0)
   const revenueGrowth = previousRevenue > 0 ? ((recentRevenue - previousRevenue) / previousRevenue) * 100 : 0
 
   // Top customers by spending
   const topCustomers = customers
-    .filter(c => c.total_order_value > 0)
+    .filter(c => (c.total_order_value || 0) > 0)
     .sort((a, b) => (b.total_order_value || 0) - (a.total_order_value || 0))
     .slice(0, 5)
 
   // Revenue by day of week
-  const dayOfWeekStats = dailyStats.reduce((acc, day) => {
+  const dayOfWeekStats = dailyStats.reduce((acc: Record<string, { day: string; total: number; count: number }>, day) => {
     const date = new Date(day.date + ' 2024') // Adding year for parsing
     const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })
-    if (!acc[dayName]) acc[dayName] = { day: dayName, total: 0, count: 0 }
-    acc[dayName].total += day.total
+    if (!acc[dayName]) {
+      acc[dayName] = { day: dayName, total: 0, count: 0 }
+    }
+    acc[dayName].total += day.total || 0
     acc[dayName].count += 1
     return acc
-  }, {} as Record<string, { day: string; total: number; count: number }>)
+  }, {})
 
-  const dayOfWeekData = Object.values(dayOfWeekStats).map(d => ({
-    ...d,
+  const dayOfWeekData: DayOfWeekStat[] = Object.values(dayOfWeekStats).map(d => ({
+    day: d.day,
+    total: d.total,
+    count: d.count,
     average: d.total / d.count
   }))
 
   // Order status distribution
-  const statusDistribution = orders.reduce((acc, order) => {
+  const statusDistribution = orders.reduce((acc: Record<string, number>, order) => {
     const status = order.status || 'pending'
     acc[status] = (acc[status] || 0) + 1
     return acc
-  }, {} as Record<string, number>)
+  }, {})
 
   const statusData = Object.entries(statusDistribution).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
@@ -231,11 +242,11 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
                     </Badge>
                     <div>
                       <p className="font-medium">{customer.name}</p>
-                      <p className="text-sm text-gray-600">{customer.order_count} orders</p>
+                      <p className="text-sm text-gray-600">{customer.order_count || 0} orders</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-green-600">₹{customer.total_order_value?.toFixed(2)}</p>
+                    <p className="font-bold text-green-600">₹{(customer.total_order_value || 0).toFixed(2)}</p>
                   </div>
                 </div>
               ))}

@@ -34,9 +34,11 @@ const PreparationDashboard = () => {
       const data = await ordersApi.getPreparationSummary(selectedDate)
       console.log('Preparation summary data:', data)
       
-      // Add default status to items
-      const itemsWithStatus = data.map(item => ({
-        ...item,
+      // Add default status to items with proper typing
+      const itemsWithStatus: PreparationItem[] = data.map(item => ({
+        item_name: item.item_name,
+        size_type: item.size_type,
+        total_quantity: item.total_quantity,
         status: 'pending' as const
       }))
       
@@ -69,11 +71,11 @@ const PreparationDashboard = () => {
   }
 
   const getStatusStats = () => {
-    const stats = preparationItems.reduce((acc, item) => {
+    const stats = preparationItems.reduce((acc: Record<string, number>, item) => {
       const status = item.status || 'pending'
       acc[status] = (acc[status] || 0) + 1
       return acc
-    }, {} as Record<string, number>)
+    }, {})
 
     return {
       pending: stats.pending || 0,
