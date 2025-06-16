@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +13,7 @@ import { MenuCategory, MenuItem } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import AddCategoryForm from './AddCategoryForm'
 import MenuItemForm from './MenuItemForm'
+import ConfirmationDialog from './ConfirmationDialog'
 
 const MenuManagement = () => {
   const [categories, setCategories] = useState<MenuCategory[]>([])
@@ -20,6 +22,8 @@ const MenuManagement = () => {
   const [isNewItemOpen, setIsNewItemOpen] = useState(false)
   const [isNewCategoryOpen, setIsNewCategoryOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
+  const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -61,6 +65,30 @@ const MenuManagement = () => {
         description: "Failed to update item",
         variant: "destructive"
       })
+    }
+  }
+
+  const deleteMenuItem = async () => {
+    if (!deletingItem) return
+
+    setDeleteLoading(true)
+    try {
+      await menuItemsApi.delete(deletingItem.id)
+      await loadData()
+      setDeletingItem(null)
+      toast({
+        title: "Success",
+        description: "Menu item deleted successfully"
+      })
+    } catch (error) {
+      console.error('Error deleting menu item:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete menu item",
+        variant: "destructive"
+      })
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -199,7 +227,12 @@ const MenuManagement = () => {
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button variant="outline" size="sm">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => setDeletingItem(item)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
@@ -268,6 +301,24 @@ const MenuManagement = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={!!deletingItem}
+        onOpenChange={() => setDeletingItem(null)}
+        title="Delete Menu Item"
+        description={
+          <div>
+            Are you sure you want to delete <strong>{deletingItem?.name}</strong>?
+            <br />
+            This action cannot be undone and will permanently remove the menu item.
+          </div>
+        }
+        confirmText="Delete Item"
+        onConfirm={deleteMenuItem}
+        destructive={true}
+        loading={deleteLoading}
+      />
     </div>
   )
 }

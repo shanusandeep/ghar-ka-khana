@@ -39,13 +39,15 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [existingCustomer, setExistingCustomer] = useState<Customer | null>(null)
-  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
+  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('fixed')
   const [discountValue, setDiscountValue] = useState<number>(0)
   const [loading, setLoading] = useState(false)
+  const [topOrderItems, setTopOrderItems] = useState<{ item_name: string; total_revenue: number; size_type: string }[]>([])
   const { toast } = useToast()
 
   useEffect(() => {
     loadMenuItems()
+    loadTopOrderItems()
   }, [])
 
   useEffect(() => {
@@ -98,6 +100,37 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
       setMenuItems(data)
     } catch (error) {
       console.error('Error loading menu items:', error)
+    }
+  }
+
+  const loadTopOrderItems = async () => {
+    try {
+      const orders = await ordersApi.getAll()
+      const itemRevenue: { [key: string]: { total: number; size_type: string } } = {}
+      
+      orders.forEach(order => {
+        if (order.order_items) {
+          order.order_items.forEach(item => {
+            const key = `${item.item_name}-${item.size_type}`
+            if (!itemRevenue[key]) {
+              itemRevenue[key] = { total: 0, size_type: item.size_type }
+            }
+            itemRevenue[key].total += item.total_price
+          })
+        }
+      })
+
+      const topItems = Object.entries(itemRevenue)
+        .map(([key, data]) => ({
+          item_name: key.split('-')[0],
+          total_revenue: data.total,
+          size_type: data.size_type
+        }))
+        .sort((a, b) => b.total_revenue - a.total_revenue)
+
+      setTopOrderItems(topItems)
+    } catch (error) {
+      console.error('Error loading top order items:', error)
     }
   }
 
@@ -284,6 +317,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
         menuItems={menuItems}
         orderItems={orderItems}
         setOrderItems={setOrderItems}
+        topOrderItems={topOrderItems}
       />
 
       <DiscountForm

@@ -1,10 +1,12 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { MenuItem } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
 import { useState } from 'react'
+import { ChevronDown, Plus } from 'lucide-react'
 
 interface OrderItem {
   menu_item_id: string
@@ -20,35 +22,17 @@ interface MenuItemSelectorProps {
   menuItems: MenuItem[]
   orderItems: OrderItem[]
   setOrderItems: (items: OrderItem[]) => void
+  topOrderItems?: { item_name: string; total_revenue: number; size_type: string }[]
 }
 
-const MenuItemSelector = ({ menuItems, orderItems, setOrderItems }: MenuItemSelectorProps) => {
+const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems = [] }: MenuItemSelectorProps) => {
   const { toast } = useToast()
-  const [selectedItemId, setSelectedItemId] = useState('')
-  const [selectedSizeType, setSelectedSizeType] = useState<'plate' | 'half_tray' | 'full_tray'>('plate')
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
 
-  const addOrderItem = () => {
-    if (!selectedItemId) {
-      toast({
-        title: "Error",
-        description: "Please select a menu item",
-        variant: "destructive"
-      })
-      return
-    }
-
-    const menuItem = menuItems.find(item => item.id === selectedItemId)
-    if (!menuItem) {
-      toast({
-        title: "Error",
-        description: "Menu item not found",
-        variant: "destructive"
-      })
-      return
-    }
-
-    const price = selectedSizeType === 'plate' ? menuItem.price_per_plate : 
-                  selectedSizeType === 'half_tray' ? menuItem.price_half_tray : 
+  const addOrderItem = (menuItem: MenuItem, sizeType: 'plate' | 'half_tray' | 'full_tray') => {
+    const price = sizeType === 'plate' ? menuItem.price_per_plate : 
+                  sizeType === 'half_tray' ? menuItem.price_half_tray : 
                   menuItem.price_full_tray
 
     if (!price) {
@@ -63,7 +47,7 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems }: MenuItemSele
     const newItem: OrderItem = {
       menu_item_id: menuItem.id,
       item_name: menuItem.name,
-      size_type: selectedSizeType,
+      size_type: sizeType,
       quantity: 1,
       unit_price: price,
       total_price: price,
@@ -71,8 +55,6 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems }: MenuItemSele
     }
 
     setOrderItems([...orderItems, newItem])
-    setSelectedItemId('')
-    setSelectedSizeType('plate')
     
     toast({
       title: "Success",
@@ -82,14 +64,16 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems }: MenuItemSele
 
   const getAvailableSizes = (item: MenuItem) => {
     const sizes = []
-    if (item.price_per_plate) sizes.push({ value: 'plate', label: `Plate ($${item.price_per_plate})`, price: item.price_per_plate })
-    if (item.price_half_tray) sizes.push({ value: 'half_tray', label: `Half Tray ($${item.price_half_tray})`, price: item.price_half_tray })
-    if (item.price_full_tray) sizes.push({ value: 'full_tray', label: `Full Tray ($${item.price_full_tray})`, price: item.price_full_tray })
+    if (item.price_per_plate) sizes.push({ type: 'plate', label: 'Plate', price: item.price_per_plate })
+    if (item.price_half_tray) sizes.push({ type: 'half_tray', label: 'Half Tray', price: item.price_half_tray })
+    if (item.price_full_tray) sizes.push({ type: 'full_tray', label: 'Full Tray', price: item.price_full_tray })
     return sizes
   }
 
-  const selectedMenuItem = menuItems.find(item => item.id === selectedItemId)
-  const availableSizes = selectedMenuItem ? getAvailableSizes(selectedMenuItem) : []
+  const filteredItems = menuItems.filter(item => 
+    item.is_available && 
+    item.name.toLowerCase().includes(searchValue.toLowerCase())
+  )
 
   return (
     <Card>
@@ -97,120 +81,105 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems }: MenuItemSele
         <CardTitle>Add Menu Items</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Select value={selectedItemId} onValueChange={setSelectedItemId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select menu item" />
-              </SelectTrigger>
-              <SelectContent>
-                {menuItems.filter(item => item.is_available).map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <Select 
-              value={selectedSizeType} 
-              onValueChange={(value: 'plate' | 'half_tray' | 'full_tray') => setSelectedSizeType(value)}
-              disabled={!selectedItemId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select size" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableSizes.map((size) => (
-                  <SelectItem key={size.value} value={size.value}>
-                    {size.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Button 
-            onClick={addOrderItem}
-            disabled={!selectedItemId || availableSizes.length === 0}
-            className="w-full"
-          >
-            Add Item
-          </Button>
+        {/* Searchable Dropdown */}
+        <div>
+          <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={searchOpen}
+                className="w-full justify-between"
+              >
+                Search menu items...
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="start">
+              <Command>
+                <CommandInput 
+                  placeholder="Search menu items..." 
+                  value={searchValue}
+                  onValueChange={setSearchValue}
+                />
+                <CommandList className="max-h-80">
+                  <CommandEmpty>No menu items found.</CommandEmpty>
+                  <CommandGroup>
+                    {filteredItems.map((item) => (
+                      <CommandItem
+                        key={item.id}
+                        className="flex flex-col items-start p-3 space-y-2"
+                      >
+                        <div className="w-full">
+                          <div className="font-medium">{item.name}</div>
+                          {item.description && (
+                            <div className="text-sm text-gray-500">{item.description}</div>
+                          )}
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {getAvailableSizes(item).map((size) => (
+                              <Button
+                                key={size.type}
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  addOrderItem(item, size.type as 'plate' | 'half_tray' | 'full_tray')
+                                  setSearchOpen(false)
+                                }}
+                                className="text-xs"
+                              >
+                                <Plus className="w-3 h-3 mr-1" />
+                                {size.label} ${size.price}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
-        {selectedMenuItem && (
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold">{selectedMenuItem.name}</h4>
-            {selectedMenuItem.description && (
-              <p className="text-sm text-gray-600 mt-1">{selectedMenuItem.description}</p>
-            )}
-            {selectedMenuItem.ingredients && selectedMenuItem.ingredients.length > 0 && (
-              <p className="text-sm text-gray-500 mt-2">
-                <strong>Ingredients:</strong> {selectedMenuItem.ingredients.join(', ')}
-              </p>
-            )}
+        {/* Top 5 Items by Revenue */}
+        {topOrderItems.length > 0 && (
+          <div>
+            <h5 className="font-medium mb-2">Top Items by Revenue</h5>
+            <div className="grid gap-2">
+              {topOrderItems.slice(0, 5).map((topItem, index) => {
+                const menuItem = menuItems.find(item => item.name === topItem.item_name)
+                if (!menuItem) return null
+                
+                return (
+                  <div key={index} className="flex items-center justify-between p-2 border rounded text-sm bg-blue-50">
+                    <div className="flex-1">
+                      <span className="font-medium">{topItem.item_name}</span>
+                      <div className="text-xs text-gray-500">Revenue: ${topItem.total_revenue.toFixed(2)}</div>
+                    </div>
+                    <div className="flex gap-1">
+                      {getAvailableSizes(menuItem).map((size) => (
+                        <Button
+                          key={size.type}
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => addOrderItem(menuItem, size.type as 'plate' | 'half_tray' | 'full_tray')}
+                          className="text-xs"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          ${size.price}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
-
-        <div className="border-t pt-4">
-          <h5 className="font-medium mb-2">Available Menu Items</h5>
-          <div className="grid gap-2 max-h-40 overflow-y-auto">
-            {menuItems.filter(item => item.is_available).map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-2 border rounded text-sm">
-                <div>
-                  <span className="font-medium">{item.name}</span>
-                  {item.description && (
-                    <p className="text-gray-500 text-xs">{item.description}</p>
-                  )}
-                </div>
-                <div className="flex space-x-1">
-                  {item.price_per_plate && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedItemId(item.id)
-                        setSelectedSizeType('plate')
-                      }}
-                    >
-                      ${item.price_per_plate}
-                    </Button>
-                  )}
-                  {item.price_half_tray && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedItemId(item.id)
-                        setSelectedSizeType('half_tray')
-                      }}
-                    >
-                      ${item.price_half_tray}
-                    </Button>
-                  )}
-                  {item.price_full_tray && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedItemId(item.id)
-                        setSelectedSizeType('full_tray')
-                      }}
-                    >
-                      ${item.price_full_tray}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </CardContent>
     </Card>
   )
