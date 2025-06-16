@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrendingUp, TrendingDown, DollarSign, Package, Users, Calendar } from 'lucide-react'
@@ -86,8 +85,8 @@ const FinancialAnalytics = ({ dailyStats, orders, customers }: FinancialAnalytic
 
   const statusData = Object.entries(statusDistribution).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
-    value: count,
-    percentage: orders.length > 0 ? ((count / orders.length) * 100).toFixed(1) : '0.0'
+    value: count as number,
+    percentage: orders.length > 0 ? (((count as number) / orders.length) * 100).toFixed(1) : '0.0'
   }))
 
   const COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6']
