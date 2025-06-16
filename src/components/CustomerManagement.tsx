@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -154,6 +153,10 @@ const CustomerManagement = () => {
     setMinOrderCount('')
   }
 
+  const handleSortOrderChange = (value: string) => {
+    setSortOrder(value as 'asc' | 'desc')
+  }
+
   const getFilteredAndSortedCustomers = () => {
     let filtered = customers.filter(customer => {
       // Search filter
@@ -276,7 +279,7 @@ const CustomerManagement = () => {
                   {/* Sort Order */}
                   <div className="space-y-2">
                     <Label>Order</Label>
-                    <Select value={sortOrder} onValueChange={setSortOrder}>
+                    <Select value={sortOrder} onValueChange={handleSortOrderChange}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
