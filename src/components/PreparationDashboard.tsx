@@ -16,7 +16,10 @@ interface PreparationSummaryItem {
 }
 
 const PreparationDashboard = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  // Get today's date in local timezone
+  const today = new Date()
+  const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  const [selectedDate, setSelectedDate] = useState(todayString)
   const [preparationSummary, setPreparationSummary] = useState<PreparationSummaryItem[]>([])
   const [loading, setLoading] = useState(false)
   const [filterCategory, setFilterCategory] = useState<string>('all')
@@ -29,8 +32,18 @@ const PreparationDashboard = () => {
   const loadPreparationSummary = async () => {
     setLoading(true)
     try {
+      console.log('Loading preparation summary for date:', selectedDate)
       const data = await ordersApi.getPreparationSummary(selectedDate)
+      console.log('Preparation summary data:', data)
       setPreparationSummary(data as PreparationSummaryItem[])
+      
+      if (data.length === 0) {
+        // Also try to get all orders for debugging
+        const allOrders = await ordersApi.getAll()
+        console.log('All orders in system:', allOrders)
+        const ordersForDate = await ordersApi.getByDate(selectedDate)
+        console.log('Orders for selected date:', ordersForDate)
+      }
     } catch (error) {
       console.error('Error loading preparation summary:', error)
       toast({
@@ -62,24 +75,218 @@ const PreparationDashboard = () => {
   }
 
   const exportPreparationList = () => {
-    // Simple text export for now
-    let exportText = `Preparation List for ${new Date(selectedDate).toLocaleDateString()}\n\n`
-    
-    preparationSummary.forEach(item => {
-      exportText += `${item.item_name} - ${item.total_quantity} ${getSizeDisplayName(item.size_type)}\n`
+    // Create HTML content for PDF
+    const date = new Date(selectedDate).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     })
     
-    const blob = new Blob([exportText], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `preparation-list-${selectedDate}.txt`
-    link.click()
-    URL.revokeObjectURL(url)
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Kitchen Preparation List - ${date}</title>
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: white;
+            color: #333;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #f97316;
+            padding-bottom: 20px;
+          }
+          .header h1 {
+            color: #f97316;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+          }
+          .header h2 {
+            color: #666;
+            margin: 5px 0 0 0;
+            font-size: 18px;
+            font-weight: normal;
+          }
+          .summary {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #f97316;
+          }
+          .summary-item {
+            display: inline-block;
+            margin-right: 30px;
+            font-weight: 600;
+          }
+          .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+          }
+          .item-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .item-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+          }
+          .size-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+          }
+          .size-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+          }
+          .size-badge.plate { background: #dbeafe; color: #1e40af; }
+          .size-badge.half_tray { background: #fed7aa; color: #c2410c; }
+          .size-badge.full_tray { background: #dcfce7; color: #166534; }
+          .quantity {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+          }
+          .total-row {
+            border-top: 2px solid #e5e7eb;
+            margin-top: 15px;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f0fdf4;
+            padding: 12px;
+            border-radius: 6px;
+          }
+          .total-label {
+            font-weight: bold;
+            color: #166534;
+          }
+          .total-quantity {
+            font-size: 18px;
+            font-weight: bold;
+            color: #166534;
+          }
+          .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #666;
+            font-size: 12px;
+          }
+          @media print {
+            body { margin: 0; }
+            .item-card { break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>🍽️ Kitchen Preparation List</h1>
+          <h2>${date}</h2>
+        </div>
+    `
+    
+    // Add summary
+    const totalItems = Object.keys(groupedItems).length
+    const totalQuantity = Object.values(groupedItems).reduce((sum, sizes) => 
+      sum + sizes.reduce((sizeSum, size) => sizeSum + size.total_quantity, 0), 0
+    )
+    
+    htmlContent += `
+        <div class="summary">
+          <div class="summary-item">📋 Total Items: ${totalItems}</div>
+          <div class="summary-item">📦 Total Quantity: ${totalQuantity}</div>
+          <div class="summary-item">📅 Delivery Date: ${date}</div>
+        </div>
+        
+        <div class="items-grid">
+    `
+    
+    // Add items
+    Object.entries(groupedItems).forEach(([itemName, sizes]) => {
+      htmlContent += `
+          <div class="item-card">
+            <div class="item-name">${itemName}</div>
+      `
+      
+      sizes.forEach(sizeItem => {
+        const sizeClass = sizeItem.size_type
+        htmlContent += `
+            <div class="size-row">
+              <span class="size-badge ${sizeClass}">${getSizeDisplayName(sizeItem.size_type)}</span>
+              <span class="quantity">${sizeItem.total_quantity}</span>
+            </div>
+        `
+      })
+      
+      if (sizes.length > 1) {
+        const total = sizes.reduce((sum, size) => sum + size.total_quantity, 0)
+        htmlContent += `
+            <div class="total-row">
+              <span class="total-label">Total</span>
+              <span class="total-quantity">${total}</span>
+            </div>
+        `
+      }
+      
+      htmlContent += `</div>`
+    })
+    
+    htmlContent += `
+        </div>
+        
+        <div class="footer">
+          Generated on ${new Date().toLocaleString('en-IN')} | Ghar Ka Khana Kitchen Management
+        </div>
+      </body>
+      </html>
+    `
+    
+    // Create and download PDF
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+      
+      // Wait for content to load then print
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print()
+          printWindow.close()
+        }, 500)
+      }
+    }
     
     toast({
       title: "Success",
-      description: "Preparation list exported successfully"
+      description: "Preparation list PDF generated successfully"
     })
   }
 
@@ -161,34 +368,53 @@ const PreparationDashboard = () => {
                 <div className="text-center text-gray-500">
                   <ChefHat className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>No orders found for {new Date(selectedDate).toLocaleDateString()}</p>
-                  <p className="text-sm">Select a different date or check if orders are confirmed.</p>
+                  <p className="text-sm">Selected date: {selectedDate}</p>
+                  <p className="text-sm">Looking for orders with status: received</p>
+                  <p className="text-sm">Try selecting a different date or create some orders first.</p>
                 </div>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {preparationSummary.map((item, index) => (
-                <Card key={index} className="hover:shadow-md transition-shadow">
+              {Object.entries(groupedItems).map(([itemName, sizes]) => (
+                <Card key={itemName} className="hover:shadow-md transition-shadow">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base font-semibold truncate" title={item.item_name}>
-                      {item.item_name}
+                    <CardTitle className="text-base font-semibold truncate" title={itemName}>
+                      {itemName}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Badge className={getSizeBadgeColor(item.size_type)}>
-                          {getSizeDisplayName(item.size_type)}
-                        </Badge>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-gray-900">
-                            {item.total_quantity}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {item.size_type === 'plate' ? 'plates' : 'trays'}
+                    <div className="space-y-2">
+                      {sizes.map((sizeItem, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <Badge className={getSizeBadgeColor(sizeItem.size_type)}>
+                            {getSizeDisplayName(sizeItem.size_type)}
+                          </Badge>
+                          <div className="text-right">
+                            <div className="text-xl font-bold text-gray-900">
+                              {sizeItem.total_quantity}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {sizeItem.size_type === 'plate' ? 'plates' : 'trays'}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ))}
+                      
+                      {/* Total for this item across all sizes */}
+                      {sizes.length > 1 && (
+                        <div className="border-t pt-2 mt-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-600">Total</span>
+                            <div className="text-right">
+                              <div className="text-lg font-bold text-green-600">
+                                {sizes.reduce((sum, size) => sum + size.total_quantity, 0)}
+                              </div>
+                              <div className="text-xs text-gray-500">all sizes</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

@@ -203,6 +203,8 @@ export const ordersApi = {
   },
 
   getPreparationSummary: async (date: string) => {
+    console.log('API: Getting preparation summary for date:', date)
+    
     const { data, error } = await supabase
       .from('order_items')
       .select(`
@@ -213,6 +215,9 @@ export const ordersApi = {
       `)
       .eq('orders.delivery_date', date)
       .in('orders.status', ['received'])
+    
+    console.log('API: Raw order_items data:', data)
+    console.log('API: Query error:', error)
     
     if (error) throw error
     

@@ -22,6 +22,34 @@ interface OrderWithItems extends Order {
   order_items?: OrderItem[]
 }
 
+// Group order items by item name
+const groupOrderItems = (items: any[]) => {
+  const grouped = items.reduce((acc, item) => {
+    const key = item.item_name
+    if (!acc[key]) {
+      acc[key] = {
+        item_name: item.item_name,
+        menu_item_id: item.menu_item_id,
+        sizes: [],
+        total_amount: 0,
+        special_instructions: item.special_instructions
+      }
+    }
+    
+    acc[key].sizes.push({
+      size_type: item.size_type,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      total_price: item.total_price
+    })
+    acc[key].total_amount += item.total_price
+    
+    return acc
+  }, {})
+  
+  return Object.values(grouped)
+}
+
 interface OrderDetailsViewProps {
   order: OrderWithItems
 }
@@ -126,24 +154,33 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
         <CardContent>
           {order.order_items && order.order_items.length > 0 ? (
             <div className="space-y-3">
-              {order.order_items.map((item, index) => (
-                <div key={index} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-medium">{item.item_name}</h4>
-                    <p className="text-sm text-gray-600">
-                      Size: {item.size_type.replace('_', ' ').charAt(0).toUpperCase() + item.size_type.replace('_', ' ').slice(1)}
+              {groupOrderItems(order.order_items).map((groupedItem: any, index) => (
+                <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-medium text-base">{groupedItem.item_name}</h4>
+                    <p className="font-semibold text-green-600">₹{groupedItem.total_amount.toFixed(2)}</p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    {groupedItem.sizes.map((size: any, sizeIndex: number) => (
+                      <div key={sizeIndex} className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">
+                          {size.size_type.replace('_', ' ').charAt(0).toUpperCase() + size.size_type.replace('_', ' ').slice(1)}
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <span>Qty: {size.quantity}</span>
+                          <span className="text-gray-500">@ ₹{size.unit_price}</span>
+                          <span className="font-medium">₹{size.total_price.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {groupedItem.special_instructions && (
+                    <p className="text-sm text-gray-600 mt-2 italic">
+                      Instructions: {groupedItem.special_instructions}
                     </p>
-                    {item.special_instructions && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        Instructions: {item.special_instructions}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">Qty: {item.quantity}</p>
-                    <p className="text-sm text-gray-600">${item.unit_price} each</p>
-                    <p className="font-semibold text-green-600">${item.total_price}</p>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -172,23 +209,23 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
             {order.subtotal_amount && (
               <div className="flex justify-between items-center text-sm">
                 <span>Subtotal:</span>
-                <span>${order.subtotal_amount.toFixed(2)}</span>
+                <span>₹{order.subtotal_amount.toFixed(2)}</span>
               </div>
             )}
             
             {order.discount_amount && order.discount_amount > 0 && (
               <div className="flex justify-between items-center text-sm text-red-600">
                 <span>
-                  Discount ({order.discount_type === 'percentage' ? `${order.discount_value}%` : `$${order.discount_value}`}):
+                  Discount ({order.discount_type === 'percentage' ? `${order.discount_value}%` : `₹${order.discount_value}`}):
                 </span>
-                <span>-${order.discount_amount.toFixed(2)}</span>
+                <span>-₹{order.discount_amount.toFixed(2)}</span>
               </div>
             )}
             
             <div className="flex justify-between items-center border-t pt-2">
               <span className="text-base font-semibold">Total Amount</span>
               <span className="text-xl font-bold text-green-600">
-                ${order.total_amount || 0}
+                ₹{order.total_amount?.toFixed(2) || '0.00'}
               </span>
             </div>
           </div>
@@ -446,15 +483,25 @@ const OrderManagement = () => {
                   {/* Order Items Preview */}
                   {order.order_items && order.order_items.length > 0 && (
                     <div className="mt-2 space-y-1">
-                      {order.order_items.slice(0, 2).map((item, index) => (
-                        <div key={index} className="flex justify-between items-center text-xs bg-gray-50 p-1 rounded">
-                          <span className="truncate">{item.quantity}x {item.item_name}</span>
-                          <span className="text-gray-600">${item.total_price}</span>
+                      {groupOrderItems(order.order_items).slice(0, 2).map((groupedItem: any, index) => (
+                        <div key={index} className="text-xs bg-gray-50 p-1 rounded">
+                          <div className="flex justify-between items-center">
+                            <span className="truncate font-medium">{groupedItem.item_name}</span>
+                            <span className="text-gray-600">₹{groupedItem.total_amount.toFixed(2)}</span>
+                          </div>
+                          <div className="text-gray-500 text-xs mt-0.5">
+                            {groupedItem.sizes.map((size: any, sizeIndex: number) => (
+                              <span key={sizeIndex}>
+                                {size.quantity}x {size.size_type.replace('_', ' ')}
+                                {sizeIndex < groupedItem.sizes.length - 1 ? ', ' : ''}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       ))}
-                      {order.order_items.length > 2 && (
+                      {groupOrderItems(order.order_items).length > 2 && (
                         <div className="text-xs text-gray-500 text-center">
-                          +{order.order_items.length - 2} more items
+                          +{groupOrderItems(order.order_items).length - 2} more items
                         </div>
                       )}
                     </div>
@@ -462,7 +509,7 @@ const OrderManagement = () => {
 
                   {order.total_amount && (
                     <div className="text-sm font-semibold text-green-600 mt-2">
-                      ${order.total_amount}
+                      ₹{order.total_amount.toFixed(2)}
                     </div>
                   )}
                 </div>
