@@ -77,10 +77,10 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Add Menu Items</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">Add Menu Items</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {/* Searchable Dropdown */}
         <div>
           <Popover open={searchOpen} onOpenChange={setSearchOpen}>
@@ -144,20 +144,20 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
           </Popover>
         </div>
 
-        {/* Top 5 Items by Revenue */}
+        {/* Last 3 Items Ordered */}
         {topOrderItems.length > 0 && (
           <div>
-            <h5 className="font-medium mb-2">Top Items by Revenue</h5>
+            <h5 className="font-medium mb-2">Last 3 Items Ordered</h5>
             <div className="grid gap-2">
-              {topOrderItems.slice(0, 5).map((topItem, index) => {
-                const menuItem = menuItems.find(item => item.name === topItem.item_name)
+              {topOrderItems.slice(0, 3).map((recentItem, index) => {
+                const menuItem = menuItems.find(item => item.name === recentItem.item_name)
                 if (!menuItem) return null
                 
                 return (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded text-sm bg-blue-50">
+                  <div key={index} className="flex items-center justify-between p-2 border rounded text-sm bg-green-50">
                     <div className="flex-1">
-                      <span className="font-medium">{topItem.item_name}</span>
-                      <div className="text-xs text-gray-500">Revenue: ${topItem.total_revenue.toFixed(2)}</div>
+                      <span className="font-medium">{recentItem.item_name}</span>
+                      <div className="text-xs text-gray-500">Recently ordered</div>
                     </div>
                     <div className="flex gap-1">
                       {getAvailableSizes(menuItem).map((size) => (

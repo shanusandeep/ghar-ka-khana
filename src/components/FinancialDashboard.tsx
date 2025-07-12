@@ -251,6 +251,71 @@ const FinancialDashboard = () => {
     return totalOrders > 0 ? getTotalRevenue() / totalOrders : 0
   }
 
+  const getTopItemsBySales = () => {
+    let filteredOrders = [...orders]
+
+    // Apply filters
+    if (filterState.customerId) {
+      filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
+    }
+    if (filterState.itemId) {
+      filteredOrders = filteredOrders.filter(order => 
+        order.order_items?.some(item => item.menu_item_id === filterState.itemId)
+      )
+    }
+
+    // Apply date range filter
+    const today = new Date()
+    let startDate: Date
+    switch (filterState.timePeriod) {
+      case 'today':
+        startDate = startOfDay(today)
+        break
+      case '7d':
+        startDate = subDays(today, 6)
+        break
+      case '30d':
+        startDate = subDays(today, 29)
+        break
+      case 'quarter':
+        startDate = subQuarters(today, 1)
+        break
+      case 'year':
+        startDate = subYears(today, 1)
+        break
+      default:
+        startDate = subDays(today, 6)
+    }
+
+    filteredOrders = filteredOrders.filter(order => {
+      const orderDate = parseISO(order.delivery_date)
+      return orderDate >= startDate && orderDate <= today
+    })
+
+    // Calculate item sales
+    const itemSales: { [key: string]: { name: string; totalSales: number; quantity: number } } = {}
+    
+    filteredOrders.forEach(order => {
+      order.order_items?.forEach(item => {
+        const key = item.item_name
+        if (!itemSales[key]) {
+          itemSales[key] = {
+            name: item.item_name,
+            totalSales: 0,
+            quantity: 0
+          }
+        }
+        itemSales[key].totalSales += item.total_price
+        itemSales[key].quantity += item.quantity
+      })
+    })
+
+    // Sort by total sales and return top 5
+    return Object.values(itemSales)
+      .sort((a, b) => b.totalSales - a.totalSales)
+      .slice(0, 5)
+  }
+
   // Export functions
   const exportToCSV = () => {
     const headers = ['Date', 'Revenue ($)', 'Order Count', 'Average Order Value ($)', '7-Day Moving Average ($)']
@@ -645,6 +710,54 @@ const FinancialDashboard = () => {
                     />
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Items by Sales</CardTitle>
+              <CardDescription>
+                Items with highest sales amount for {
+                  filterState.timePeriod === 'today' ? 'today' : 
+                  filterState.timePeriod === '7d' ? 'last 7 days' :
+                  filterState.timePeriod === '30d' ? 'last 30 days' :
+                  filterState.timePeriod === 'quarter' ? 'last quarter' :
+                  'last year'
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {getTopItemsBySales().length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No items found for the selected time period
+                  </div>
+                ) : (
+                  getTopItemsBySales().map((item, index) => (
+                    <div key={item.name} className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                          <p className="text-sm text-gray-600">{item.quantity} units sold</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-green-600">
+                          ${item.totalSales.toFixed(2)}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ${(item.totalSales / item.quantity).toFixed(2)} avg
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>

@@ -109,13 +109,13 @@ const CustomerOrderHistory = ({ customer }: CustomerOrderHistoryProps) => {
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">₹{totalSpent.toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-green-600">${totalSpent.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Total Spent</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600">₹{averageOrderValue.toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-purple-600">${averageOrderValue.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Avg. Order</div>
                 </CardContent>
               </Card>
@@ -153,7 +153,7 @@ const CustomerOrderHistory = ({ customer }: CustomerOrderHistoryProps) => {
                           </div>
                           <div className="text-right space-y-2">
                             <div className="text-lg font-semibold text-green-600">
-                              ₹{order.total_amount?.toFixed(2) || '0.00'}
+                              ${order.total_amount?.toFixed(2) || '0.00'}
                             </div>
                             <Button 
                               variant="outline" 
@@ -229,8 +229,8 @@ const CustomerOrderHistory = ({ customer }: CustomerOrderHistoryProps) => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-medium">₹{item.total_price.toFixed(2)}</div>
-                            <div className="text-sm text-gray-600">@₹{item.unit_price}</div>
+                            <div className="font-medium">${item.total_price.toFixed(2)}</div>
+                            <div className="text-sm text-gray-600">@${item.unit_price}</div>
                           </div>
                         </div>
                       ))}
@@ -248,18 +248,18 @@ const CustomerOrderHistory = ({ customer }: CustomerOrderHistoryProps) => {
                     {viewingOrder.subtotal_amount && (
                       <div className="flex justify-between">
                         <span>Subtotal:</span>
-                        <span>₹{viewingOrder.subtotal_amount.toFixed(2)}</span>
+                        <span>${viewingOrder.subtotal_amount.toFixed(2)}</span>
                       </div>
                     )}
                     {viewingOrder.discount_amount && viewingOrder.discount_amount > 0 && (
                       <div className="flex justify-between text-red-600">
                         <span>Discount:</span>
-                        <span>-₹{viewingOrder.discount_amount.toFixed(2)}</span>
+                        <span>-${viewingOrder.discount_amount.toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-semibold text-lg border-t pt-2">
                       <span>Total:</span>
-                      <span>₹{viewingOrder.total_amount?.toFixed(2) || '0.00'}</span>
+                      <span>${viewingOrder.total_amount?.toFixed(2) || '0.00'}</span>
                     </div>
                   </div>
                 </CardContent>

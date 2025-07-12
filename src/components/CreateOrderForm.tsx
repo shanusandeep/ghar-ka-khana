@@ -106,31 +106,36 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   const loadTopOrderItems = async () => {
     try {
       const orders = await ordersApi.getAll()
-      const itemRevenue: { [key: string]: { total: number; size_type: string } } = {}
+      const recentItems: { item_name: string; total_revenue: number; size_type: string; order_date: string }[] = []
       
-      orders.forEach(order => {
+      // Sort orders by created_at descending to get most recent orders first
+      const sortedOrders = orders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      
+      // Collect all items from recent orders
+      sortedOrders.forEach(order => {
         if (order.order_items) {
           order.order_items.forEach(item => {
-            const key = `${item.item_name}-${item.size_type}`
-            if (!itemRevenue[key]) {
-              itemRevenue[key] = { total: 0, size_type: item.size_type }
+            const existingItem = recentItems.find(ri => 
+              ri.item_name === item.item_name && ri.size_type === item.size_type
+            )
+            
+            if (!existingItem) {
+              recentItems.push({
+                item_name: item.item_name,
+                total_revenue: item.total_price,
+                size_type: item.size_type,
+                order_date: order.created_at
+              })
             }
-            itemRevenue[key].total += item.total_price
           })
         }
       })
 
-      const topItems = Object.entries(itemRevenue)
-        .map(([key, data]) => ({
-          item_name: key.split('-')[0],
-          total_revenue: data.total,
-          size_type: data.size_type
-        }))
-        .sort((a, b) => b.total_revenue - a.total_revenue)
-
-      setTopOrderItems(topItems)
+      // Get the last 3 unique items ordered
+      const lastThreeItems = recentItems.slice(0, 3)
+      setTopOrderItems(lastThreeItems)
     } catch (error) {
-      console.error('Error loading top order items:', error)
+      console.error('Error loading recent order items:', error)
     }
   }
 
@@ -287,8 +292,8 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <CustomerInfoForm
           customerName={customerName}
           setCustomerName={setCustomerName}
@@ -308,35 +313,40 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
         />
       </div>
 
-      <OrderItemsList
-        orderItems={orderItems}
-        setOrderItems={setOrderItems}
-      />
+      <div className="space-y-4">
+        <OrderItemsList
+          orderItems={orderItems}
+          setOrderItems={setOrderItems}
+        />
 
-      <MenuItemSelector
-        menuItems={menuItems}
-        orderItems={orderItems}
-        setOrderItems={setOrderItems}
-        topOrderItems={topOrderItems}
-      />
+        <MenuItemSelector
+          menuItems={menuItems}
+          orderItems={orderItems}
+          setOrderItems={setOrderItems}
+          topOrderItems={topOrderItems}
+        />
 
-      <DiscountForm
-        discountType={discountType}
-        setDiscountType={setDiscountType}
-        discountValue={discountValue}
-        setDiscountValue={setDiscountValue}
-        subtotalAmount={getSubtotalAmount()}
-        discountAmount={getDiscountAmount()}
-        totalAmount={getTotalAmount()}
-      />
+        <DiscountForm
+          discountType={discountType}
+          setDiscountType={setDiscountType}
+          discountValue={discountValue}
+          setDiscountValue={setDiscountValue}
+          subtotalAmount={getSubtotalAmount()}
+          discountAmount={getDiscountAmount()}
+          totalAmount={getTotalAmount()}
+        />
+      </div>
 
-      <OrderSummary
-        loading={loading}
-        orderItems={orderItems}
-        onSubmit={handleSubmit}
-        onClose={onClose}
-        isEditing={!!existingOrder}
-      />
+      {/* Fixed bottom section for buttons */}
+      <div className="sticky bottom-0 bg-white border-t pt-4 mt-6">
+        <OrderSummary
+          loading={loading}
+          orderItems={orderItems}
+          onSubmit={handleSubmit}
+          onClose={onClose}
+          isEditing={!!existingOrder}
+        />
+      </div>
     </div>
   )
 }

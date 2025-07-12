@@ -163,7 +163,7 @@ const PrintReceipt = ({ order, onPrint }: PrintReceiptProps) => {
               ${groupedItem.sizes.map((size: any) => `
                 <div class="item-details">
                   <span>${size.quantity}x ${size.size_type.replace('_', ' ')}</span>
-                  <span>₹${size.total_price.toFixed(2)}</span>
+                                        <span>${size.total_price.toFixed(2)}</span>
                 </div>
               `).join('')}
             </div>
@@ -171,12 +171,12 @@ const PrintReceipt = ({ order, onPrint }: PrintReceiptProps) => {
         </div>
 
         <div class="totals">
-          ${order.subtotal_amount ? `<div><span>Subtotal:</span><span>₹${order.subtotal_amount.toFixed(2)}</span></div>` : ''}
+                      ${order.subtotal_amount ? `<div><span>Subtotal:</span><span>$${order.subtotal_amount.toFixed(2)}</span></div>` : ''}
           ${order.discount_amount && order.discount_amount > 0 ? `
-            <div><span>Discount (${order.discount_type === 'percentage' ? order.discount_value + '%' : '₹' + order.discount_value}):</span><span>-₹${order.discount_amount.toFixed(2)}</span></div>
+                          <div><span>Discount (${order.discount_type === 'percentage' ? order.discount_value + '%' : '$' + order.discount_value}):</span><span>-$${order.discount_amount.toFixed(2)}</span></div>
           ` : ''}
           <div class="total-line">
-            <span>TOTAL:</span><span>₹${order.total_amount?.toFixed(2) || '0.00'}</span>
+                          <span>TOTAL:</span><span>$${order.total_amount?.toFixed(2) || '0.00'}</span>
           </div>
         </div>
 

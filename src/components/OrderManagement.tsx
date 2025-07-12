@@ -360,6 +360,10 @@ const OrderManagement = () => {
     return statusMatch && dateMatch
   })
 
+  // Calculate daily total
+  const dailyTotal = filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
+  const orderCount = filteredOrders.length
+
   if (loading) {
     return (
       <Card>
@@ -373,7 +377,32 @@ const OrderManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <div></div>
+        {/* Daily Total Display */}
+        <div className="flex items-center gap-4">
+          {dateFilter && (
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg px-4 py-2">
+              <div className="flex items-center gap-4">
+                <div>
+                  <div className="text-sm font-medium text-gray-700">
+                    {format(dateFilter, 'MMM dd, yyyy')}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {orderCount} {orderCount === 1 ? 'order' : 'orders'}
+                    {statusFilter !== 'all' && ` (${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)})`}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xl font-bold text-green-600">
+                    ${dailyTotal.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                                          {orderCount > 0 ? `Avg: $${(dailyTotal / orderCount).toFixed(2)}` : 'No orders'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
             <PopoverTrigger asChild>
@@ -421,7 +450,7 @@ const OrderManagement = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {filteredOrders.length === 0 ? (
           <div className="col-span-full">
             <Card>
@@ -436,7 +465,7 @@ const OrderManagement = () => {
           filteredOrders.map((order) => (
             <Card 
               key={order.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer group hover:scale-[1.02] duration-200"
+              className="hover:shadow-lg transition-shadow cursor-pointer group hover:scale-[1.02] duration-200 max-w-sm mx-auto"
               onClick={() => setViewingOrder(order)}
             >
               <CardHeader className="pb-3">
@@ -493,7 +522,7 @@ const OrderManagement = () => {
                         <div key={index} className="text-xs bg-gray-50 p-1 rounded">
                           <div className="flex justify-between items-center">
                             <span className="truncate font-medium">{groupedItem.item_name}</span>
-                            <span className="text-gray-600">₹{groupedItem.total_amount.toFixed(2)}</span>
+                            <span className="text-gray-600">${groupedItem.total_amount.toFixed(2)}</span>
                           </div>
                           <div className="text-gray-500 text-xs mt-0.5">
                             {groupedItem.sizes.map((size: any, sizeIndex: number) => (
@@ -515,7 +544,7 @@ const OrderManagement = () => {
 
                   {order.total_amount && (
                     <div className="text-sm font-semibold text-green-600 mt-2">
-                      ₹{order.total_amount.toFixed(2)}
+                      ${order.total_amount.toFixed(2)}
                     </div>
                   )}
                 </div>
@@ -560,7 +589,7 @@ const OrderManagement = () => {
 
       {/* New Order Sheet */}
       <Sheet open={isNewOrderOpen} onOpenChange={setIsNewOrderOpen}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
           <SheetHeader>
             <SheetTitle>New Order</SheetTitle>
             <SheetDescription>Create a new customer order</SheetDescription>
@@ -579,7 +608,7 @@ const OrderManagement = () => {
 
       {/* Edit Order Sheet */}
       <Sheet open={editingOrder !== null} onOpenChange={(open) => !open && setEditingOrder(null)}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Edit Order #{editingOrder?.order_number}</SheetTitle>
             <SheetDescription>Update order details and items</SheetDescription>

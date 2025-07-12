@@ -44,10 +44,10 @@ const OrderItemsList = ({ orderItems, setOrderItems }: OrderItemsListProps) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Order Items</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">Order Items</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {orderItems.map((item, index) => (
           <div key={index} className="flex items-center justify-between p-2 border rounded">
             <div className="flex-1">

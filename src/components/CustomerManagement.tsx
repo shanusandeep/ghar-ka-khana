@@ -293,7 +293,7 @@ const CustomerManagement = () => {
 
                 {/* Min Order Value Filter */}
                 <div className="space-y-2">
-                  <Label>Min Total Spent (₹)</Label>
+                  <Label>Min Total Spent ($)</Label>
                   <Input
                     type="number"
                     placeholder="0"
@@ -337,7 +337,7 @@ const CustomerManagement = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
-              ₹{filteredCustomers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0).toFixed(2)}
+                                ${filteredCustomers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0).toFixed(2)}
             </div>
             <div className="text-sm text-gray-600">Total Revenue (Filtered)</div>
           </CardContent>
@@ -345,7 +345,7 @@ const CustomerManagement = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">
-              ₹{filteredCustomers.length > 0 ? (filteredCustomers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0) / filteredCustomers.length).toFixed(2) : '0.00'}
+                                ${filteredCustomers.length > 0 ? (filteredCustomers.reduce((sum, customer) => sum + (customer.total_order_value || 0), 0) / filteredCustomers.length).toFixed(2) : '0.00'}
             </div>
             <div className="text-sm text-gray-600">Avg. Customer Value</div>
           </CardContent>
@@ -410,7 +410,7 @@ const CustomerManagement = () => {
                         <div className="flex items-center space-x-1">
                           <DollarSign className="w-4 h-4 text-green-500" />
                           <span className="font-medium text-green-600">
-                            ₹{customer.total_order_value?.toFixed(2) || '0.00'}
+                            ${customer.total_order_value?.toFixed(2) || '0.00'}
                           </span>
                           <span className="text-gray-500">total spent</span>
                         </div>

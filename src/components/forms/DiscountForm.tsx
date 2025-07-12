@@ -61,7 +61,7 @@ const DiscountForm = ({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {/* Discount Controls - Only show when expanded */}
         {isExpanded && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50">

@@ -141,10 +141,10 @@ const CustomerInfoForm = ({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Customer Information</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">Customer Information</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         <div>
           <Label htmlFor="customer-select">Select Customer</Label>
           <div className="flex space-x-2">
