@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -74,56 +73,40 @@ const CustomerInfoForm = ({
     }
   }
 
-  const searchCustomers = async (query: string) => {
-    setSearchQuery(query)
-    
-    // Always ensure we have all customers loaded for search
-    if (customers.length === 0) {
-      try {
-        const data = await customersApi.getAll()
-        const sortedCustomers = data.sort((a, b) => a.name.localeCompare(b.name))
-        setCustomers(sortedCustomers)
-      } catch (error) {
-        console.error('Error loading customers for search:', error)
-      }
-    }
+  const selectCustomer = (customer: Customer) => {
+    setExistingCustomer(customer)
+    setCustomerName(customer.name)
+    setCustomerPhone(customer.phone)
+    setIsCustomerSelectorOpen(false)
   }
 
-  const handleCustomerSelect = (customerId: string) => {
-    const customer = customers.find(c => c.id === customerId)
-    if (customer) {
-      setExistingCustomer(customer)
-      setCustomerName(customer.name)
-      setCustomerPhone(customer.phone)
-      setIsCustomerSelectorOpen(false)
-      setSearchQuery('')
-    }
+  const clearCustomerSelection = () => {
+    setExistingCustomer(null)
+    setCustomerName('')
+    setCustomerPhone('')
   }
 
-  const handleCreateNewCustomer = async () => {
+  const createNewCustomer = async () => {
+    if (!newCustomerData.name.trim() || !newCustomerData.phone.trim()) {
+      toast({
+        title: "Error",
+        description: "Name and phone are required",
+        variant: "destructive"
+      })
+      return
+    }
+
     try {
-      if (!newCustomerData.name || !newCustomerData.phone) {
-        toast({
-          title: "Error",
-          description: "Name and phone are required",
-          variant: "destructive"
-        })
-        return
-      }
-
-      const customer = await customersApi.create({
-        name: newCustomerData.name,
-        phone: newCustomerData.phone,
-        email: newCustomerData.email || undefined
+      const newCustomer = await customersApi.create({
+        name: newCustomerData.name.trim(),
+        phone: newCustomerData.phone.trim(),
+        email: newCustomerData.email.trim() || undefined
       })
 
-      setExistingCustomer(customer)
-      setCustomerName(customer.name)
-      setCustomerPhone(customer.phone)
-      
-      await loadTopCustomers()
-      setIsNewCustomerOpen(false)
+      selectCustomer(newCustomer)
       setNewCustomerData({ name: '', phone: '', email: '' })
+      setIsNewCustomerOpen(false)
+      loadTopCustomers() // Refresh the customer list
       
       toast({
         title: "Success",
@@ -146,8 +129,8 @@ const CustomerInfoForm = ({
       </CardHeader>
       <CardContent className="space-y-3">
         <div>
-          <Label htmlFor="customer-select">Select Customer</Label>
-          <div className="flex space-x-2">
+          <Label>Customer</Label>
+          <div className="flex items-center space-x-2 mt-1">
             <Popover open={isCustomerSelectorOpen} onOpenChange={setIsCustomerSelectorOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -156,28 +139,26 @@ const CustomerInfoForm = ({
                   aria-expanded={isCustomerSelectorOpen}
                   className="flex-1 justify-between"
                 >
-                  {existingCustomer
-                    ? `${existingCustomer.name} - ${existingCustomer.phone}`
-                    : "Choose existing customer"}
+                  {existingCustomer ? existingCustomer.name : "Select customer..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[300px] p-0">
-                <Command shouldFilter={false}>
-                  <CommandInput
-                    placeholder="Search customers by name or phone..."
-                    onValueChange={searchCustomers}
+              <PopoverContent className="p-0 w-full">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search customers..." 
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
                   />
-                  <CommandList>
-                    <CommandEmpty>
-                      {searchQuery ? "No customers found." : "Start typing to search customers..."}
-                    </CommandEmpty>
-                    <CommandGroup heading={searchQuery ? `Found ${filteredCustomers.length} customers` : "Recent customers (top 5)"}>
+                  <CommandEmpty>No customer found.</CommandEmpty>
+                  <CommandGroup>
+                    <CommandList>
                       {filteredCustomers.map((customer) => (
                         <CommandItem
                           key={customer.id}
-                          value={`${customer.name} ${customer.phone}`}
-                          onSelect={() => handleCustomerSelect(customer.id)}
+                          value={customer.id}
+                          onSelect={() => selectCustomer(customer)}
+                          className="cursor-pointer"
                         >
                           <Check
                             className={cn(
@@ -185,17 +166,18 @@ const CustomerInfoForm = ({
                               existingCustomer?.id === customer.id ? "opacity-100" : "opacity-0"
                             )}
                           />
-                          <div className="flex flex-col">
-                            <span className="font-medium">{customer.name}</span>
-                            <span className="text-sm text-gray-500">{customer.phone}</span>
+                          <div className="flex-1">
+                            <div className="font-medium">{customer.name}</div>
+                            <div className="text-sm text-gray-500">{customer.phone}</div>
                           </div>
                         </CommandItem>
                       ))}
-                    </CommandGroup>
-                  </CommandList>
+                    </CommandList>
+                  </CommandGroup>
                 </Command>
               </PopoverContent>
             </Popover>
+
             <Dialog open={isNewCustomerOpen} onOpenChange={setIsNewCustomerOpen}>
               <DialogTrigger asChild>
                 <Button type="button" variant="outline" size="sm" className="px-3">
@@ -237,35 +219,46 @@ const CustomerInfoForm = ({
                       placeholder="Enter email address"
                     />
                   </div>
-                  <Button onClick={handleCreateNewCustomer} className="w-full">
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => setIsNewCustomerOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="button" onClick={createNewCustomer}>
                     Create Customer
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
-          {existingCustomer && (
-            <div className="mt-2 flex items-center justify-between">
-              <Badge className="bg-green-100 text-green-800">
-                Selected: {existingCustomer.name} - {existingCustomer.phone}
-              </Badge>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setExistingCustomer(null)
-                  setCustomerName('')
-                  setCustomerPhone('')
-                  setSearchQuery('')
-                }}
-                className="text-xs text-gray-500 hover:text-gray-700"
-              >
-                Clear
-              </Button>
-            </div>
-          )}
         </div>
+
+        {existingCustomer && (
+          <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <Badge variant="outline" className="bg-green-100 text-green-800">Customer Selected</Badge>
+              <div>
+                <p className="font-medium text-green-900">{existingCustomer.name}</p>
+                <p className="text-sm text-green-700">{existingCustomer.phone}</p>
+              </div>
+            </div>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              size="sm" 
+              onClick={clearCustomerSelection}
+              className="text-green-700 hover:text-green-900"
+            >
+              Change
+            </Button>
+          </div>
+        )}
+
+        {!existingCustomer && (
+          <div className="text-center py-4 text-gray-500 text-sm">
+            Please select a customer from the list above or add a new customer
+          </div>
+        )}
       </CardContent>
     </Card>
   )

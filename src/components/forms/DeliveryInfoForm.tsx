@@ -25,7 +25,15 @@ const DeliveryInfoForm = ({
   specialInstructions,
   setSpecialInstructions
 }: DeliveryInfoFormProps) => {
+  const [showDeliveryTime, setShowDeliveryTime] = useState(false)
   const [showSpecialInstructions, setShowSpecialInstructions] = useState(false)
+
+  // Show delivery time if there's an existing value
+  useEffect(() => {
+    if (deliveryTime && deliveryTime.trim() !== '') {
+      setShowDeliveryTime(true)
+    }
+  }, [deliveryTime])
 
   // Show special instructions if there are existing instructions
   useEffect(() => {
@@ -40,49 +48,75 @@ const DeliveryInfoForm = ({
         <CardTitle className="text-base">Delivery Information</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="delivery-date">Delivery Date *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <div className="relative">
-                  <Input
-                    id="delivery-date"
-                    type="text"
-                    value={deliveryDate ? format(new Date(deliveryDate + 'T00:00:00'), 'PPP') : ''}
-                    placeholder="Select delivery date"
-                    readOnly
-                    required
-                    className="pl-10 cursor-pointer"
-                  />
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 cursor-pointer" />
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <CalendarComponent
-                  mode="single"
-                  selected={deliveryDate ? new Date(deliveryDate + 'T00:00:00') : undefined}
-                  onSelect={(date) => {
-                    if (date) {
-                      setDeliveryDate(format(date, 'yyyy-MM-dd'))
-                    }
-                  }}
-                  initialFocus
+        <div>
+          <Label htmlFor="delivery-date">Delivery Date *</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <div className="relative">
+                <Input
+                  id="delivery-date"
+                  type="text"
+                  value={deliveryDate ? format(new Date(deliveryDate + 'T00:00:00'), 'PPP') : ''}
+                  placeholder="Select delivery date"
+                  readOnly
+                  required
+                  className="pl-10 cursor-pointer"
                 />
-              </PopoverContent>
-            </Popover>
-          </div>
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 cursor-pointer" />
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={deliveryDate ? new Date(deliveryDate + 'T00:00:00') : undefined}
+                onSelect={(date) => {
+                  if (date) {
+                    setDeliveryDate(format(date, 'yyyy-MM-dd'))
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Optional Delivery Time */}
+        {showDeliveryTime ? (
           <div>
-            <Label htmlFor="delivery-time">Delivery Time</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="delivery-time">Delivery Time</Label>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeliveryTime(false)
+                  setDeliveryTime('')
+                }}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
             <Input
               id="delivery-time"
               type="time"
               value={deliveryTime}
               onChange={(e) => setDeliveryTime(e.target.value)}
+              autoFocus
             />
           </div>
-        </div>
+        ) : (
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowDeliveryTime(true)}
+              className="text-sm text-orange-600 hover:text-orange-700 underline cursor-pointer"
+            >
+              + Add Delivery Time
+            </button>
+          </div>
+        )}
         
+        {/* Optional Special Instructions */}
         {!showSpecialInstructions ? (
           <div>
             <button
@@ -123,4 +157,4 @@ const DeliveryInfoForm = ({
   )
 }
 
-export default DeliveryInfoForm
+export default DeliveryInfoForm 

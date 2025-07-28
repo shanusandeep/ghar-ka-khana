@@ -2,6 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrendingUp, TrendingDown, DollarSign, Package, Users, Calendar } from 'lucide-react'
+import { format, subDays, startOfDay, parseISO, subMonths, subQuarters, subYears, startOfMonth, startOfQuarter, startOfYear, endOfMonth } from 'date-fns'
 import {
   PieChart,
   Pie,
@@ -59,6 +60,59 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
 
   const timePeriodLabel = getTimePeriodLabel(timePeriod)
 
+  // Filter orders by selected time period
+  const getFilteredOrdersByTimePeriod = () => {
+    const today = new Date()
+    let startDate: Date
+    let endDate: Date = today
+
+    switch (timePeriod) {
+      case 'today':
+        startDate = startOfDay(today)
+        break
+      case '7d':
+        startDate = subDays(today, 6)
+        break
+      case '30d':
+        startDate = subDays(today, 29)
+        break
+      case 'thisMonth':
+        startDate = startOfMonth(today)
+        break
+      case 'lastMonth':
+        const lastMonth = subMonths(today, 1)
+        startDate = startOfMonth(lastMonth)
+        endDate = endOfMonth(lastMonth)
+        break
+      case 'thisQuarter':
+        startDate = startOfQuarter(today)
+        break
+      case 'thisYear':
+        startDate = startOfYear(today)
+        break
+      case 'quarter':
+        startDate = subQuarters(today, 1)
+        break
+      case 'year':
+        startDate = subYears(today, 1)
+        break
+      case 'custom':
+        // For custom, we'll use the dailyStats period since we don't have access to custom dates here
+        startDate = subDays(today, 6)
+        break
+      default:
+        startDate = subDays(today, 6)
+    }
+
+    // Filter orders by date range
+    return orders.filter(order => {
+      const orderDate = parseISO(order.delivery_date)
+      return orderDate >= startDate && orderDate <= endDate
+    })
+  }
+
+  const filteredOrders = getFilteredOrdersByTimePeriod()
+
   // Calculate advanced metrics
   const totalRevenue = dailyStats.reduce((sum, day) => sum + (day.total || 0), 0)
   const totalOrders = dailyStats.reduce((sum, day) => sum + (day.orderCount || 0), 0)
@@ -73,11 +127,36 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
   const revenueGrowth = previousRevenue > 0 ? ((recentRevenue - previousRevenue) / previousRevenue) * 100 : 
                        recentRevenue > 0 ? 100 : 0
 
-  // Top customers by spending - fix the filtering and sorting
-  const customersWithOrders = customers.filter(c => (c.total_order_value || 0) > 0)
-  const topCustomers = customersWithOrders
-    .sort((a, b) => (b.total_order_value || 0) - (a.total_order_value || 0))
-    .slice(0, 5)
+  // Top customers by spending for the selected time period
+  const getTopCustomersByPeriod = () => {
+    // Calculate customer spending from filtered orders
+    const customerSpending: { [key: string]: { id: string; name: string; total_order_value: number; order_count: number } } = {}
+    
+    filteredOrders.forEach(order => {
+      if (order.customer_id) {
+        const customer = customers.find(c => c.id === order.customer_id)
+        if (customer) {
+          if (!customerSpending[order.customer_id]) {
+            customerSpending[order.customer_id] = {
+              id: customer.id,
+              name: customer.name,
+              total_order_value: 0,
+              order_count: 0
+            }
+          }
+          customerSpending[order.customer_id].total_order_value += order.total_amount || 0
+          customerSpending[order.customer_id].order_count += 1
+        }
+      }
+    })
+
+    // Convert to array and sort by total spending
+    return Object.values(customerSpending)
+      .sort((a, b) => b.total_order_value - a.total_order_value)
+      .slice(0, 5)
+  }
+
+  const topCustomers = getTopCustomersByPeriod()
 
   // Revenue by day of week
   const dayOfWeekStats = dailyStats.reduce((acc: Record<string, DayOfWeekAccumulator>, day) => {
@@ -281,7 +360,7 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
         <Card>
           <CardHeader>
             <CardTitle>Top Customers</CardTitle>
-            <CardDescription>Highest spending customers</CardDescription>
+            <CardDescription>Highest spending customers for {timePeriodLabel.toLowerCase()}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

@@ -314,16 +314,16 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
       </div>
 
       <div className="space-y-4">
-        <OrderItemsList
-          orderItems={orderItems}
-          setOrderItems={setOrderItems}
-        />
-
         <MenuItemSelector
           menuItems={menuItems}
           orderItems={orderItems}
           setOrderItems={setOrderItems}
           topOrderItems={topOrderItems}
+        />
+
+        <OrderItemsList
+          orderItems={orderItems}
+          setOrderItems={setOrderItems}
         />
 
         <DiscountForm
