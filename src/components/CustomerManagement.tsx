@@ -353,34 +353,36 @@ const CustomerManagement = () => {
       </div>
 
       {/* Customers List */}
-      <div className="grid gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredCustomers.length === 0 ? (
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center text-gray-500">
-                {searchTerm || minOrderValue || minOrderCount ? 'No customers found matching your filters.' : 'No customers found. Add your first customer to get started.'}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center text-gray-500">
+                  {searchTerm || minOrderValue || minOrderCount ? 'No customers found matching your filters.' : 'No customers found. Add your first customer to get started.'}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         ) : (
           filteredCustomers.map((customer) => (
-            <Card key={customer.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+            <Card key={customer.id} className="hover:shadow-md transition-shadow h-full">
+              <CardContent className="p-4 h-full">
+                <div className="flex flex-col gap-4 h-full">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <User className="w-5 h-5 text-gray-400" />
-                      <h3 className="text-lg font-semibold">{customer.name}</h3>
+                    <div className="flex items-center space-x-2 mb-3">
+                      <User className="w-4 h-4 text-gray-400" />
+                      <h3 className="text-base font-semibold truncate">{customer.name}</h3>
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-2 mb-3">
                       <div className="flex items-center space-x-2 text-sm">
-                        <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <Phone className="w-3 h-3 text-gray-400 flex-shrink-0" />
                         <a 
                           href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-green-600 hover:text-green-700 hover:underline transition-colors break-all"
+                          className="text-green-600 hover:text-green-700 hover:underline transition-colors text-xs truncate"
                         >
                           {customer.phone}
                         </a>
@@ -388,62 +390,49 @@ const CustomerManagement = () => {
                       
                       {customer.email && (
                         <div className="flex items-center space-x-2 text-sm">
-                          <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                          <a 
-                            href={`mailto:${customer.email}`}
-                            className="text-blue-600 hover:text-blue-700 hover:underline transition-colors break-all"
-                          >
-                            {customer.email}
-                          </a>
+                          <Mail className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                          <span className="text-xs text-gray-600 truncate">{customer.email}</span>
                         </div>
                       )}
-                      
-                      {customer.address && (
-                        <div className="flex items-start space-x-2 text-sm">
-                          <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-600">{customer.address}</span>
-                        </div>
-                      )}
+                    </div>
 
-                      {/* Order Statistics */}
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm pt-2 border-t border-gray-100">
+                    {/* Order Statistics */}
+                    <div className="bg-gray-50 rounded-lg p-2 mb-3">
+                      <div className="flex justify-between items-center text-sm">
                         <div className="flex items-center space-x-1">
-                          <DollarSign className="w-4 h-4 text-green-500" />
-                          <span className="font-medium text-green-600">
+                          <DollarSign className="w-3 h-3 text-green-500" />
+                          <span className="font-medium text-green-600 text-xs">
                             ${customer.total_order_value?.toFixed(2) || '0.00'}
                           </span>
-                          <span className="text-gray-500">total spent</span>
                         </div>
-                        <div className="text-gray-500">
+                        <div className="text-xs text-gray-500">
                           {customer.order_count || 0} orders
                         </div>
                       </div>
                     </div>
                     
-                    <div className="text-xs text-gray-500 mt-3">
-                      Customer since {new Date(customer.created_at).toLocaleDateString()}
+                    <div className="text-xs text-gray-500">
+                      Since {new Date(customer.created_at).toLocaleDateString()}
                     </div>
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="grid grid-cols-3 gap-1">
                     <CustomerOrderHistory customer={customer} />
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => setEditingCustomer(customer)}
-                      className="flex items-center space-x-2"
+                      className="flex items-center justify-center text-xs h-8"
                     >
-                      <Edit className="w-4 h-4" />
-                      <span>Edit</span>
+                      <Edit className="w-3 h-3" />
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => setDeletingCustomer(customer)}
-                      className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="flex items-center justify-center text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
-                      <Trash2 className="w-4 h-4" />
-                      <span>Delete</span>
+                      <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>
                 </div>

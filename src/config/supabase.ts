@@ -34,6 +34,9 @@ export interface MenuItem {
   price_per_plate?: number
   price_half_tray?: number
   price_full_tray?: number
+  pieces_per_plate?: number
+  price_per_piece?: number
+  min_piece_order?: number
   ingredients?: string[]
   image_url?: string
   is_available: boolean

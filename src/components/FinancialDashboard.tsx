@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ordersApi, customersApi } from '@/services/api'
 import { Order, OrderItem, Customer } from '@/config/supabase'
-import { format, subDays, startOfDay, endOfDay, parseISO, subMonths, subQuarters, subYears } from 'date-fns'
+import { format, subDays, startOfDay, endOfDay, parseISO, subMonths, subQuarters, subYears, startOfMonth, startOfQuarter, startOfYear, endOfMonth } from 'date-fns'
 import { DollarSign, TrendingUp, Package, Calendar, Filter, Download, FileText, FileSpreadsheet } from 'lucide-react'
 import {
   LineChart,
@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
 import FinancialAnalytics from './FinancialAnalytics'
 
 interface DailyStats {
@@ -39,6 +41,8 @@ interface FilterState {
   timePeriod: string
   customerId?: string
   itemId?: string
+  customStartDate?: string
+  customEndDate?: string
 }
 
 // Extended Order type that includes order_items
@@ -153,11 +157,33 @@ const FinancialDashboard = () => {
       case '30d':
         startDate = subDays(today, 29)
         break
+      case 'thisMonth':
+        startDate = startOfMonth(today)
+        break
+      case 'lastMonth':
+        const lastMonth = subMonths(today, 1)
+        startDate = startOfMonth(lastMonth)
+        endDate = endOfMonth(lastMonth)
+        break
+      case 'thisQuarter':
+        startDate = startOfQuarter(today)
+        break
+      case 'thisYear':
+        startDate = startOfYear(today)
+        break
       case 'quarter':
         startDate = subQuarters(today, 1)
         break
       case 'year':
         startDate = subYears(today, 1)
+        break
+      case 'custom':
+        if (filterState.customStartDate && filterState.customEndDate) {
+          startDate = parseISO(filterState.customStartDate)
+          endDate = parseISO(filterState.customEndDate)
+        } else {
+          startDate = subDays(today, 6) // Default to 7 days if custom dates not set
+        }
         break
       default:
         startDate = subDays(today, 6) // Default to 7 days
@@ -235,7 +261,11 @@ const FinancialDashboard = () => {
   }
 
   const clearFilters = () => {
-    setFilterState({ timePeriod: '7d' })
+    setFilterState({ 
+      timePeriod: '7d',
+      customStartDate: undefined,
+      customEndDate: undefined 
+    })
   }
 
   const getTotalRevenue = () => {
@@ -267,6 +297,7 @@ const FinancialDashboard = () => {
     // Apply date range filter
     const today = new Date()
     let startDate: Date
+    let endDate: Date = today
     switch (filterState.timePeriod) {
       case 'today':
         startDate = startOfDay(today)
@@ -277,11 +308,33 @@ const FinancialDashboard = () => {
       case '30d':
         startDate = subDays(today, 29)
         break
+      case 'thisMonth':
+        startDate = startOfMonth(today)
+        break
+      case 'lastMonth':
+        const lastMonth = subMonths(today, 1)
+        startDate = startOfMonth(lastMonth)
+        endDate = endOfMonth(lastMonth)
+        break
+      case 'thisQuarter':
+        startDate = startOfQuarter(today)
+        break
+      case 'thisYear':
+        startDate = startOfYear(today)
+        break
       case 'quarter':
         startDate = subQuarters(today, 1)
         break
       case 'year':
         startDate = subYears(today, 1)
+        break
+      case 'custom':
+        if (filterState.customStartDate && filterState.customEndDate) {
+          startDate = parseISO(filterState.customStartDate)
+          endDate = parseISO(filterState.customEndDate)
+        } else {
+          startDate = subDays(today, 6)
+        }
         break
       default:
         startDate = subDays(today, 6)
@@ -289,7 +342,7 @@ const FinancialDashboard = () => {
 
     filteredOrders = filteredOrders.filter(order => {
       const orderDate = parseISO(order.delivery_date)
-      return orderDate >= startDate && orderDate <= today
+      return orderDate >= startDate && orderDate <= endDate
     })
 
     // Calculate item sales
@@ -348,7 +401,13 @@ const FinancialDashboard = () => {
     const timePeriodLabel = filterState.timePeriod === 'today' ? 'Today' : 
                            filterState.timePeriod === '7d' ? 'Last 7 days' :
                            filterState.timePeriod === '30d' ? 'Last 30 days' :
-                           filterState.timePeriod === 'quarter' ? 'Last quarter' : 'Last year'
+                           filterState.timePeriod === 'thisMonth' ? 'This month' :
+                           filterState.timePeriod === 'lastMonth' ? 'Last month' :
+                           filterState.timePeriod === 'thisQuarter' ? 'This quarter' :
+                           filterState.timePeriod === 'thisYear' ? 'This year' :
+                           filterState.timePeriod === 'quarter' ? 'Last quarter' : 
+                           filterState.timePeriod === 'year' ? 'Last year' :
+                           filterState.timePeriod === 'custom' ? 'Custom range' : 'Last 7 days'
     
     // Create HTML content for PDF
     const htmlContent = `
@@ -512,11 +571,42 @@ const FinancialDashboard = () => {
                       <SelectItem value="today">Today</SelectItem>
                       <SelectItem value="7d">Last 7 Days</SelectItem>
                       <SelectItem value="30d">Last 30 Days</SelectItem>
+                      <SelectItem value="thisMonth">This Month</SelectItem>
+                      <SelectItem value="lastMonth">Last Month</SelectItem>
+                      <SelectItem value="thisQuarter">This Quarter</SelectItem>
+                      <SelectItem value="thisYear">This Year</SelectItem>
                       <SelectItem value="quarter">Last Quarter</SelectItem>
                       <SelectItem value="year">Last Year</SelectItem>
+                      <SelectItem value="custom">Custom Range</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {filterState.timePeriod === 'custom' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Custom Date Range</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-500">Start Date</label>
+                        <Input
+                          type="date"
+                          value={filterState.customStartDate || ''}
+                          onChange={(e) => handleFilterChange('customStartDate', e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">End Date</label>
+                        <Input
+                          type="date"
+                          value={filterState.customEndDate || ''}
+                          onChange={(e) => handleFilterChange('customEndDate', e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Customer</label>
@@ -591,8 +681,14 @@ const FinancialDashboard = () => {
                   {filterState.timePeriod === 'today' ? 'Today' : 
                    filterState.timePeriod === '7d' ? 'Last 7 days' :
                    filterState.timePeriod === '30d' ? 'Last 30 days' :
+                   filterState.timePeriod === 'thisMonth' ? 'This month' :
+                   filterState.timePeriod === 'lastMonth' ? 'Last month' :
+                   filterState.timePeriod === 'thisQuarter' ? 'This quarter' :
+                   filterState.timePeriod === 'thisYear' ? 'This year' :
                    filterState.timePeriod === 'quarter' ? 'Last quarter' :
-                   'Last year'}
+                   filterState.timePeriod === 'year' ? 'Last year' :
+                   filterState.timePeriod === 'custom' ? 'Custom range' : 
+                   'Last 7 days'}
                 </p>
               </CardContent>
             </Card>
@@ -607,8 +703,14 @@ const FinancialDashboard = () => {
                   {filterState.timePeriod === 'today' ? 'Today' : 
                    filterState.timePeriod === '7d' ? 'Last 7 days' :
                    filterState.timePeriod === '30d' ? 'Last 30 days' :
+                   filterState.timePeriod === 'thisMonth' ? 'This month' :
+                   filterState.timePeriod === 'lastMonth' ? 'Last month' :
+                   filterState.timePeriod === 'thisQuarter' ? 'This quarter' :
+                   filterState.timePeriod === 'thisYear' ? 'This year' :
                    filterState.timePeriod === 'quarter' ? 'Last quarter' :
-                   'Last year'}
+                   filterState.timePeriod === 'year' ? 'Last year' :
+                   filterState.timePeriod === 'custom' ? 'Custom range' : 
+                   'Last 7 days'}
                 </p>
               </CardContent>
             </Card>
@@ -623,8 +725,14 @@ const FinancialDashboard = () => {
                   {filterState.timePeriod === 'today' ? 'Today' : 
                    filterState.timePeriod === '7d' ? 'Last 7 days' :
                    filterState.timePeriod === '30d' ? 'Last 30 days' :
+                   filterState.timePeriod === 'thisMonth' ? 'This month' :
+                   filterState.timePeriod === 'lastMonth' ? 'Last month' :
+                   filterState.timePeriod === 'thisQuarter' ? 'This quarter' :
+                   filterState.timePeriod === 'thisYear' ? 'This year' :
                    filterState.timePeriod === 'quarter' ? 'Last quarter' :
-                   'Last year'}
+                   filterState.timePeriod === 'year' ? 'Last year' :
+                   filterState.timePeriod === 'custom' ? 'Custom range' : 
+                   'Last 7 days'}
                 </p>
               </CardContent>
             </Card>
@@ -722,8 +830,14 @@ const FinancialDashboard = () => {
                   filterState.timePeriod === 'today' ? 'today' : 
                   filterState.timePeriod === '7d' ? 'last 7 days' :
                   filterState.timePeriod === '30d' ? 'last 30 days' :
+                  filterState.timePeriod === 'thisMonth' ? 'this month' :
+                  filterState.timePeriod === 'lastMonth' ? 'last month' :
+                  filterState.timePeriod === 'thisQuarter' ? 'this quarter' :
+                  filterState.timePeriod === 'thisYear' ? 'this year' :
                   filterState.timePeriod === 'quarter' ? 'last quarter' :
-                  'last year'
+                  filterState.timePeriod === 'year' ? 'last year' :
+                  filterState.timePeriod === 'custom' ? 'custom range' : 
+                  'last 7 days'
                 }
               </CardDescription>
             </CardHeader>

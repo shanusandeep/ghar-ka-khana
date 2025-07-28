@@ -450,7 +450,7 @@ const OrderManagement = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {filteredOrders.length === 0 ? (
           <div className="col-span-full">
             <Card>
@@ -465,7 +465,7 @@ const OrderManagement = () => {
           filteredOrders.map((order) => (
             <Card 
               key={order.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer group hover:scale-[1.02] duration-200 max-w-sm mx-auto"
+              className="hover:shadow-lg transition-shadow cursor-pointer group h-full flex flex-col"
               onClick={() => setViewingOrder(order)}
             >
               <CardHeader className="pb-3">
@@ -496,57 +496,59 @@ const OrderManagement = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center space-x-1 text-gray-600">
-                    <CalendarIcon className="w-3 h-3" />
-                    <span>{formatDate(order.delivery_date)}</span>
-                    {order.delivery_time && (
-                      <>
-                        <Clock className="w-3 h-3 ml-2" />
-                        <span>{order.delivery_time}</span>
-                      </>
-                    )}
-                  </div>
-                  {order.delivery_address && (
-                    <div className="flex items-start space-x-1 text-gray-600">
-                      <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                      <span className="truncate text-xs">{order.delivery_address}</span>
-                    </div>
-                  )}
-                  
-                  {/* Order Items Preview */}
-                  {order.order_items && order.order_items.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {groupOrderItems(order.order_items).slice(0, 2).map((groupedItem: any, index) => (
-                        <div key={index} className="text-xs bg-gray-50 p-1 rounded">
-                          <div className="flex justify-between items-center">
-                            <span className="truncate font-medium">{groupedItem.item_name}</span>
-                            <span className="text-gray-600">${groupedItem.total_amount.toFixed(2)}</span>
-                          </div>
-                          <div className="text-gray-500 text-xs mt-0.5">
-                            {groupedItem.sizes.map((size: any, sizeIndex: number) => (
-                              <span key={sizeIndex}>
-                                {size.quantity}x {size.size_type.replace('_', ' ')}
-                                {sizeIndex < groupedItem.sizes.length - 1 ? ', ' : ''}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                      {groupOrderItems(order.order_items).length > 2 && (
-                        <div className="text-xs text-gray-500 text-center">
-                          +{groupOrderItems(order.order_items).length - 2} more items
-                        </div>
+              <CardContent className="pt-0 flex-1 flex flex-col justify-between">
+                <div className="flex-1">
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center space-x-1 text-gray-600">
+                      <CalendarIcon className="w-3 h-3" />
+                      <span>{formatDate(order.delivery_date)}</span>
+                      {order.delivery_time && (
+                        <>
+                          <Clock className="w-3 h-3 ml-2" />
+                          <span>{order.delivery_time}</span>
+                        </>
                       )}
                     </div>
-                  )}
+                    {order.delivery_address && (
+                      <div className="flex items-start space-x-1 text-gray-600">
+                        <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                        <span className="truncate text-xs">{order.delivery_address}</span>
+                      </div>
+                    )}
+                    
+                    {/* Order Items Preview */}
+                    {order.order_items && order.order_items.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {groupOrderItems(order.order_items).slice(0, 2).map((groupedItem: any, index) => (
+                          <div key={index} className="text-xs bg-gray-50 p-1 rounded">
+                            <div className="flex justify-between items-center">
+                              <span className="truncate font-medium">{groupedItem.item_name}</span>
+                              <span className="text-gray-600">${groupedItem.total_amount.toFixed(2)}</span>
+                            </div>
+                            <div className="text-gray-500 text-xs mt-0.5">
+                              {groupedItem.sizes.map((size: any, sizeIndex: number) => (
+                                <span key={sizeIndex}>
+                                  {size.quantity}x {size.size_type.replace('_', ' ')}
+                                  {sizeIndex < groupedItem.sizes.length - 1 ? ', ' : ''}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                        {groupOrderItems(order.order_items).length > 2 && (
+                          <div className="text-xs text-gray-500 text-center">
+                            +{groupOrderItems(order.order_items).length - 2} more items
+                          </div>
+                        )}
+                      </div>
+                    )}
 
-                  {order.total_amount && (
-                    <div className="text-sm font-semibold text-green-600 mt-2">
-                      ${order.total_amount.toFixed(2)}
-                    </div>
-                  )}
+                    {order.total_amount && (
+                      <div className="text-sm font-semibold text-green-600 mt-2">
+                        ${order.total_amount.toFixed(2)}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Action Buttons */}

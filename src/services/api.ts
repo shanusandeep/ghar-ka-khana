@@ -74,6 +74,21 @@ export const menuItemsApi = {
     return data as MenuItem[]
   },
 
+  getByCategoryName: async (categoryName: string) => {
+    const { data, error } = await supabase
+      .from('menu_items')
+      .select(`
+        *,
+        menu_categories!inner (name)
+      `)
+      .eq('menu_categories.name', categoryName)
+      .eq('is_available', true)
+      .order('display_order')
+    
+    if (error) throw error
+    return data as MenuItem[]
+  },
+
   create: async (item: Omit<MenuItem, 'id' | 'created_at' | 'updated_at'>) => {
     const { data, error } = await supabase
       .from('menu_items')

@@ -46,8 +46,13 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
       case 'today': return 'Today'
       case '7d': return '7d'
       case '30d': return '30d'
-      case 'quarter': return 'Quarter'
-      case 'year': return 'Year'
+      case 'thisMonth': return 'This Month'
+      case 'lastMonth': return 'Last Month'
+      case 'thisQuarter': return 'This Quarter'
+      case 'thisYear': return 'This Year'
+      case 'quarter': return 'Last Quarter'
+      case 'year': return 'Last Year'
+      case 'custom': return 'Custom Range'
       default: return '7d'
     }
   }

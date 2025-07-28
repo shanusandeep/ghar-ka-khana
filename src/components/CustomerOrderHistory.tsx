@@ -85,9 +85,8 @@ const CustomerOrderHistory = ({ customer }: CustomerOrderHistoryProps) => {
     <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
-          <Button variant="outline" size="sm">
-            <History className="w-4 h-4 mr-2" />
-            Order History
+          <Button variant="outline" size="sm" className="flex items-center justify-center text-xs h-8">
+            <History className="w-3 h-3" />
           </Button>
         </SheetTrigger>
         <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
