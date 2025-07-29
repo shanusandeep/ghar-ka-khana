@@ -49,14 +49,14 @@ const CustomerInfoForm = ({
   useEffect(() => {
     // Filter customers based on search query
     if (searchQuery.trim() === '') {
-      // Show top 5 customers when no search query
-      setFilteredCustomers(customers.slice(0, 5))
+      // Show top 15 customers when no search query
+      setFilteredCustomers(customers.slice(0, 15))
     } else {
       // Filter customers by name or phone
       const filtered = customers.filter(customer =>
         customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.phone.includes(searchQuery)
-      ).slice(0, 10) // Limit to 10 results
+      ).slice(0, 15) // Limit to 15 results
       setFilteredCustomers(filtered)
     }
   }, [searchQuery, customers])
@@ -64,12 +64,27 @@ const CustomerInfoForm = ({
   const loadTopCustomers = async () => {
     try {
       const data = await customersApi.getAll()
+      console.log('Loaded customers:', data) // Debug log
+      
+      if (!data || data.length === 0) {
+        console.warn('No customers found in database')
+        setCustomers([])
+        setFilteredCustomers([])
+        return
+      }
+      
       // Sort by most recent orders or alphabetically
       const sortedCustomers = data.sort((a, b) => a.name.localeCompare(b.name))
       setCustomers(sortedCustomers)
-      setFilteredCustomers(sortedCustomers.slice(0, 5)) // Show top 5 by default
+      setFilteredCustomers(sortedCustomers.slice(0, 15)) // Show top 15 by default
+      console.log('Filtered customers set:', sortedCustomers.slice(0, 15)) // Debug log
     } catch (error) {
       console.error('Error loading customers:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load customers. Please refresh the page.",
+        variant: "destructive"
+      })
     }
   }
 
@@ -144,7 +159,7 @@ const CustomerInfoForm = ({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-0 w-full">
-                <Command>
+                <Command shouldFilter={false}>
                   <CommandInput 
                     placeholder="Search customers..." 
                     value={searchQuery}
@@ -156,7 +171,7 @@ const CustomerInfoForm = ({
                       {filteredCustomers.map((customer) => (
                         <CommandItem
                           key={customer.id}
-                          value={customer.id}
+                          value={customer.name}
                           onSelect={() => selectCustomer(customer)}
                           className="cursor-pointer"
                         >
@@ -256,7 +271,14 @@ const CustomerInfoForm = ({
 
         {!existingCustomer && (
           <div className="text-center py-4 text-gray-500 text-sm">
-            Please select a customer from the list above or add a new customer
+            {customers.length === 0 ? (
+              <div>
+                <p>No customers found in database.</p>
+                <p className="mt-1">Use the "Add" button to create your first customer.</p>
+              </div>
+            ) : (
+              <p>Please select a customer from the list above or add a new customer</p>
+            )}
           </div>
         )}
       </CardContent>
