@@ -80,19 +80,19 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
         </CardHeader>
         
         <CardContent className="p-6">
-          <div className="grid gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {items.map((item, index) => (
-              <div
+              <Card
                 key={index}
-                className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4 p-4 rounded-lg bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+                className="hover:shadow-lg transition-shadow cursor-pointer group h-full flex flex-col bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100"
               >
                 {/* Image Section */}
                 {item.image && (
-                  <div className="flex-shrink-0">
+                  <div className="relative overflow-hidden rounded-t-lg">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-full md:w-32 md:h-32 h-48 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
                       onClick={() => handleImageClick(item.image!, item.name, item.ingredients)}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
@@ -102,18 +102,32 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
                 )}
                 
                 {/* Content Section */}
-                <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between w-full">
-                  <div className="flex-1 mb-3 md:mb-0">
-                    <h4 className="font-semibold text-gray-900 text-lg md:text-xl mb-1">{item.name}</h4>
+                <CardContent className="p-4 flex-1 flex flex-col justify-between">
+                  <div className="mb-3">
+                    <h4 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2">{item.name}</h4>
                     {item.note && (
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                         {item.note}
                       </p>
                     )}
+                    {item.ingredients && item.ingredients.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {item.ingredients.slice(0, 3).map((ingredient, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {ingredient}
+                          </Badge>
+                        ))}
+                        {item.ingredients.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{item.ingredients.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
-                  <div className="flex flex-row justify-between md:justify-end items-center space-x-4">
-                    <div className="text-right">
+                  <div className="space-y-3">
+                    <div className="text-center">
                       <div className="text-2xl font-bold text-orange-600">{item.price}</div>
                     </div>
                     <Button
@@ -128,14 +142,14 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
                         window.open(`https://wa.me/12017131850?text=${encodeURIComponent(message)}`, "_blank");
                       }}
                       size="sm"
-                      className="bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-2 whitespace-nowrap"
+                      className="w-full bg-green-500 hover:bg-green-600 text-white"
                     >
-                      <Phone className="w-4 h-4 mr-1" />
-                      Order
+                      <Phone className="w-4 h-4 mr-2" />
+                      Order Now
                     </Button>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
           <p className="text-gray-600 text-sm mt-6 text-center italic">

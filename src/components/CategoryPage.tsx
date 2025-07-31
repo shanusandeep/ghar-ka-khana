@@ -26,10 +26,12 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
   const loadMenuItems = async () => {
     try {
       setLoading(true);
+      console.log('🔍 CategoryPage: Looking for category name:', categoryName);
       const data = await menuItemsApi.getByCategoryName(categoryName);
+      console.log('📊 CategoryPage: Found items:', data);
       setMenuItems(data);
     } catch (error) {
-      console.error('Error loading menu items:', error);
+      console.error('❌ Error loading menu items:', error);
       toast({
         title: "Error",
         description: `Failed to load ${categoryName} items`,

@@ -75,6 +75,8 @@ export const menuItemsApi = {
   },
 
   getByCategoryName: async (categoryName: string) => {
+    console.log('🔍 API: Searching for category name:', categoryName);
+    
     const { data, error } = await supabase
       .from('menu_items')
       .select(`
@@ -84,6 +86,9 @@ export const menuItemsApi = {
       .eq('menu_categories.name', categoryName)
       .eq('is_available', true)
       .order('display_order')
+    
+    console.log('📊 API: Found menu items:', data);
+    console.log('❌ API: Error (if any):', error);
     
     if (error) throw error
     return data as MenuItem[]
