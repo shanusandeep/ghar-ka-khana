@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TrendingUp, TrendingDown, DollarSign, Package, Users, Calendar } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, Package, Users, Calendar, Heart } from 'lucide-react'
 import { format, subDays, startOfDay, parseISO, subMonths, subQuarters, subYears, startOfMonth, startOfQuarter, startOfYear, endOfMonth } from 'date-fns'
 import {
   PieChart,
@@ -130,7 +130,14 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
   // Top customers by spending for the selected time period
   const getTopCustomersByPeriod = () => {
     // Calculate customer spending from filtered orders
-    const customerSpending: { [key: string]: { id: string; name: string; total_order_value: number; order_count: number } } = {}
+    const customerSpending: { [key: string]: { 
+      id: string; 
+      name: string; 
+      total_order_value: number; 
+      order_count: number;
+      total_tips: number;
+      orders_with_tips: number;
+    } } = {}
     
     filteredOrders.forEach(order => {
       if (order.customer_id) {
@@ -141,11 +148,19 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
               id: customer.id,
               name: customer.name,
               total_order_value: 0,
-              order_count: 0
+              order_count: 0,
+              total_tips: 0,
+              orders_with_tips: 0
             }
           }
           customerSpending[order.customer_id].total_order_value += order.total_amount || 0
           customerSpending[order.customer_id].order_count += 1
+          
+          // Add tip tracking
+          if (order.tip_amount && order.tip_amount > 0) {
+            customerSpending[order.customer_id].total_tips += order.tip_amount
+            customerSpending[order.customer_id].orders_with_tips += 1
+          }
         }
       }
     })
@@ -377,11 +392,27 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
                       </Badge>
                       <div>
                         <p className="font-medium">{customer.name}</p>
-                        <p className="text-sm text-gray-600">{customer.order_count || 0} orders</p>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <span>{customer.order_count || 0} orders</span>
+                          {(customer.total_tips || 0) > 0 && (
+                            <>
+                              <span>•</span>
+                              <div className="flex items-center space-x-1">
+                                <Heart className="w-3 h-3 text-red-500" />
+                                <span>${(customer.total_tips || 0).toFixed(2)} tips</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-green-600">${(customer.total_order_value || 0).toFixed(2)}</p>
+                      {(customer.total_tips || 0) > 0 && (
+                        <p className="text-xs text-gray-500">
+                          {customer.orders_with_tips || 0}/{customer.order_count || 0} with tips
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))

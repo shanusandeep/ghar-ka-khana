@@ -70,6 +70,7 @@ export interface Order {
   discount_type?: 'percentage' | 'fixed'
   discount_value?: number
   discount_amount?: number
+  tip_amount?: number
   total_amount?: number
   created_by?: string
   created_at: string

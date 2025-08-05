@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -32,6 +32,7 @@ const CustomerManagement = () => {
   const [editingCustomer, setEditingCustomer] = useState<CustomerWithTotals | null>(null)
   const [deletingCustomer, setDeletingCustomer] = useState<CustomerWithTotals | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
   // Form state
@@ -44,6 +45,18 @@ const CustomerManagement = () => {
 
   useEffect(() => {
     loadCustomers()
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   useEffect(() => {
@@ -153,6 +166,27 @@ const CustomerManagement = () => {
     setMinOrderCount('')
   }
 
+  const clearSearch = () => {
+    setSearchTerm('')
+  }
+
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text
+    
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+    const parts = text.split(regex)
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <mark key={index} className="bg-yellow-200 px-1 rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    )
+  }
+
   const handleSortOrderChange = (value: string) => {
     setSortOrder(value as 'asc' | 'desc')
   }
@@ -162,7 +196,8 @@ const CustomerManagement = () => {
       // Search filter
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.phone.includes(searchTerm) ||
-        (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
+        (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (customer.address && customer.address.toLowerCase().includes(searchTerm.toLowerCase()))
 
       // Order value filter
       const matchesOrderValue = !minOrderValue || (customer.total_order_value || 0) >= Number(minOrderValue)
@@ -248,15 +283,25 @@ const CustomerManagement = () => {
                   )}
                 </div>
                 
-                {/* Search */}
+                {/* Search (Also available above) */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
-                    placeholder="Search customers..."
+                    placeholder="Search by name, phone, email, or address..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
                   />
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearSearch}
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -324,6 +369,39 @@ const CustomerManagement = () => {
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="relative">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search customers by name, phone, email, or address... (Ctrl+K)"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-10"
+          />
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearSearch}
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+        {searchTerm && (
+          <div className="text-sm text-gray-500 mt-2">
+            Searching for: <span className="font-medium">"{searchTerm}"</span>
+            <span className="ml-2">
+              ({filteredCustomers.length} result{filteredCustomers.length !== 1 ? 's' : ''} found)
+            </span>
+          </div>
+        )}
+      </div>
+
       {/* Customer Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -372,7 +450,9 @@ const CustomerManagement = () => {
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-3">
                       <User className="w-4 h-4 text-gray-400" />
-                      <h3 className="text-base font-semibold truncate">{customer.name}</h3>
+                      <h3 className="text-base font-semibold truncate">
+                        {searchTerm ? highlightText(customer.name, searchTerm) : customer.name}
+                      </h3>
                     </div>
                     
                     <div className="space-y-2 mb-3">
@@ -384,14 +464,16 @@ const CustomerManagement = () => {
                           rel="noopener noreferrer"
                           className="text-green-600 hover:text-green-700 hover:underline transition-colors text-xs truncate"
                         >
-                          {customer.phone}
+                          {searchTerm ? highlightText(customer.phone, searchTerm) : customer.phone}
                         </a>
                       </div>
                       
                       {customer.email && (
                         <div className="flex items-center space-x-2 text-sm">
                           <Mail className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                          <span className="text-xs text-gray-600 truncate">{customer.email}</span>
+                          <span className="text-xs text-gray-600 truncate">
+                            {searchTerm ? highlightText(customer.email, searchTerm) : customer.email}
+                          </span>
                         </div>
                       )}
                     </div>

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
-import { Plus, Phone, MapPin, Clock, Edit, Trash2, Eye, Package } from 'lucide-react'
+import { Plus, Phone, MapPin, Clock, Edit, Trash2, Eye, Package, Heart } from 'lucide-react'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { ordersApi } from '@/services/api'
 import { Order, OrderItem } from '@/config/supabase'
@@ -226,6 +226,16 @@ const OrderDetailsView = ({ order }: OrderDetailsViewProps) => {
                   Discount ({order.discount_type === 'percentage' ? `${order.discount_value}%` : `$${order.discount_value}`}):
                 </span>
                 <span>-${order.discount_amount.toFixed(2)}</span>
+              </div>
+            )}
+
+            {order.tip_amount && order.tip_amount > 0 && (
+              <div className="flex justify-between items-center text-sm text-green-600">
+                <span className="flex items-center gap-1">
+                  <Heart className="w-3 h-3" />
+                  Tip:
+                </span>
+                <span>+${order.tip_amount.toFixed(2)}</span>
               </div>
             )}
             

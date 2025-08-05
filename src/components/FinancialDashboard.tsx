@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ordersApi, customersApi } from '@/services/api'
 import { Order, OrderItem, Customer } from '@/config/supabase'
 import { format, subDays, startOfDay, endOfDay, parseISO, subMonths, subQuarters, subYears, startOfMonth, startOfQuarter, startOfYear, endOfMonth } from 'date-fns'
-import { DollarSign, TrendingUp, Package, Calendar, Filter, Download, FileText, FileSpreadsheet } from 'lucide-react'
+import { DollarSign, TrendingUp, Package, Calendar, Filter, Download, FileText, FileSpreadsheet, Heart } from 'lucide-react'
 import {
   LineChart,
   Line,
@@ -28,6 +28,8 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
 import FinancialAnalytics from './FinancialAnalytics'
 
 interface DailyStats {
@@ -70,6 +72,7 @@ const FinancialDashboard = () => {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [items, setItems] = useState<{ id: string; name: string }[]>([])
   const [activeTab, setActiveTab] = useState('overview')
+  const [tipModalOpen, setTipModalOpen] = useState(false)
 
   useEffect(() => {
     loadOrders()
@@ -281,6 +284,144 @@ const FinancialDashboard = () => {
     return totalOrders > 0 ? getTotalRevenue() / totalOrders : 0
   }
 
+  const getTotalTips = () => {
+    let filteredOrders = [...orders]
+
+    // Apply filters
+    if (filterState.customerId) {
+      filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
+    }
+
+    // Apply time filters
+    const now = new Date()
+    let startDate: Date
+    let endDate: Date = now
+
+    switch (filterState.timePeriod) {
+      case 'today':
+        startDate = startOfDay(now)
+        endDate = endOfDay(now)
+        break
+      case '7d':
+        startDate = subDays(now, 7)
+        break
+      case '30d':
+        startDate = subDays(now, 30)
+        break
+      case 'thisMonth':
+        startDate = startOfMonth(now)
+        endDate = endOfMonth(now)
+        break
+      case 'lastMonth':
+        startDate = startOfMonth(subMonths(now, 1))
+        endDate = endOfMonth(subMonths(now, 1))
+        break
+      case 'thisQuarter':
+        startDate = startOfQuarter(now)
+        break
+      case 'thisYear':
+        startDate = startOfYear(now)
+        break
+      case 'quarter':
+        startDate = startOfQuarter(subQuarters(now, 1))
+        endDate = endOfMonth(subQuarters(now, 1))
+        break
+      case 'year':
+        startDate = startOfYear(subYears(now, 1))
+        endDate = endOfMonth(subYears(now, 1))
+        break
+      case 'custom':
+        if (filterState.customStartDate && filterState.customEndDate) {
+          startDate = startOfDay(parseISO(filterState.customStartDate))
+          endDate = endOfDay(parseISO(filterState.customEndDate))
+        } else {
+          startDate = subDays(now, 7)
+        }
+        break
+      default:
+        startDate = subDays(now, 7)
+    }
+
+    filteredOrders = filteredOrders.filter(order => {
+      const orderDate = parseISO(order.created_at)
+      return orderDate >= startDate && orderDate <= endDate
+    })
+
+    return filteredOrders.reduce((sum, order) => sum + (order.tip_amount || 0), 0)
+  }
+
+  const getOrdersWithTips = () => {
+    let filteredOrders = [...orders]
+
+    // Apply same filters as getTotalTips
+    if (filterState.customerId) {
+      filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
+    }
+
+    // Apply time filters (same logic as getTotalTips)
+    const now = new Date()
+    let startDate: Date
+    let endDate: Date = now
+
+    switch (filterState.timePeriod) {
+      case 'today':
+        startDate = startOfDay(now)
+        endDate = endOfDay(now)
+        break
+      case '7d':
+        startDate = subDays(now, 7)
+        break
+      case '30d':
+        startDate = subDays(now, 30)
+        break
+      case 'thisMonth':
+        startDate = startOfMonth(now)
+        endDate = endOfMonth(now)
+        break
+      case 'lastMonth':
+        startDate = startOfMonth(subMonths(now, 1))
+        endDate = endOfMonth(subMonths(now, 1))
+        break
+      case 'thisQuarter':
+        startDate = startOfQuarter(now)
+        break
+      case 'thisYear':
+        startDate = startOfYear(now)
+        break
+      case 'quarter':
+        startDate = startOfQuarter(subQuarters(now, 1))
+        endDate = endOfMonth(subQuarters(now, 1))
+        break
+      case 'year':
+        startDate = startOfYear(subYears(now, 1))
+        endDate = endOfMonth(subYears(now, 1))
+        break
+      case 'custom':
+        if (filterState.customStartDate && filterState.customEndDate) {
+          startDate = startOfDay(parseISO(filterState.customStartDate))
+          endDate = endOfDay(parseISO(filterState.customEndDate))
+        } else {
+          startDate = subDays(now, 7)
+        }
+        break
+      default:
+        startDate = subDays(now, 7)
+    }
+
+    filteredOrders = filteredOrders.filter(order => {
+      const orderDate = parseISO(order.created_at)
+      return orderDate >= startDate && orderDate <= endDate
+    })
+
+    return filteredOrders.filter(order => order.tip_amount && order.tip_amount > 0).length
+  }
+
+  const getAverageTip = () => {
+    const ordersWithTips = getOrdersWithTips()
+    const totalTips = getTotalTips()
+    return ordersWithTips > 0 ? totalTips / ordersWithTips : 0
+  }
+
   const getTopItemsBySales = () => {
     let filteredOrders = [...orders]
 
@@ -446,6 +587,11 @@ const FinancialDashboard = () => {
             <div class="summary-card">
               <h3>Average Order Value</h3>
               <p>${getAverageOrderValue().toFixed(2)}</p>
+            </div>
+            <div class="summary-card">
+              <h3>Total Tips</h3>
+              <p style="color: #16a34a;">${getTotalTips().toFixed(2)}</p>
+              <small>${getOrdersWithTips()} orders with tips</small>
             </div>
           </div>
 
@@ -669,7 +815,7 @@ const FinancialDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -733,6 +879,22 @@ const FinancialDashboard = () => {
                    filterState.timePeriod === 'year' ? 'Last year' :
                    filterState.timePeriod === 'custom' ? 'Custom range' : 
                    'Last 7 days'}
+                </p>
+              </CardContent>
+            </Card>
+            <Card 
+              className="cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => setTipModalOpen(true)}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Tips</CardTitle>
+                <Heart className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">${getTotalTips().toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {getOrdersWithTips()} orders with tips • Avg: ${getAverageTip().toFixed(2)}
+                  <span className="block text-blue-600 mt-1">Click to view details</span>
                 </p>
               </CardContent>
             </Card>
@@ -886,6 +1048,172 @@ const FinancialDashboard = () => {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Tip Details Modal */}
+      <Dialog open={tipModalOpen} onOpenChange={setTipModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-red-500" />
+              Tip Details
+            </DialogTitle>
+            <DialogDescription>
+              Individual tip transactions for {
+                filterState.timePeriod === 'today' ? 'today' : 
+                filterState.timePeriod === '7d' ? 'last 7 days' :
+                filterState.timePeriod === '30d' ? 'last 30 days' :
+                filterState.timePeriod === 'thisMonth' ? 'this month' :
+                filterState.timePeriod === 'lastMonth' ? 'last month' :
+                filterState.timePeriod === 'thisQuarter' ? 'this quarter' :
+                filterState.timePeriod === 'thisYear' ? 'this year' :
+                filterState.timePeriod === 'quarter' ? 'last quarter' :
+                filterState.timePeriod === 'year' ? 'last year' :
+                filterState.timePeriod === 'custom' ? 'custom range' : 
+                'last 7 days'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 mt-4">
+            {(() => {
+              // Filter orders with tips using the same logic as getTotalTips
+              let filteredOrders = [...orders]
+
+              // Apply filters
+              if (filterState.customerId) {
+                filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
+              }
+
+              // Apply time filters (same logic as getTotalTips)
+              const now = new Date()
+              let startDate: Date
+              let endDate: Date = now
+
+              switch (filterState.timePeriod) {
+                case 'today':
+                  startDate = startOfDay(now)
+                  endDate = endOfDay(now)
+                  break
+                case '7d':
+                  startDate = subDays(now, 7)
+                  break
+                case '30d':
+                  startDate = subDays(now, 30)
+                  break
+                case 'thisMonth':
+                  startDate = startOfMonth(now)
+                  endDate = endOfMonth(now)
+                  break
+                case 'lastMonth':
+                  startDate = startOfMonth(subMonths(now, 1))
+                  endDate = endOfMonth(subMonths(now, 1))
+                  break
+                case 'thisQuarter':
+                  startDate = startOfQuarter(now)
+                  break
+                case 'thisYear':
+                  startDate = startOfYear(now)
+                  break
+                case 'quarter':
+                  startDate = startOfQuarter(subQuarters(now, 1))
+                  endDate = endOfMonth(subQuarters(now, 1))
+                  break
+                case 'year':
+                  startDate = startOfYear(subYears(now, 1))
+                  endDate = endOfMonth(subYears(now, 1))
+                  break
+                case 'custom':
+                  if (filterState.customStartDate && filterState.customEndDate) {
+                    startDate = startOfDay(parseISO(filterState.customStartDate))
+                    endDate = endOfDay(parseISO(filterState.customEndDate))
+                  } else {
+                    startDate = subDays(now, 7)
+                  }
+                  break
+                default:
+                  startDate = subDays(now, 7)
+              }
+
+              filteredOrders = filteredOrders.filter(order => {
+                const orderDate = parseISO(order.created_at)
+                return orderDate >= startDate && orderDate <= endDate
+              })
+
+              const ordersWithTips = filteredOrders
+                .filter(order => order.tip_amount && order.tip_amount > 0)
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .slice(0, 50) // Show latest 50 tip transactions
+
+              if (ordersWithTips.length === 0) {
+                return (
+                  <div className="text-center text-gray-500 py-8">
+                    <Heart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-lg font-medium">No tips found</p>
+                    <p className="text-sm">No tip transactions for the selected period</p>
+                  </div>
+                )
+              }
+
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-4 p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <p className="font-semibold text-green-800">Total Tips: ${getTotalTips().toFixed(2)}</p>
+                      <p className="text-sm text-green-600">
+                        {ordersWithTips.length} transactions • Average: ${getAverageTip().toFixed(2)}
+                      </p>
+                    </div>
+                    <Heart className="w-8 h-8 text-green-600" />
+                  </div>
+                  
+                  {ordersWithTips.map((order) => {
+                    const customer = customers.find(c => c.id === order.customer_id)
+                    const orderDate = parseISO(order.created_at)
+                    
+                    return (
+                      <div key={order.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <Heart className="w-5 h-5 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {customer ? customer.name : 'Unknown Customer'}
+                            </p>
+                            <div className="flex items-center space-x-3 text-sm text-gray-600">
+                              <span>Order #{order.order_number || order.id?.slice(0, 8)}</span>
+                              <span>•</span>
+                              <span>{format(orderDate, 'MMM dd, yyyy')}</span>
+                              <span>•</span>
+                              <span>{format(orderDate, 'hh:mm a')}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-green-600">
+                            +${(order.tip_amount || 0).toFixed(2)}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Order: ${((order.total_amount || 0) - (order.tip_amount || 0)).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                  
+                  {filteredOrders.filter(order => order.tip_amount && order.tip_amount > 0).length > 50 && (
+                    <div className="text-center pt-4">
+                      <p className="text-sm text-gray-500">
+                        Showing latest 50 of {filteredOrders.filter(order => order.tip_amount && order.tip_amount > 0).length} tip transactions
+                      </p>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

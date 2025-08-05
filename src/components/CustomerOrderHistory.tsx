@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { History, CalendarIcon, Eye } from 'lucide-react'
+import { History, CalendarIcon, Eye, Heart } from 'lucide-react'
 import { ordersApi } from '@/services/api'
 import { Order, OrderItem, Customer } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
@@ -254,6 +254,15 @@ const CustomerOrderHistory = ({ customer }: CustomerOrderHistoryProps) => {
                       <div className="flex justify-between text-red-600">
                         <span>Discount:</span>
                         <span>-${viewingOrder.discount_amount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {viewingOrder.tip_amount && viewingOrder.tip_amount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3 h-3" />
+                          Tip:
+                        </span>
+                        <span>+${viewingOrder.tip_amount.toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-semibold text-lg border-t pt-2">

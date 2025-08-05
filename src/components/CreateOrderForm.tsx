@@ -41,6 +41,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   const [existingCustomer, setExistingCustomer] = useState<Customer | null>(null)
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('fixed')
   const [discountValue, setDiscountValue] = useState<number>(0)
+  const [tipValue, setTipValue] = useState<number>(0)
   const [loading, setLoading] = useState(false)
   const [topOrderItems, setTopOrderItems] = useState<{ item_name: string; total_revenue: number; size_type: string }[]>([])
   const { toast } = useToast()
@@ -72,6 +73,9 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
       setSpecialInstructions(existingOrder.special_instructions || '')
       setDiscountType(existingOrder.discount_type || 'percentage')
       setDiscountValue(existingOrder.discount_value || 0)
+      
+      // Load existing tip data
+      setTipValue(existingOrder.tip_amount || 0)
       
       // Load existing customer if customer_id exists
       if (existingOrder.customer_id) {
@@ -166,8 +170,13 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
     }
   }
 
+  const getTipAmount = () => {
+    if (tipValue <= 0) return 0
+    return tipValue
+  }
+
   const getTotalAmount = () => {
-    return getSubtotalAmount() - getDiscountAmount()
+    return getSubtotalAmount() - getDiscountAmount() + getTipAmount()
   }
 
   const handleSubmit = async () => {
@@ -194,6 +203,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           discount_type: discountValue > 0 ? discountType : undefined,
           discount_value: discountValue > 0 ? discountValue : undefined,
           discount_amount: getDiscountAmount(),
+          tip_amount: getTipAmount(),
           total_amount: getTotalAmount()
         }
 
@@ -265,6 +275,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           discount_type: discountValue > 0 ? discountType : undefined,
           discount_value: discountValue > 0 ? discountValue : undefined,
           discount_amount: getDiscountAmount(),
+          tip_amount: getTipAmount(),
           total_amount: getTotalAmount(),
           status: 'received' as const
         }
@@ -293,7 +304,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CustomerInfoForm
           customerName={customerName}
           setCustomerName={setCustomerName}
@@ -331,8 +342,11 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           setDiscountType={setDiscountType}
           discountValue={discountValue}
           setDiscountValue={setDiscountValue}
+          tipValue={tipValue}
+          setTipValue={setTipValue}
           subtotalAmount={getSubtotalAmount()}
           discountAmount={getDiscountAmount()}
+          tipAmount={getTipAmount()}
           totalAmount={getTotalAmount()}
         />
       </div>

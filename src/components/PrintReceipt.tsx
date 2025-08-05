@@ -175,6 +175,9 @@ const PrintReceipt = ({ order, onPrint }: PrintReceiptProps) => {
           ${order.discount_amount && order.discount_amount > 0 ? `
                           <div><span>Discount (${order.discount_type === 'percentage' ? order.discount_value + '%' : '$' + order.discount_value}):</span><span>-$${order.discount_amount.toFixed(2)}</span></div>
           ` : ''}
+          ${order.tip_amount && order.tip_amount > 0 ? `
+                          <div><span>Tip:</span><span>+$${order.tip_amount.toFixed(2)}</span></div>
+          ` : ''}
           <div class="total-line">
                           <span>TOTAL:</span><span>$${order.total_amount?.toFixed(2) || '0.00'}</span>
           </div>
