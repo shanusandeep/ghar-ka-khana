@@ -343,8 +343,8 @@ const FinancialDashboard = () => {
     }
 
     filteredOrders = filteredOrders.filter(order => {
-      const orderDate = parseISO(order.created_at)
-      return orderDate >= startDate && orderDate <= endDate
+      const deliveryDate = parseISO(order.delivery_date)
+      return deliveryDate >= startDate && deliveryDate <= endDate
     })
 
     return filteredOrders.reduce((sum, order) => sum + (order.tip_amount || 0), 0)
@@ -409,8 +409,8 @@ const FinancialDashboard = () => {
     }
 
     filteredOrders = filteredOrders.filter(order => {
-      const orderDate = parseISO(order.created_at)
-      return orderDate >= startDate && orderDate <= endDate
+      const deliveryDate = parseISO(order.delivery_date)
+      return deliveryDate >= startDate && deliveryDate <= endDate
     })
 
     return filteredOrders.filter(order => order.tip_amount && order.tip_amount > 0).length
@@ -1135,13 +1135,13 @@ const FinancialDashboard = () => {
               }
 
               filteredOrders = filteredOrders.filter(order => {
-                const orderDate = parseISO(order.created_at)
-                return orderDate >= startDate && orderDate <= endDate
+                const deliveryDate = parseISO(order.delivery_date)
+                return deliveryDate >= startDate && deliveryDate <= endDate
               })
 
               const ordersWithTips = filteredOrders
                 .filter(order => order.tip_amount && order.tip_amount > 0)
-                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .sort((a, b) => new Date(b.delivery_date).getTime() - new Date(a.delivery_date).getTime())
                 .slice(0, 50) // Show latest 50 tip transactions
 
               if (ordersWithTips.length === 0) {
@@ -1166,40 +1166,41 @@ const FinancialDashboard = () => {
                     <Heart className="w-8 h-8 text-green-600" />
                   </div>
                   
-                  {ordersWithTips.map((order) => {
-                    const customer = customers.find(c => c.id === order.customer_id)
-                    const orderDate = parseISO(order.created_at)
-                    
-                    return (
-                      <div key={order.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                            <Heart className="w-5 h-5 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {customer ? customer.name : 'Unknown Customer'}
-                            </p>
-                            <div className="flex items-center space-x-3 text-sm text-gray-600">
-                              <span>Order #{order.order_number || order.id?.slice(0, 8)}</span>
-                              <span>•</span>
-                              <span>{format(orderDate, 'MMM dd, yyyy')}</span>
-                              <span>•</span>
-                              <span>{format(orderDate, 'hh:mm a')}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-green-600">
-                            +${(order.tip_amount || 0).toFixed(2)}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Order: ${((order.total_amount || 0) - (order.tip_amount || 0)).toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })}
+                                     {ordersWithTips.map((order) => {
+                     const customer = customers.find(c => c.id === order.customer_id)
+                     const deliveryDate = parseISO(order.delivery_date)
+                     const deliveryTime = order.delivery_time
+                     
+                     return (
+                       <div key={order.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                         <div className="flex items-center space-x-4">
+                           <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                             <Heart className="w-5 h-5 text-green-600" />
+                           </div>
+                           <div>
+                             <p className="font-medium text-gray-900">
+                               {customer ? customer.name : 'Unknown Customer'}
+                             </p>
+                             <div className="flex items-center space-x-3 text-sm text-gray-600">
+                               <span>Order #{order.order_number || order.id?.slice(0, 8)}</span>
+                               <span>•</span>
+                               <span>{format(deliveryDate, 'MMM dd, yyyy')}</span>
+                               <span>•</span>
+                               <span>{deliveryTime || format(deliveryDate, 'hh:mm a')}</span>
+                             </div>
+                           </div>
+                         </div>
+                         <div className="text-right">
+                           <p className="text-lg font-bold text-green-600">
+                             +${(order.tip_amount || 0).toFixed(2)}
+                           </p>
+                           <p className="text-xs text-gray-500">
+                             Order: ${((order.total_amount || 0) - (order.tip_amount || 0)).toFixed(2)}
+                           </p>
+                         </div>
+                       </div>
+                     )
+                   })}
                   
                   {filteredOrders.filter(order => order.tip_amount && order.tip_amount > 0).length > 50 && (
                     <div className="text-center pt-4">
