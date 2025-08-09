@@ -104,8 +104,11 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
         startDate = subDays(today, 6)
     }
 
-    // Filter orders by date range
+    // Filter orders by date range and status
     return orders.filter(order => {
+      // Only include paid orders for revenue analytics
+      if (order.status !== 'paid') return false
+      
       const orderDate = parseISO(order.delivery_date)
       return orderDate >= startDate && orderDate <= endDate
     })

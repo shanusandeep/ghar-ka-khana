@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ordersApi, customersApi } from '@/services/api'
 import { Order, OrderItem, Customer } from '@/config/supabase'
 import { format, subDays, startOfDay, endOfDay, parseISO, subMonths, subQuarters, subYears, startOfMonth, startOfQuarter, startOfYear, endOfMonth } from 'date-fns'
-import { DollarSign, TrendingUp, Package, Calendar, Filter, Download, FileText, FileSpreadsheet, Heart } from 'lucide-react'
+import { DollarSign, TrendingUp, Package, Calendar, Filter, Download, FileText, FileSpreadsheet, Heart, Clock } from 'lucide-react'
 import {
   LineChart,
   Line,
@@ -133,6 +133,9 @@ const FinancialDashboard = () => {
     const today = new Date()
     let stats: DailyStats[] = []
     let filteredOrders = [...orders]
+
+    // Filter by order status - only include paid orders for revenue
+    filteredOrders = filteredOrders.filter(order => order.status === 'paid')
 
     // Apply customer filter
     if (filterState.customerId) {
@@ -287,6 +290,9 @@ const FinancialDashboard = () => {
   const getTotalTips = () => {
     let filteredOrders = [...orders]
 
+    // Filter by order status - only include paid orders for tip calculations
+    filteredOrders = filteredOrders.filter(order => order.status === 'paid')
+
     // Apply filters
     if (filterState.customerId) {
       filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
@@ -352,6 +358,9 @@ const FinancialDashboard = () => {
 
   const getOrdersWithTips = () => {
     let filteredOrders = [...orders]
+
+    // Filter by order status - only include paid orders for tip calculations
+    filteredOrders = filteredOrders.filter(order => order.status === 'paid')
 
     // Apply same filters as getTotalTips
     if (filterState.customerId) {
@@ -422,8 +431,149 @@ const FinancialDashboard = () => {
     return ordersWithTips > 0 ? totalTips / ordersWithTips : 0
   }
 
+  const getPendingRevenue = () => {
+    let filteredOrders = [...orders]
+
+    // Filter by order status - include all non-paid orders (received, delivered, and any future status)
+    filteredOrders = filteredOrders.filter(order => order.status !== 'paid')
+
+    // Apply filters
+    if (filterState.customerId) {
+      filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
+    }
+
+    // Apply time filters (same logic as getTotalTips)
+    const now = new Date()
+    let startDate: Date
+    let endDate: Date = now
+
+    switch (filterState.timePeriod) {
+      case 'today':
+        startDate = startOfDay(now)
+        endDate = endOfDay(now)
+        break
+      case '7d':
+        startDate = subDays(now, 7)
+        break
+      case '30d':
+        startDate = subDays(now, 30)
+        break
+      case 'thisMonth':
+        startDate = startOfMonth(now)
+        endDate = endOfMonth(now)
+        break
+      case 'lastMonth':
+        startDate = startOfMonth(subMonths(now, 1))
+        endDate = endOfMonth(subMonths(now, 1))
+        break
+      case 'thisQuarter':
+        startDate = startOfQuarter(now)
+        break
+      case 'thisYear':
+        startDate = startOfYear(now)
+        break
+      case 'quarter':
+        startDate = startOfQuarter(subQuarters(now, 1))
+        endDate = endOfMonth(subQuarters(now, 1))
+        break
+      case 'year':
+        startDate = startOfYear(subYears(now, 1))
+        endDate = endOfMonth(subYears(now, 1))
+        break
+      case 'custom':
+        if (filterState.customStartDate && filterState.customEndDate) {
+          startDate = startOfDay(parseISO(filterState.customStartDate))
+          endDate = endOfDay(parseISO(filterState.customEndDate))
+        } else {
+          startDate = subDays(now, 7)
+        }
+        break
+      default:
+        startDate = subDays(now, 7)
+    }
+
+    filteredOrders = filteredOrders.filter(order => {
+      const deliveryDate = parseISO(order.delivery_date)
+      return deliveryDate >= startDate && deliveryDate <= endDate
+    })
+
+    return filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
+  }
+
+  const getPendingOrdersCount = () => {
+    let filteredOrders = [...orders]
+
+    // Filter by order status - include all non-paid orders (received, delivered, and any future status)
+    filteredOrders = filteredOrders.filter(order => order.status !== 'paid')
+
+    // Apply same filters as getPendingRevenue
+    if (filterState.customerId) {
+      filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
+    }
+
+    // Apply time filters (same logic as getPendingRevenue)
+    const now = new Date()
+    let startDate: Date
+    let endDate: Date = now
+
+    switch (filterState.timePeriod) {
+      case 'today':
+        startDate = startOfDay(now)
+        endDate = endOfDay(now)
+        break
+      case '7d':
+        startDate = subDays(now, 7)
+        break
+      case '30d':
+        startDate = subDays(now, 30)
+        break
+      case 'thisMonth':
+        startDate = startOfMonth(now)
+        endDate = endOfMonth(now)
+        break
+      case 'lastMonth':
+        startDate = startOfMonth(subMonths(now, 1))
+        endDate = endOfMonth(subMonths(now, 1))
+        break
+      case 'thisQuarter':
+        startDate = startOfQuarter(now)
+        break
+      case 'thisYear':
+        startDate = startOfYear(now)
+        break
+      case 'quarter':
+        startDate = startOfQuarter(subQuarters(now, 1))
+        endDate = endOfMonth(subQuarters(now, 1))
+        break
+      case 'year':
+        startDate = startOfYear(subYears(now, 1))
+        endDate = endOfMonth(subYears(now, 1))
+        break
+      case 'custom':
+        if (filterState.customStartDate && filterState.customEndDate) {
+          startDate = startOfDay(parseISO(filterState.customStartDate))
+          endDate = endOfDay(parseISO(filterState.customEndDate))
+        } else {
+          startDate = subDays(now, 7)
+        }
+        break
+      default:
+        startDate = subDays(now, 7)
+    }
+
+    filteredOrders = filteredOrders.filter(order => {
+      const deliveryDate = parseISO(order.delivery_date)
+      return deliveryDate >= startDate && deliveryDate <= endDate
+    })
+
+    return filteredOrders.length
+  }
+
   const getTopItemsBySales = () => {
     let filteredOrders = [...orders]
+
+    // Filter by order status - only include paid orders for sales analytics
+    filteredOrders = filteredOrders.filter(order => order.status === 'paid')
 
     // Apply filters
     if (filterState.customerId) {
@@ -592,6 +742,11 @@ const FinancialDashboard = () => {
               <h3>Total Tips</h3>
               <p style="color: #16a34a;">${getTotalTips().toFixed(2)}</p>
               <small>${getOrdersWithTips()} orders with tips</small>
+            </div>
+            <div class="summary-card">
+              <h3>Pending Revenue</h3>
+              <p style="color: #ea580c;">${getPendingRevenue().toFixed(2)}</p>
+              <small>${getPendingOrdersCount()} future orders</small>
             </div>
           </div>
 
@@ -815,7 +970,7 @@ const FinancialDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -835,6 +990,18 @@ const FinancialDashboard = () => {
                    filterState.timePeriod === 'year' ? 'Last year' :
                    filterState.timePeriod === 'custom' ? 'Custom range' : 
                    'Last 7 days'}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Revenue</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">${getPendingRevenue().toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {getPendingOrdersCount()} pending orders (all future orders)
                 </p>
               </CardContent>
             </Card>
@@ -1078,6 +1245,9 @@ const FinancialDashboard = () => {
             {(() => {
               // Filter orders with tips using the same logic as getTotalTips
               let filteredOrders = [...orders]
+
+              // Filter by order status - only include paid orders for tip calculations
+              filteredOrders = filteredOrders.filter(order => order.status === 'paid')
 
               // Apply filters
               if (filterState.customerId) {
