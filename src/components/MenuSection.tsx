@@ -21,7 +21,7 @@ interface MenuSectionProps {
 
 const MenuSection = ({ category, items }: MenuSectionProps) => {
   const { trackEvent } = useAnalytics();
-  const [modalImage, setModalImage] = useState<{ url: string; name: string; ingredients?: string[] } | null>(null);
+  const [modalImage, setModalImage] = useState<{ url: string; name: string; ingredients?: string[]; price?: string; note?: string } | null>(null);
 
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
@@ -57,8 +57,8 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
     }
   };
 
-  const handleImageClick = (imageUrl: string, itemName: string, ingredients?: string[]) => {
-    setModalImage({ url: imageUrl, name: itemName, ingredients });
+  const handleImageClick = (imageUrl: string, itemName: string, ingredients?: string[], price?: string, note?: string) => {
+    setModalImage({ url: imageUrl, name: itemName, ingredients, price, note });
     trackEvent('image_view', 'menu_item', `${category} - ${itemName}`);
   };
 
@@ -93,7 +93,7 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
                       src={item.image}
                       alt={item.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
-                      onClick={() => handleImageClick(item.image!, item.name, item.ingredients)}
+                      onClick={() => handleImageClick(item.image!, item.name, item.ingredients, item.price, item.note)}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
@@ -164,6 +164,8 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
         imageUrl={modalImage?.url || ''}
         imageName={modalImage?.name || ''}
         ingredients={modalImage?.ingredients}
+        price={modalImage?.price}
+        note={modalImage?.note}
         onClose={closeModal}
       />
     </>

@@ -73,6 +73,7 @@ const FinancialDashboard = () => {
   const [items, setItems] = useState<{ id: string; name: string }[]>([])
   const [activeTab, setActiveTab] = useState('overview')
   const [tipModalOpen, setTipModalOpen] = useState(false)
+  const [pendingModalOpen, setPendingModalOpen] = useState(false)
 
   useEffect(() => {
     loadOrders()
@@ -993,7 +994,10 @@ const FinancialDashboard = () => {
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card 
+              className="cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => setPendingModalOpen(true)}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Pending Revenue</CardTitle>
                 <Clock className="h-4 w-4 text-muted-foreground" />
@@ -1002,6 +1006,7 @@ const FinancialDashboard = () => {
                 <div className="text-2xl font-bold text-orange-600">${getPendingRevenue().toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">
                   {getPendingOrdersCount()} pending orders (all future orders)
+                  <span className="block text-blue-600 mt-1">Click to view orders</span>
                 </p>
               </CardContent>
             </Card>
@@ -1379,6 +1384,149 @@ const FinancialDashboard = () => {
                       </p>
                     </div>
                   )}
+                </>
+              )
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pending Orders Modal */}
+      <Dialog open={pendingModalOpen} onOpenChange={setPendingModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-orange-500" />
+              Pending Orders
+            </DialogTitle>
+            <DialogDescription>
+              Orders that are not yet paid for the selected period
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 mt-4">
+            {(() => {
+              let filteredOrders = [...orders]
+              // Include all non-paid orders
+              filteredOrders = filteredOrders.filter(order => order.status !== 'paid')
+
+              // Apply filters
+              if (filterState.customerId) {
+                filteredOrders = filteredOrders.filter(order => order.customer_id === filterState.customerId)
+              }
+
+              // Apply time filters (same as getPendingRevenue)
+              const now = new Date()
+              let startDate: Date
+              let endDate: Date = now
+              switch (filterState.timePeriod) {
+                case 'today':
+                  startDate = startOfDay(now)
+                  endDate = endOfDay(now)
+                  break
+                case '7d':
+                  startDate = subDays(now, 7)
+                  break
+                case '30d':
+                  startDate = subDays(now, 30)
+                  break
+                case 'thisMonth':
+                  startDate = startOfMonth(now)
+                  endDate = endOfMonth(now)
+                  break
+                case 'lastMonth':
+                  startDate = startOfMonth(subMonths(now, 1))
+                  endDate = endOfMonth(subMonths(now, 1))
+                  break
+                case 'thisQuarter':
+                  startDate = startOfQuarter(now)
+                  break
+                case 'thisYear':
+                  startDate = startOfYear(now)
+                  break
+                case 'quarter':
+                  startDate = startOfQuarter(subQuarters(now, 1))
+                  endDate = endOfMonth(subQuarters(now, 1))
+                  break
+                case 'year':
+                  startDate = startOfYear(subYears(now, 1))
+                  endDate = endOfMonth(subYears(now, 1))
+                  break
+                case 'custom':
+                  if (filterState.customStartDate && filterState.customEndDate) {
+                    startDate = startOfDay(parseISO(filterState.customStartDate))
+                    endDate = endOfDay(parseISO(filterState.customEndDate))
+                  } else {
+                    startDate = subDays(now, 7)
+                  }
+                  break
+                default:
+                  startDate = subDays(now, 7)
+              }
+
+              filteredOrders = filteredOrders.filter(order => {
+                const deliveryDate = parseISO(order.delivery_date)
+                return deliveryDate >= startDate && deliveryDate <= endDate
+              })
+
+              // Sort by delivery date ascending
+              filteredOrders.sort((a, b) => new Date(a.delivery_date).getTime() - new Date(b.delivery_date).getTime())
+
+              if (filteredOrders.length === 0) {
+                return (
+                  <div className="text-center text-gray-500 py-8">
+                    <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-lg font-medium">No pending orders</p>
+                    <p className="text-sm">No non-paid orders for the selected period</p>
+                  </div>
+                )
+              }
+
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-4 p-3 bg-orange-50 rounded-lg">
+                    <div>
+                      <p className="font-semibold text-orange-800">Pending Revenue: ${getPendingRevenue().toFixed(2)}</p>
+                      <p className="text-sm text-orange-600">
+                        {filteredOrders.length} pending orders
+                      </p>
+                    </div>
+                    <Clock className="w-8 h-8 text-orange-600" />
+                  </div>
+
+                  {filteredOrders.map((order) => {
+                    const customer = customers.find(c => c.id === order.customer_id)
+                    const deliveryDate = parseISO(order.delivery_date)
+                    const deliveryTime = order.delivery_time
+                    return (
+                      <div key={order.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-100">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-orange-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {customer ? customer.name : 'Unknown Customer'}
+                            </p>
+                            <div className="flex items-center space-x-3 text-sm text-gray-600">
+                              <span>Order #{order.order_number || order.id?.slice(0, 8)}</span>
+                              <span>•</span>
+                              <span>{format(deliveryDate, 'MMM dd, yyyy')}</span>
+                              <span>•</span>
+                              <span>{deliveryTime || format(deliveryDate, 'hh:mm a')}</span>
+                              <span>•</span>
+                              <span className="capitalize">{order.status}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-orange-600">
+                            ${ (order.total_amount || 0).toFixed(2) }
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </>
               )
             })()}

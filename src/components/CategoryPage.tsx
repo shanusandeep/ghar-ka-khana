@@ -48,7 +48,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
       name: item.name,
       price: formatPrice(item),
       note: formatNote(item),
-      image: item.image_url || getDefaultImage(categoryName),
+      image: item.image_url || getItemImage(categoryName, item.name) || getDefaultImage(categoryName),
       ingredients: item.ingredients || [],
       description: item.description
     }));
@@ -101,6 +101,149 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
       "Dessert": "https://images.unsplash.com/photo-1551024506-0bccd828d307?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
     };
     return defaultImages[category] || defaultImages["Main Course"];
+  };
+
+  // Try to resolve a specific image for a known item name when no image_url is present
+  const getItemImage = (category: string, itemName: string) => {
+    const normalizeName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "").trim();
+
+    // Map of known items to local images (served from public/)
+    const itemImageMap: { [key: string]: { [key: string]: string } } = {
+      "starter items": {
+        [normalizeName("Chhole Bhature")]: "/food_pics/starter/chhole-bhature.png",
+        [normalizeName("Chole Bhature")]: "/food_pics/starter/chhole-bhature.png",
+        [normalizeName("Chana Bhature")]: "/food_pics/starter/chhole-bhature.png",
+        [normalizeName("Chana Bhatura")]: "/food_pics/starter/chhole-bhature.png",
+        // Gobi Manchurian variants
+        [normalizeName("Gobi Manchurian")]: "/food_pics/starter/gobi-manchurian.png",
+        [normalizeName("Gobhi Manchurian")]: "/food_pics/starter/gobi-manchurian.png",
+        [normalizeName("Cauliflower Manchurian")]: "/food_pics/starter/gobi-manchurian.png",
+        // Veg Noodles variants (and common misspellings)
+        [normalizeName("Veg Noodles")]: "/food_pics/starter/veg-noodles.png",
+        [normalizeName("Vegetable Noodles")]: "/food_pics/starter/veg-noodles.png",
+        [normalizeName("Veg Hakka Noodles")]: "/food_pics/starter/veg-noodles.png",
+        [normalizeName("Veg Noodels")]: "/food_pics/starter/veg-noodles.png",
+        // Kaati/Kathi rolls
+        [normalizeName("Veg Kaati Roll")]: "/food_pics/starter/veg-kaati-roll.png",
+        [normalizeName("Veg Kathi Roll")]: "/food_pics/starter/veg-kaati-roll.png",
+        [normalizeName("Egg Kaati Roll")]: "/food_pics/starter/egg-kaati-roll.png",
+        [normalizeName("Egg Kathi Roll")]: "/food_pics/starter/egg-kaati-roll.png",
+        [normalizeName("Chicken Kaati Roll")]: "/food_pics/starter/chicken-kaati-roll.png",
+        [normalizeName("Chicken Kathi Roll")]: "/food_pics/starter/chicken-kaati-roll.png",
+        // Pakodas
+        [normalizeName("  ")]: "/food_pics/starter/moong-dal-pakoda.png",
+        [normalizeName("Mung Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
+        [normalizeName("Moong Daal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
+        [normalizeName("Palak Onion Pakoda")]: "/food_pics/starter/palak-onion-pakoda.png",
+        [normalizeName("Spinach Onion Pakoda")]: "/food_pics/starter/palak-onion-pakoda.png",
+        // Soya Chaap variants
+        [normalizeName("Soya Chaap")]: "/food_pics/starter/malai-soya-chaap.png",
+        [normalizeName("Soya Chaap Malai")]: "/food_pics/starter/malai-soya-chaap.png",
+        [normalizeName("Malai Soya Chaap")]: "/food_pics/starter/malai-soya-chaap.png",
+        [normalizeName("Soya Chaap Malai Tikka")]: "/food_pics/starter/malai-soya-chaap.png",
+        [normalizeName("Soya Chaap Tikka")]: "/food_pics/starter/malai-soya-chaap.png",
+        [normalizeName("Soya Chaaap")]: "/food_pics/starter/malai-soya-chaap.png",
+        // Veg Sliders variants
+        [normalizeName("Veg Sliders")]: "/food_pics/starter/veg-sliders.png",
+        [normalizeName("Vegetable Sliders")]: "/food_pics/starter/veg-sliders.png",
+        [normalizeName("Veg Slider")]: "/food_pics/starter/veg-sliders.png"
+      },
+      "breads": {
+        [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
+        [normalizeName("Aloo Paratha Plate")]: "/food_pics/breads/aloo-paratha.png",
+        [normalizeName("Poori")]: "/food_pics/breads/poori.png",
+        [normalizeName("Puri")]: "/food_pics/breads/poori.png",
+        [normalizeName("Gobhi Paratha")]: "/food_pics/breads/gobhi-paratha.png",
+        [normalizeName("Gobi Paratha")]: "/food_pics/breads/gobhi-paratha.png",
+        [normalizeName("Roti")]: "/food_pics/breads/roti.png",
+        [normalizeName("Chapati")]: "/food_pics/breads/roti.png"
+      },
+      "dessert": {
+        [normalizeName("Moong Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
+        [normalizeName("Mung Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
+        [normalizeName("Moong Daal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
+        // Rasmalai variants
+        [normalizeName("Rasmalai")]: "/food_pics/desert/rasmalai.png",
+        [normalizeName("Ras Malai")]: "/food_pics/desert/rasmalai.png"
+      },
+      "main course": {
+        [normalizeName("Chhole Bhature")]: "/food_pics/main_course/chhole-bhature.jpg",
+        [normalizeName("Chole Bhature")]: "/food_pics/main_course/chhole-bhature.jpg",
+        [normalizeName("Chana Bhature")]: "/food_pics/main_course/chhole-bhature.jpg",
+        [normalizeName("Chana Bhatura")]: "/food_pics/main_course/chhole-bhature.jpg",
+        [normalizeName("Bharva Karela")]: "/food_pics/main_course/bharva-karela.png",
+        [normalizeName("Bharwan Karela")]: "/food_pics/main_course/bharva-karela.png",
+        [normalizeName("Stuffed Karela")]: "/food_pics/main_course/bharva-karela.png",
+        [normalizeName("Dal Fry")]: "/food_pics/main_course/dal-fry.png",
+        [normalizeName("Dal Tadka")]: "/food_pics/main_course/dal-fry.png",
+        [normalizeName("Dal Makhni")]: "/food_pics/main_course/dal-makhni.png",
+        [normalizeName("Dal Makhani")]: "/food_pics/main_course/dal-makhni.png",
+        [normalizeName("Mix Veg")]: "/food_pics/main_course/mix-veg.png",
+        [normalizeName("Mixed Veg")]: "/food_pics/main_course/mix-veg.png",
+        [normalizeName("Mixed Vegetable")]: "/food_pics/main_course/mix-veg.png",
+        [normalizeName("Malai Kofta")]: "/food_pics/main_course/malai-kofta.png",
+        [normalizeName("Paneer Bhurji")]: "/food_pics/main_course/paneer-bhurji.png",
+        // New additions
+        [normalizeName("Egg Bhurji")]: "/food_pics/main_course/egg-bhurji.png",
+        [normalizeName("Anda Bhurji")]: "/food_pics/main_course/egg-bhurji.png",
+        [normalizeName("Matar Paneer")]: "/food_pics/main_course/matar-paneer.png",
+        [normalizeName("Mattar Paneer")]: "/food_pics/main_course/matar-paneer.png",
+        [normalizeName("Mutter Paneer")]: "/food_pics/main_course/matar-paneer.png",
+        [normalizeName("Peas Paneer")]: "/food_pics/main_course/matar-paneer.png",
+        // Baingan/Baigan Bharta (file name uses a space; path reflects exact name)
+        [normalizeName("Baigan Bharta")]: "/food_pics/main_course/baigan bharta.png",
+        [normalizeName("Baingan Bharta")]: "/food_pics/main_course/baigan bharta.png",
+        [normalizeName("Eggplant Bharta")]: "/food_pics/main_course/baigan bharta.png"
+        ,
+        // Egg Curry
+        [normalizeName("Egg Curry")]: "/food_pics/main_course/egg-curry.png",
+        [normalizeName("Anda Curry")]: "/food_pics/main_course/egg-curry.png"
+        ,
+        // Baigan/Baingan Kalonji
+        [normalizeName("Baigan Kalonji")]: "/food_pics/main_course/baigan-kalonji.png",
+        [normalizeName("Baingan Kalonji")]: "/food_pics/main_course/baigan-kalonji.png",
+        [normalizeName("Eggplant Kalonji")]: "/food_pics/main_course/baigan-kalonji.png",
+        // Palak Paneer variants
+        [normalizeName("Palak Paneer")]: "/food_pics/main_course/palak-paneer.png",
+        [normalizeName("Saag Paneer")]: "/food_pics/main_course/palak-paneer.png",
+        [normalizeName("Spinach Paneer")]: "/food_pics/main_course/palak-paneer.png"
+        ,
+        // Achari Chicken (in case this dish appears in main course category)
+        [normalizeName("Achari Chicken")]: "/food_pics/main_course/achari-chicken.png",
+        // Bhindi Fry
+        [normalizeName("Bhindi Fry")]: "/food_pics/main_course/bhindi-fry.png",
+        [normalizeName("Okra Fry")]: "/food_pics/main_course/bhindi-fry.png",
+        // Kadhai/Kadai/Karahi Chicken variants
+        [normalizeName("Kadhai Chicken")]: "/food_pics/main_course/kadhai-chicken.png",
+        [normalizeName("Kadai Chicken")]: "/food_pics/main_course/kadhai-chicken.png",
+        [normalizeName("Karahi Chicken")]: "/food_pics/main_course/kadhai-chicken.png",
+        [normalizeName("Chicken Kadhai")]: "/food_pics/main_course/kadhai-chicken.png",
+        // Aloo Gobi/Gobhi Masala variants
+        [normalizeName("Aloo Gobi Masala")]: "/food_pics/main_course/aloo-gobhi-masala.png",
+        [normalizeName("Aloo Gobhi Masala")]: "/food_pics/main_course/aloo-gobhi-masala.png",
+        [normalizeName("Aloo Gobi")]: "/food_pics/main_course/aloo-gobhi-masala.png",
+        [normalizeName("Aloo Gobhi")]: "/food_pics/main_course/aloo-gobhi-masala.png"
+      }
+    };
+
+    const normalizedCategory = category.toLowerCase();
+    const normalizedItem = normalizeName(itemName);
+
+    const categoryMap = itemImageMap[normalizedCategory];
+    if (!categoryMap) return undefined;
+    const directMatch = categoryMap[normalizedItem];
+    if (directMatch) return directMatch;
+
+    // Heuristic fallbacks for common naming variations
+    if (normalizedCategory === "starter items") {
+      // Moong/Mung Dal Pakoda/Pakora (singular/plural/spelling variants)
+      const isMoongDalPakoda =
+        (normalizedItem.includes("moong") || normalizedItem.includes("mung")) &&
+        (normalizedItem.includes("pakod") || normalizedItem.includes("pakor") || normalizedItem.includes("pak"));
+      if (isMoongDalPakoda) return "/food_pics/starter/moong-dal-pakoda.png";
+    }
+    
+    return undefined;
   };
 
   if (loading) {
