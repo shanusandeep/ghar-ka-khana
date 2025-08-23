@@ -57,13 +57,53 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
     }
   };
 
-  const handleImageClick = (imageUrl: string, itemName: string, ingredients?: string[], price?: string, note?: string) => {
-    setModalImage({ url: imageUrl, name: itemName, ingredients, price, note });
+  const handleImageClick = (imageUrl: string, itemName: string, index: number, ingredients?: string[], price?: string, note?: string) => {
+    setModalImage({ url: imageUrl, name: itemName, ingredients, price, note, index });
     trackEvent('image_view', 'menu_item', `${category} - ${itemName}`);
   };
 
   const closeModal = () => {
     setModalImage(null);
+  };
+
+  const handlePreviousImage = () => {
+    if (!modalImage) return;
+    
+    // Find the previous item with an image
+    for (let i = modalImage.index - 1; i >= 0; i--) {
+      const prevItem = items[i];
+      if (prevItem.image) {
+        setModalImage({
+          url: prevItem.image,
+          name: prevItem.name,
+          ingredients: prevItem.ingredients,
+          price: prevItem.price,
+          note: prevItem.note,
+          index: i
+        });
+        break;
+      }
+    }
+  };
+
+  const handleNextImage = () => {
+    if (!modalImage) return;
+    
+    // Find the next item with an image
+    for (let i = modalImage.index + 1; i < items.length; i++) {
+      const nextItem = items[i];
+      if (nextItem.image) {
+        setModalImage({
+          url: nextItem.image,
+          name: nextItem.name,
+          ingredients: nextItem.ingredients,
+          price: nextItem.price,
+          note: nextItem.note,
+          index: i
+        });
+        break;
+      }
+    }
   };
 
   return (
@@ -93,7 +133,7 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
                       src={item.image}
                       alt={item.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200"
-                      onClick={() => handleImageClick(item.image!, item.name, item.ingredients, item.price, item.note)}
+                      onClick={() => handleImageClick(item.image!, item.name, index, item.ingredients, item.price, item.note)}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
@@ -167,6 +207,10 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
         price={modalImage?.price}
         note={modalImage?.note}
         onClose={closeModal}
+        onPrevious={handlePreviousImage}
+        onNext={handleNextImage}
+        currentIndex={modalImage?.index}
+        totalItems={items.length}
       />
     </>
   );

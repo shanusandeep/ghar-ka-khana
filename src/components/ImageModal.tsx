@@ -65,10 +65,10 @@ const ImageModal: FC<ImageModalProps> = ({
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute -top-12 right-0 z-10 p-2 text-white hover:text-gray-300 transition-colors"
-          aria-label="Close image"
+          className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors shadow-lg"
+          aria-label="Close modal"
         >
-          <X className="w-8 h-8" />
+          <X className="w-6 h-6" />
         </button>
         
         {/* Image container */}

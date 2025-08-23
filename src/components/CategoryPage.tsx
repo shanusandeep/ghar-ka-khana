@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Leaf, Beef, Egg } from "lucide-react";
+import { ArrowLeft, Leaf, Beef, Egg, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import MenuSection from "@/components/MenuSection";
 import { menuItemsApi } from "@/services/api";
 import { MenuItem } from "@/config/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CategoryPageProps {
   categoryName: string;
@@ -16,6 +17,7 @@ interface CategoryPageProps {
 const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" }: CategoryPageProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [dietFilter, setDietFilter] = useState<'all' | 'veg' | 'egg' | 'non-veg'>('all');
@@ -180,7 +182,17 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         // Veg Sliders variants
         [normalizeName("Veg Sliders")]: "/food_pics/starter/veg-sliders.png",
         [normalizeName("Vegetable Sliders")]: "/food_pics/starter/veg-sliders.png",
-        [normalizeName("Veg Slider")]: "/food_pics/starter/veg-sliders.png"
+        [normalizeName("Veg Slider")]: "/food_pics/starter/veg-sliders.png",
+        // Dahi Vada variants
+        [normalizeName("Dahi Vada")]: "/food_pics/starter/dahi-vada.png",
+        [normalizeName("Dahi Wada")]: "/food_pics/starter/dahi-vada.png",
+        [normalizeName("Dahi Bhalla")]: "/food_pics/starter/dahi-vada.png",
+        [normalizeName("Dahi Vade")]: "/food_pics/starter/dahi-vada.png",
+        // Moong Dal Kachori variants
+        [normalizeName("Moong Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
+        [normalizeName("Mung Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
+        [normalizeName("Moong Daal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
+        [normalizeName("Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -198,7 +210,11 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Plain Paratha")]: "/food_pics/breads/plain-paratha.png",
         [normalizeName("Bhatura")]: "/food_pics/breads/bhatura.png",
         [normalizeName("Bhature")]: "/food_pics/breads/bhatura.png",
-        [normalizeName("Baati")]: "/food_pics/breads/Baati.png"
+        [normalizeName("Baati")]: "/food_pics/breads/Baati.png",
+        // Sattu Paratha variants
+        [normalizeName("Sattu Paratha")]: "/food_pics/breads/sattu-paratha.png",
+        [normalizeName("Sattu Ka Paratha")]: "/food_pics/breads/sattu-paratha.png",
+        [normalizeName("Satu Paratha")]: "/food_pics/breads/sattu-paratha.png"
       },
       "dessert": {
         [normalizeName("Moong Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
@@ -214,14 +230,14 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Tawa Pulao")]: "/food_pics/rice/tava-pulav.png",
         [normalizeName("Veg Fried Rice")]: "/food_pics/rice/veg-fried-rice.png",
         [normalizeName("Vegetable Fried Rice")]: "/food_pics/rice/veg-fried-rice.png",
-        [normalizeName("Chicken Fried Rice")]: "/food_pics/rice/Chicken Fried Rice.png",
-        [normalizeName("Kathal Biryani")]: "/food_pics/rice/Kathal Biryani.png",
-        [normalizeName("Jackfruit Biryani")]: "/food_pics/rice/Kathal Biryani.png",
-        [normalizeName("Navratan Pulav")]: "/food_pics/rice/Navratan Pulav.png",
-        [normalizeName("Navratna Pulav")]: "/food_pics/rice/Navratan Pulav.png",
-        [normalizeName("Navratan Pulao")]: "/food_pics/rice/Navratan Pulav.png",
-        [normalizeName("Egg Fried Rice")]: "/food_pics/rice/Egg Fried Rice.png",
-        [normalizeName("Anda Fried Rice")]: "/food_pics/rice/Egg Fried Rice.png"
+        [normalizeName("Chicken Fried Rice")]: "/food_pics/rice/chicken-fried-rice.png",
+        [normalizeName("Kathal Biryani")]: "/food_pics/rice/kathal-biryani.png",
+        [normalizeName("Jackfruit Biryani")]: "/food_pics/rice/kathal-biryani.png",
+        [normalizeName("Navratan Pulav")]: "/food_pics/rice/navratan-pulav.png",
+        [normalizeName("Navratna Pulav")]: "/food_pics/rice/navratan-pulav.png",
+        [normalizeName("Navratan Pulao")]: "/food_pics/rice/navratan-pulav.png",
+        [normalizeName("Egg Fried Rice")]: "/food_pics/rice/egg-fried-rice.png",
+        [normalizeName("Anda Fried Rice")]: "/food_pics/rice/egg-fried-rice.png"
       },
       "main course": {
         [normalizeName("Chhole Bhature")]: "/food_pics/main_course/chhole-bhature.jpg",
@@ -336,8 +352,22 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
             Back to Menu
           </Button>
           
-          {/* Diet Filter */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            {/* Admin link - only show if user is logged in */}
+            {user && (
+              <Button
+                onClick={() => navigate("/admin")}
+                variant="outline"
+                size="sm"
+                className="border-orange-200 text-orange-600 hover:bg-orange-50"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Admin
+              </Button>
+            )}
+            
+            {/* Diet Filter */}
+            <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-gray-700">Filter:</span>
             <div className="flex gap-2">
               <Badge
@@ -371,6 +401,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
                 <Beef className="w-3 h-3 mr-1" />
                 Non-Veg
               </Badge>
+            </div>
             </div>
           </div>
         </div>

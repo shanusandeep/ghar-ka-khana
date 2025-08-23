@@ -1,16 +1,18 @@
 import { useState, useRef } from "react";
-import { Phone, Mail, ChefHat } from "lucide-react";
+import { Phone, Mail, ChefHat, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactSection from "@/components/ContactSection";
 import HeroSection from "@/components/HeroSection";
 import CategoryCard from "@/components/CategoryCard";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("menu");
   const contactSectionRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const scrollToContact = () => {
     setActiveSection("contact");
@@ -118,7 +120,7 @@ const Index = () => {
                   </div>
                 </div>
                 
-                <div className="hidden md:flex space-x-6">
+                <div className="hidden md:flex space-x-6 items-center">
                   <button
                     onClick={() => setActiveSection("menu")}
                     className={`px-4 py-2 rounded-lg transition-colors ${
@@ -145,6 +147,19 @@ const Index = () => {
                   >
                     Contact
                   </button>
+                  
+                  {/* Admin link - only show if user is logged in */}
+                  {user && (
+                    <Button
+                      onClick={() => navigate("/admin")}
+                      variant="outline"
+                      size="sm"
+                      className="ml-4 border-orange-200 text-orange-600 hover:bg-orange-50"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Admin
+                    </Button>
+                  )}
                 </div>
 
                 <div className="flex items-center space-x-2">
