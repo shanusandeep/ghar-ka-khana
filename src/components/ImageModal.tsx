@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect } from "react";
 import type { FC } from "react";
 
@@ -10,26 +10,46 @@ interface ImageModalProps {
   price?: string;
   note?: string;
   onClose: () => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  currentIndex?: number;
+  totalItems?: number;
 }
 
-const ImageModal: FC<ImageModalProps> = ({ isOpen, imageUrl, imageName, ingredients, price, note, onClose }) => {
+const ImageModal: FC<ImageModalProps> = ({ 
+  isOpen, 
+  imageUrl, 
+  imageName, 
+  ingredients, 
+  price, 
+  note, 
+  onClose, 
+  onPrevious, 
+  onNext, 
+  currentIndex, 
+  totalItems 
+}) => {
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+      } else if (e.key === 'ArrowLeft' && onPrevious) {
+        onPrevious();
+      } else if (e.key === 'ArrowRight' && onNext) {
+        onNext();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, onPrevious, onNext]);
 
   if (!isOpen) return null;
 
@@ -59,6 +79,34 @@ const ImageModal: FC<ImageModalProps> = ({ isOpen, imageUrl, imageName, ingredie
             className="w-full h-full object-cover max-h-[50vh] lg:max-h-[80vh]"
             style={{ maxWidth: '100%', height: 'auto' }}
           />
+          
+          {/* Navigation arrows */}
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+          
+          {onNext && (
+            <button
+              onClick={onNext}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+          
+          {/* Image counter */}
+          {currentIndex !== undefined && totalItems !== undefined && totalItems > 1 && (
+            <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              {currentIndex + 1} / {totalItems}
+            </div>
+          )}
           
           {/* Title/price overlay for mobile when there is minimal side info */}
           {(!ingredients || ingredients.length === 0) && (
@@ -119,7 +167,7 @@ const ImageModal: FC<ImageModalProps> = ({ isOpen, imageUrl, imageName, ingredie
         
         {/* Instructions text */}
         <p className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-white text-center text-sm opacity-75 whitespace-nowrap">
-          Click anywhere outside or press ESC to close
+          Click anywhere outside or press ESC to close {totalItems && totalItems > 1 ? '• Use ← → arrow keys to navigate' : ''}
         </p>
       </div>
     </div>

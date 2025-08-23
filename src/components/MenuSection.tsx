@@ -21,7 +21,7 @@ interface MenuSectionProps {
 
 const MenuSection = ({ category, items }: MenuSectionProps) => {
   const { trackEvent } = useAnalytics();
-  const [modalImage, setModalImage] = useState<{ url: string; name: string; ingredients?: string[]; price?: string; note?: string } | null>(null);
+  const [modalImage, setModalImage] = useState<{ url: string; name: string; ingredients?: string[]; price?: string; note?: string; index: number } | null>(null);
 
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {

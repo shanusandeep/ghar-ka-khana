@@ -131,7 +131,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Chicken Kaati Roll")]: "/food_pics/starter/chicken-kaati-roll.png",
         [normalizeName("Chicken Kathi Roll")]: "/food_pics/starter/chicken-kaati-roll.png",
         // Pakodas
-        [normalizeName("  ")]: "/food_pics/starter/moong-dal-pakoda.png",
+        [normalizeName("Moong Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
         [normalizeName("Mung Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
         [normalizeName("Moong Daal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
         [normalizeName("Palak Onion Pakoda")]: "/food_pics/starter/palak-onion-pakoda.png",
@@ -156,7 +156,15 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Gobhi Paratha")]: "/food_pics/breads/gobhi-paratha.png",
         [normalizeName("Gobi Paratha")]: "/food_pics/breads/gobhi-paratha.png",
         [normalizeName("Roti")]: "/food_pics/breads/roti.png",
-        [normalizeName("Chapati")]: "/food_pics/breads/roti.png"
+        [normalizeName("Chapati")]: "/food_pics/breads/roti.png",
+        [normalizeName("Paneer Paratha")]: "/food_pics/breads/paneer-paratha.png",
+        [normalizeName("Onion Paratha")]: "/food_pics/breads/onion-paratha.png",
+        [normalizeName("Thepla")]: "/food_pics/breads/thepla.png",
+        [normalizeName("Methi Thepla")]: "/food_pics/breads/thepla.png",
+        [normalizeName("Plain Paratha")]: "/food_pics/breads/plain-paratha.png",
+        [normalizeName("Bhatura")]: "/food_pics/breads/bhatura.png",
+        [normalizeName("Bhature")]: "/food_pics/breads/bhatura.png",
+        [normalizeName("Baati")]: "/food_pics/breads/Baati.png"
       },
       "dessert": {
         [normalizeName("Moong Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
@@ -165,6 +173,21 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         // Rasmalai variants
         [normalizeName("Rasmalai")]: "/food_pics/desert/rasmalai.png",
         [normalizeName("Ras Malai")]: "/food_pics/desert/rasmalai.png"
+      },
+      "rice": {
+        [normalizeName("Tava Pulav")]: "/food_pics/rice/tava-pulav.png",
+        [normalizeName("Tawa Pulav")]: "/food_pics/rice/tava-pulav.png",
+        [normalizeName("Tawa Pulao")]: "/food_pics/rice/tava-pulav.png",
+        [normalizeName("Veg Fried Rice")]: "/food_pics/rice/veg-fried-rice.png",
+        [normalizeName("Vegetable Fried Rice")]: "/food_pics/rice/veg-fried-rice.png",
+        [normalizeName("Chicken Fried Rice")]: "/food_pics/rice/Chicken Fried Rice.png",
+        [normalizeName("Kathal Biryani")]: "/food_pics/rice/Kathal Biryani.png",
+        [normalizeName("Jackfruit Biryani")]: "/food_pics/rice/Kathal Biryani.png",
+        [normalizeName("Navratan Pulav")]: "/food_pics/rice/Navratan Pulav.png",
+        [normalizeName("Navratna Pulav")]: "/food_pics/rice/Navratan Pulav.png",
+        [normalizeName("Navratan Pulao")]: "/food_pics/rice/Navratan Pulav.png",
+        [normalizeName("Egg Fried Rice")]: "/food_pics/rice/Egg Fried Rice.png",
+        [normalizeName("Anda Fried Rice")]: "/food_pics/rice/Egg Fried Rice.png"
       },
       "main course": {
         [normalizeName("Chhole Bhature")]: "/food_pics/main_course/chhole-bhature.jpg",
@@ -222,7 +245,16 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Aloo Gobi Masala")]: "/food_pics/main_course/aloo-gobhi-masala.png",
         [normalizeName("Aloo Gobhi Masala")]: "/food_pics/main_course/aloo-gobhi-masala.png",
         [normalizeName("Aloo Gobi")]: "/food_pics/main_course/aloo-gobhi-masala.png",
-        [normalizeName("Aloo Gobhi")]: "/food_pics/main_course/aloo-gobhi-masala.png"
+        [normalizeName("Aloo Gobhi")]: "/food_pics/main_course/aloo-gobhi-masala.png",
+        // Paneer Butter Masala variants
+        [normalizeName("Paneer Butter Masala")]: "/food_pics/main_course/Paneer Butter Masala.png",
+        [normalizeName("Paneer Makhani")]: "/food_pics/main_course/Paneer Butter Masala.png",
+        [normalizeName("Butter Paneer")]: "/food_pics/main_course/Paneer Butter Masala.png",
+        // Rajma variants
+        [normalizeName("Rajma")]: "/food_pics/main_course/Rajma.png",
+        [normalizeName("Rajmah")]: "/food_pics/main_course/Rajma.png",
+        [normalizeName("Kidney Beans")]: "/food_pics/main_course/Rajma.png",
+        [normalizeName("Red Kidney Beans")]: "/food_pics/main_course/Rajma.png"
       }
     };
 
