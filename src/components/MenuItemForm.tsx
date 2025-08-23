@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,6 +26,9 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
   const [pricePlate, setPricePlate] = useState(item?.price_per_plate?.toString() || '')
   const [priceHalfTray, setPriceHalfTray] = useState(item?.price_half_tray?.toString() || '')
   const [priceFullTray, setPriceFullTray] = useState(item?.price_full_tray?.toString() || '')
+  const [pricePerPiece, setPricePerPiece] = useState(item?.price_per_piece?.toString() || '')
+  const [piecesPerPlate, setPiecesPerPlate] = useState(item?.pieces_per_plate?.toString() || '')
+  const [minPieceOrder, setMinPieceOrder] = useState(item?.min_piece_order?.toString() || '')
   const [ingredients, setIngredients] = useState<string[]>(item?.ingredients || [])
   const [newIngredient, setNewIngredient] = useState('')
   const [imageUrl, setImageUrl] = useState(item?.image_url || '')
@@ -35,10 +38,32 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const isEditing = !!item
+  const isUserTyping = useRef(false)
+  const descriptionRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     loadCategories()
   }, [])
+
+  // Update form fields when item ID changes (more stable than entire item object)
+  useEffect(() => {
+    if (item && !isUserTyping.current) {
+      console.log('Item ID changed, updating form fields:', item.id)
+      setName(item.name || '')
+      setDescription(item.description || '')
+      setCategoryId(item.category_id || '')
+      setPricePlate(item.price_per_plate?.toString() || '')
+      setPriceHalfTray(item.price_half_tray?.toString() || '')
+      setPriceFullTray(item.price_full_tray?.toString() || '')
+      setPricePerPiece(item.price_per_piece?.toString() || '')
+      setPiecesPerPlate(item.pieces_per_plate?.toString() || '')
+      setMinPieceOrder(item.min_piece_order?.toString() || '')
+      setIngredients(item.ingredients || [])
+      setImageUrl(item.image_url || '')
+      setIsAvailable(item.is_available ?? true)
+      setDisplayOrder(item.display_order?.toString() || '')
+    }
+  }, [item?.id])
 
   const loadCategories = async () => {
     try {
@@ -63,6 +88,8 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    console.log('🔄 Form submitted with description:', description)
+    
     if (!name.trim() || !categoryId) {
       toast({
         title: "Error",
@@ -72,7 +99,7 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
       return
     }
 
-    if (!pricePlate && !priceHalfTray && !priceFullTray) {
+    if (!pricePlate && !priceHalfTray && !priceFullTray && !pricePerPiece) {
       toast({
         title: "Error",
         description: "At least one price must be specified",
@@ -83,27 +110,42 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
 
     setLoading(true)
     try {
+      // Get description directly from the textarea ref to avoid state issues
+      const currentDescription = descriptionRef.current?.value?.trim() || description.trim()
+      
       const itemData = {
         name: name.trim(),
-        description: description.trim() || undefined,
+        description: currentDescription || undefined,
         category_id: categoryId,
         price_per_plate: pricePlate ? parseFloat(pricePlate) : undefined,
         price_half_tray: priceHalfTray ? parseFloat(priceHalfTray) : undefined,
         price_full_tray: priceFullTray ? parseFloat(priceFullTray) : undefined,
+        price_per_piece: pricePerPiece ? parseFloat(pricePerPiece) : undefined,
+        pieces_per_plate: piecesPerPlate ? parseInt(piecesPerPlate) : undefined,
+        min_piece_order: minPieceOrder ? parseInt(minPieceOrder) : undefined,
         ingredients: ingredients.length > 0 ? ingredients : undefined,
         image_url: imageUrl.trim() || undefined,
         is_available: isAvailable,
         display_order: displayOrder ? parseInt(displayOrder) : 0
       }
 
+      console.log('📝 Submitting item data:', itemData)
+      console.log('📝 Description value being saved:', currentDescription)
+      console.log('📝 Description from state:', description.trim())
+      console.log('📝 Description from ref:', descriptionRef.current?.value)
+
       if (isEditing) {
-        await menuItemsApi.update(item.id, itemData)
+        console.log('📝 Updating item with ID:', item.id)
+        const result = await menuItemsApi.update(item.id, itemData)
+        console.log('✅ Update result:', result)
         toast({
           title: "Success",
           description: "Menu item updated successfully"
         })
       } else {
-        await menuItemsApi.create(itemData)
+        console.log('📝 Creating new item')
+        const result = await menuItemsApi.create(itemData)
+        console.log('✅ Create result:', result)
         toast({
           title: "Success",
           description: "Menu item created successfully"
@@ -113,10 +155,15 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
       onItemSaved()
       onClose()
     } catch (error) {
-      console.error('Error saving menu item:', error)
+      console.error('❌ Error saving menu item:', error)
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} menu item`,
+        description: `Failed to ${isEditing ? 'update' : 'create'} menu item: ${error.message}`,
         variant: "destructive"
       })
     } finally {
@@ -163,49 +210,108 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
           <div>
             <Label htmlFor="description">Description</Label>
             <Textarea
+              ref={descriptionRef}
               id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              defaultValue={description}
+              onChange={(e) => {
+                console.log('Description changing:', e.target.value)
+                isUserTyping.current = true
+                setDescription(e.target.value)
+              }}
+              onBlur={() => {
+                isUserTyping.current = false
+              }}
               placeholder="Enter item description"
               rows={3}
+              disabled={loading}
+              className="min-h-[80px] resize-none"
             />
           </div>
           
-          <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="price-plate">Price per Plate ($)</Label>
-              <Input
-                id="price-plate"
-                type="number"
-                step="0.01"
-                value={pricePlate}
-                onChange={(e) => setPricePlate(e.target.value)}
-                placeholder="0.00"
-              />
+              <Label className="text-base font-semibold">Standard Pricing (Plate/Tray)</Label>
+              <div className="grid grid-cols-3 gap-4 mt-2">
+                <div>
+                  <Label htmlFor="price-plate">Price per Plate ($)</Label>
+                  <Input
+                    id="price-plate"
+                    type="number"
+                    step="0.01"
+                    value={pricePlate}
+                    onChange={(e) => setPricePlate(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="price-half-tray">Price Half Tray ($)</Label>
+                  <Input
+                    id="price-half-tray"
+                    type="number"
+                    step="0.01"
+                    value={priceHalfTray}
+                    onChange={(e) => setPriceHalfTray(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="price-full-tray">Price Full Tray ($)</Label>
+                  <Input
+                    id="price-full-tray"
+                    type="number"
+                    step="0.01"
+                    value={priceFullTray}
+                    onChange={(e) => setPriceFullTray(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
             </div>
-            
+
             <div>
-              <Label htmlFor="price-half-tray">Price Half Tray ($)</Label>
-              <Input
-                id="price-half-tray"
-                type="number"
-                step="0.01"
-                value={priceHalfTray}
-                onChange={(e) => setPriceHalfTray(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="price-full-tray">Price Full Tray ($)</Label>
-              <Input
-                id="price-full-tray"
-                type="number"
-                step="0.01"
-                value={priceFullTray}
-                onChange={(e) => setPriceFullTray(e.target.value)}
-                placeholder="0.00"
-              />
+              <Label className="text-base font-semibold">Piece-Based Pricing (for Breads, etc.)</Label>
+              <div className="grid grid-cols-3 gap-4 mt-2">
+                <div>
+                  <Label htmlFor="price-per-piece">Price per Piece ($)</Label>
+                  <Input
+                    id="price-per-piece"
+                    type="number"
+                    step="0.01"
+                    value={pricePerPiece}
+                    onChange={(e) => setPricePerPiece(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="pieces-per-plate">Pieces per Plate</Label>
+                  <Input
+                    id="pieces-per-plate"
+                    type="number"
+                    value={piecesPerPlate}
+                    onChange={(e) => setPiecesPerPlate(e.target.value)}
+                    placeholder="e.g., 4"
+                    min="1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="min-piece-order">Minimum Piece Order</Label>
+                  <Input
+                    id="min-piece-order"
+                    type="number"
+                    value={minPieceOrder}
+                    onChange={(e) => setMinPieceOrder(e.target.value)}
+                    placeholder="e.g., 2"
+                    min="1"
+                  />
+                </div>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Use piece-based pricing for items like rotis, parathas, pooris where customers order by quantity
+              </p>
             </div>
           </div>
           

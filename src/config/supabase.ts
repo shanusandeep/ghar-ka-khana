@@ -82,7 +82,7 @@ export interface OrderItem {
   order_id: string
   menu_item_id?: string
   item_name: string
-  size_type: 'plate' | 'half_tray' | 'full_tray'
+  size_type: 'plate' | 'half_tray' | 'full_tray' | 'piece'
   quantity: number
   unit_price: number
   total_price: number

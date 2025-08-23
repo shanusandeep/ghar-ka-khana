@@ -11,7 +11,7 @@ import { ChevronDown, Plus } from 'lucide-react'
 interface OrderItem {
   menu_item_id: string
   item_name: string
-  size_type: 'plate' | 'half_tray' | 'full_tray'
+  size_type: 'plate' | 'half_tray' | 'full_tray' | 'piece'
   quantity: number
   unit_price: number
   total_price: number
@@ -30,10 +30,18 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
 
-  const addOrderItem = (menuItem: MenuItem, sizeType: 'plate' | 'half_tray' | 'full_tray') => {
-    const price = sizeType === 'plate' ? menuItem.price_per_plate : 
-                  sizeType === 'half_tray' ? menuItem.price_half_tray : 
-                  menuItem.price_full_tray
+  const addOrderItem = (menuItem: MenuItem, sizeType: 'plate' | 'half_tray' | 'full_tray' | 'piece') => {
+    let price: number | undefined
+    let quantity = 1
+
+    if (sizeType === 'piece') {
+      price = menuItem.price_per_piece
+      quantity = menuItem.min_piece_order || 1
+    } else {
+      price = sizeType === 'plate' ? menuItem.price_per_plate : 
+              sizeType === 'half_tray' ? menuItem.price_half_tray : 
+              menuItem.price_full_tray
+    }
 
     if (!price) {
       toast({
@@ -48,9 +56,9 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
       menu_item_id: menuItem.id,
       item_name: menuItem.name,
       size_type: sizeType,
-      quantity: 1,
+      quantity: quantity,
       unit_price: price,
-      total_price: price,
+      total_price: price * quantity,
       special_instructions: ''
     }
 
@@ -64,6 +72,18 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
 
   const getAvailableSizes = (item: MenuItem) => {
     const sizes = []
+    
+    // Prioritize piece-based pricing for items that have it
+    if (item.price_per_piece) {
+      const minOrder = item.min_piece_order || 1
+      sizes.push({ 
+        type: 'piece', 
+        label: `${minOrder} Piece${minOrder > 1 ? 's' : ''}`, 
+        price: item.price_per_piece,
+        minOrder 
+      })
+    }
+    
     if (item.price_per_plate) sizes.push({ type: 'plate', label: 'Plate', price: item.price_per_plate })
     if (item.price_half_tray) sizes.push({ type: 'half_tray', label: 'Half Tray', price: item.price_half_tray })
     if (item.price_full_tray) sizes.push({ type: 'full_tray', label: 'Full Tray', price: item.price_full_tray })
@@ -124,7 +144,7 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
                                 variant="outline"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  addOrderItem(item, size.type as 'plate' | 'half_tray' | 'full_tray')
+                                  addOrderItem(item, size.type as 'plate' | 'half_tray' | 'full_tray' | 'piece')
                                   setSearchOpen(false)
                                 }}
                                 className="text-xs"

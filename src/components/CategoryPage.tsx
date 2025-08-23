@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Leaf, Beef, Egg } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import MenuSection from "@/components/MenuSection";
 import { menuItemsApi } from "@/services/api";
@@ -17,6 +18,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
   const { toast } = useToast();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dietFilter, setDietFilter] = useState<'all' | 'veg' | 'egg' | 'non-veg'>('all');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -40,6 +42,38 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function to determine the dietary category of an item based on its name
+  const getDietaryCategory = (itemName: string): 'veg' | 'egg' | 'non-veg' => {
+    const name = itemName.toLowerCase();
+    
+    // Egg-based keywords
+    const eggKeywords = ['egg', 'anda'];
+    
+    // Non-vegetarian keywords (excluding eggs)
+    const nonVegKeywords = [
+      'chicken', 'mutton', 'lamb', 'beef', 'fish', 'prawn', 
+      'meat', 'keema', 'seekh', 'tandoori chicken', 'butter chicken',
+      'achari chicken', 'kadhai chicken', 'kadai chicken', 'karahi chicken'
+    ];
+    
+    // Check for egg items first
+    const hasEggKeyword = eggKeywords.some(keyword => name.includes(keyword));
+    if (hasEggKeyword) return 'egg';
+    
+    // Check for non-veg items
+    const hasNonVegKeyword = nonVegKeywords.some(keyword => name.includes(keyword));
+    if (hasNonVegKeyword) return 'non-veg';
+    
+    // Default to vegetarian
+    return 'veg';
+  };
+
+  // Filter items based on diet preference
+  const getFilteredItems = () => {
+    if (dietFilter === 'all') return menuItems;
+    return menuItems.filter(item => getDietaryCategory(item.name) === dietFilter);
   };
 
   // Convert database items to the format expected by MenuSection
@@ -214,9 +248,9 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Mutter Paneer")]: "/food_pics/main_course/matar-paneer.png",
         [normalizeName("Peas Paneer")]: "/food_pics/main_course/matar-paneer.png",
         // Baingan/Baigan Bharta (file name uses a space; path reflects exact name)
-        [normalizeName("Baigan Bharta")]: "/food_pics/main_course/baigan bharta.png",
-        [normalizeName("Baingan Bharta")]: "/food_pics/main_course/baigan bharta.png",
-        [normalizeName("Eggplant Bharta")]: "/food_pics/main_course/baigan bharta.png"
+        [normalizeName("Baigan Bharta")]: "/food_pics/main_course/baigan-bharta.png",
+        [normalizeName("Baingan Bharta")]: "/food_pics/main_course/baigan-bharta.png",
+        [normalizeName("Eggplant Bharta")]: "/food_pics/main_course/baigan-bharta.png"
         ,
         // Egg Curry
         [normalizeName("Egg Curry")]: "/food_pics/main_course/egg-curry.png",
@@ -247,9 +281,9 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Aloo Gobi")]: "/food_pics/main_course/aloo-gobhi-masala.png",
         [normalizeName("Aloo Gobhi")]: "/food_pics/main_course/aloo-gobhi-masala.png",
         // Paneer Butter Masala variants
-        [normalizeName("Paneer Butter Masala")]: "/food_pics/main_course/Paneer Butter Masala.png",
-        [normalizeName("Paneer Makhani")]: "/food_pics/main_course/Paneer Butter Masala.png",
-        [normalizeName("Butter Paneer")]: "/food_pics/main_course/Paneer Butter Masala.png",
+        [normalizeName("Paneer Butter Masala")]: "/food_pics/main_course/paneer-butter-masala.png",
+        [normalizeName("Paneer Makhani")]: "/food_pics/main_course/paneer-butter-masala.png",
+        [normalizeName("Butter Paneer")]: "/food_pics/main_course/paneer-butter-masala.png",
         // Rajma variants
         [normalizeName("Rajma")]: "/food_pics/main_course/Rajma.png",
         [normalizeName("Rajmah")]: "/food_pics/main_course/Rajma.png",
@@ -293,15 +327,52 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${bgGradient}`}>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center mb-8">
+        <div className="flex items-center justify-between mb-8">
           <Button
             onClick={() => navigate("/")}
             variant="outline"
-            className="mr-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Menu
           </Button>
+          
+          {/* Diet Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">Filter:</span>
+            <div className="flex gap-2">
+              <Badge
+                variant={dietFilter === 'all' ? 'default' : 'outline'}
+                className="cursor-pointer hover:bg-gray-100 px-3 py-1"
+                onClick={() => setDietFilter('all')}
+              >
+                All
+              </Badge>
+              <Badge
+                variant={dietFilter === 'veg' ? 'default' : 'outline'}
+                className="cursor-pointer hover:bg-green-100 px-3 py-1 bg-green-50 text-green-700 border-green-200"
+                onClick={() => setDietFilter('veg')}
+              >
+                <Leaf className="w-3 h-3 mr-1" />
+                Veg
+              </Badge>
+              <Badge
+                variant={dietFilter === 'egg' ? 'default' : 'outline'}
+                className="cursor-pointer hover:bg-yellow-100 px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200"
+                onClick={() => setDietFilter('egg')}
+              >
+                <Egg className="w-3 h-3 mr-1" />
+                Egg
+              </Badge>
+              <Badge
+                variant={dietFilter === 'non-veg' ? 'default' : 'outline'}
+                className="cursor-pointer hover:bg-red-100 px-3 py-1 bg-red-50 text-red-700 border-red-200"
+                onClick={() => setDietFilter('non-veg')}
+              >
+                <Beef className="w-3 h-3 mr-1" />
+                Non-Veg
+              </Badge>
+            </div>
+          </div>
         </div>
         
         {menuItems.length === 0 ? (
@@ -313,10 +384,19 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
               Items may be temporarily unavailable or this category needs to be populated.
             </p>
           </div>
+        ) : getFilteredItems().length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-lg text-gray-600 mb-4">
+              No {dietFilter === 'veg' ? 'vegetarian' : dietFilter === 'egg' ? 'egg-based' : 'non-vegetarian'} items found in {categoryName}
+            </div>
+            <p className="text-sm text-gray-500">
+              Try selecting a different filter option.
+            </p>
+          </div>
         ) : (
           <MenuSection 
             category={categoryName} 
-            items={formatItemsForDisplay(menuItems)} 
+            items={formatItemsForDisplay(getFilteredItems())} 
           />
         )}
       </div>

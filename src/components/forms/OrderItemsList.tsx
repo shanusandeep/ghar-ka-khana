@@ -7,7 +7,7 @@ import { Plus, Minus } from 'lucide-react'
 interface OrderItem {
   menu_item_id: string
   item_name: string
-  size_type: 'plate' | 'half_tray' | 'full_tray'
+  size_type: 'plate' | 'half_tray' | 'full_tray' | 'piece'
   quantity: number
   unit_price: number
   total_price: number
@@ -52,7 +52,9 @@ const OrderItemsList = ({ orderItems, setOrderItems }: OrderItemsListProps) => {
           <div key={index} className="flex items-center justify-between p-2 border rounded">
             <div className="flex-1">
               <span className="font-medium">{item.item_name}</span>
-              <Badge className="ml-2">{item.size_type.replace('_', ' ')}</Badge>
+              <Badge className="ml-2">
+                {item.size_type === 'piece' ? 'Piece' : item.size_type.replace('_', ' ')}
+              </Badge>
               <p className="text-sm text-gray-500">${item.unit_price} each</p>
             </div>
             <div className="flex items-center space-x-2">
