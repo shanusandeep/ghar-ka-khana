@@ -16,7 +16,12 @@ import AddCategoryForm from './AddCategoryForm'
 import MenuItemForm from './MenuItemForm'
 import ConfirmationDialog from './ConfirmationDialog'
 
-const MenuManagement = () => {
+interface MenuManagementProps {
+  editItem?: string;
+  editCategory?: string;
+}
+
+const MenuManagement = ({ editItem, editCategory }: MenuManagementProps) => {
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [items, setItems] = useState<MenuItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,6 +38,24 @@ const MenuManagement = () => {
   useEffect(() => {
     loadData()
   }, [])
+
+  // Handle edit context from navigation
+  useEffect(() => {
+    if (editItem && items.length > 0) {
+      // Find the item to edit by name
+      const itemToEdit = items.find(item => item.name === editItem)
+      if (itemToEdit) {
+        setEditingItem(itemToEdit)
+        // If editCategory is provided, expand that category and set search to find the item easily
+        if (editCategory) {
+          const category = categories.find(cat => cat.name === editCategory)
+          if (category) {
+            setExpandedCategories(new Set([category.id]))
+          }
+        }
+      }
+    }
+  }, [editItem, editCategory, items, categories])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -186,12 +209,12 @@ const MenuManagement = () => {
                 <span>Category</span>
               </Button>
             </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
+            <SheetContent className="overflow-y-auto max-h-screen">
+              <SheetHeader className="sticky top-0 bg-white z-10 pb-4">
                 <SheetTitle>Add New Category</SheetTitle>
                 <SheetDescription>Create a new menu category</SheetDescription>
               </SheetHeader>
-              <div className="mt-6">
+              <div className="mt-6 pb-8">
                 <AddCategoryForm 
                   onCategoryAdded={handleCategoryAdded}
                   onClose={() => setIsNewCategoryOpen(false)}
@@ -207,12 +230,12 @@ const MenuManagement = () => {
                 <span>Menu Item</span>
               </Button>
             </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
+            <SheetContent className="overflow-y-auto max-h-screen">
+              <SheetHeader className="sticky top-0 bg-white z-10 pb-4">
                 <SheetTitle>Add New Menu Item</SheetTitle>
                 <SheetDescription>Create a new menu item</SheetDescription>
               </SheetHeader>
-              <div className="mt-6">
+              <div className="mt-6 pb-8">
                 <MenuItemForm 
                   onItemSaved={handleItemSaved}
                   onClose={() => setIsNewItemOpen(false)}
@@ -445,12 +468,12 @@ const MenuManagement = () => {
 
       {/* Edit Item Sheet */}
       <Sheet open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
-        <SheetContent>
-          <SheetHeader>
+        <SheetContent className="overflow-y-auto max-h-screen">
+          <SheetHeader className="sticky top-0 bg-white z-10 pb-4">
             <SheetTitle>Edit Menu Item</SheetTitle>
             <SheetDescription>Update menu item details</SheetDescription>
           </SheetHeader>
-          <div className="mt-6">
+          <div className="mt-6 pb-8">
             {editingItem && (
               <MenuItemForm 
                 item={editingItem}

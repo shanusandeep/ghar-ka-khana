@@ -1,10 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone } from "lucide-react";
+import { Phone, Edit } from "lucide-react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useState } from "react";
 import ImageModal from "./ImageModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface MenuItem {
   name: string;
@@ -21,6 +23,8 @@ interface MenuSectionProps {
 
 const MenuSection = ({ category, items }: MenuSectionProps) => {
   const { trackEvent } = useAnalytics();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [modalImage, setModalImage] = useState<{ url: string; name: string; ingredients?: string[]; price?: string; note?: string; index: number } | null>(null);
 
   const getCategoryIcon = (category: string) => {
@@ -64,6 +68,12 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
 
   const closeModal = () => {
     setModalImage(null);
+  };
+
+  const handleEditItem = (itemName: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent image modal from opening
+    // Navigate to admin with edit item context - we'll need to implement this in admin
+    navigate('/admin', { state: { editItem: itemName, category } });
   };
 
   const handlePreviousImage = () => {
@@ -138,6 +148,17 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
                     />
+                    
+                    {/* Edit icon overlay - only show for admin users */}
+                    {user && (
+                      <button
+                        onClick={(e) => handleEditItem(item.name, e)}
+                        className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100"
+                        title="Edit item"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 )}
                 
@@ -211,6 +232,7 @@ const MenuSection = ({ category, items }: MenuSectionProps) => {
         onNext={handleNextImage}
         currentIndex={modalImage?.index}
         totalItems={items.length}
+        category={category}
       />
     </>
   );

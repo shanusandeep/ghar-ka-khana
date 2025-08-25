@@ -1,6 +1,8 @@
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Edit } from "lucide-react";
 import { useEffect } from "react";
 import type { FC } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface ImageModalProps {
   isOpen: boolean;
@@ -14,6 +16,7 @@ interface ImageModalProps {
   onNext?: () => void;
   currentIndex?: number;
   totalItems?: number;
+  category?: string;
 }
 
 const ImageModal: FC<ImageModalProps> = ({ 
@@ -27,8 +30,17 @@ const ImageModal: FC<ImageModalProps> = ({
   onPrevious, 
   onNext, 
   currentIndex, 
-  totalItems 
+  totalItems,
+  category 
 }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleEditItem = () => {
+    // Navigate to admin with edit item context
+    navigate('/admin', { state: { editItem: imageName, category } });
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -70,6 +82,18 @@ const ImageModal: FC<ImageModalProps> = ({
         >
           <X className="w-6 h-6" />
         </button>
+
+        {/* Edit button - only show for admin users */}
+        {user && (
+          <button
+            onClick={handleEditItem}
+            className="absolute top-4 right-16 z-20 p-2 bg-orange-500/80 hover:bg-orange-600/90 text-white rounded-full transition-colors shadow-lg"
+            aria-label="Edit item"
+            title="Edit this menu item"
+          >
+            <Edit className="w-6 h-6" />
+          </button>
+        )}
         
         {/* Image container */}
         <div className="relative flex-1 overflow-hidden rounded-lg lg:rounded-r-none shadow-2xl bg-white">

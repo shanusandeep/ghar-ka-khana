@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -16,7 +16,16 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 
 const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth()
+  const location = useLocation()
   const [activeTab, setActiveTab] = useState('orders')
+
+  // Handle edit context from navigation state
+  useEffect(() => {
+    if (location.state?.editItem) {
+      // Switch to menu tab when editing an item
+      setActiveTab('menu')
+    }
+  }, [location.state])
 
   const handleSignOut = async () => {
     await signOut()
@@ -108,7 +117,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="menu" className="space-y-6">
               <ErrorBoundary>
-                <MenuManagement />
+                <MenuManagement 
+                  editItem={location.state?.editItem}
+                  editCategory={location.state?.category}
+                />
               </ErrorBoundary>
             </TabsContent>
 
