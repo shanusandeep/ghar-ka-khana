@@ -89,3 +89,14 @@ export interface OrderItem {
   special_instructions?: string
   created_at: string
 }
+
+export interface TodaysMenu {
+  id: string
+  menu_item_id: string
+  date: string
+  is_available: boolean
+  special_note?: string
+  display_order: number
+  created_at: string
+  updated_at: string
+}

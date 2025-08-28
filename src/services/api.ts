@@ -1,5 +1,5 @@
 
-import { supabase, MenuCategory, MenuItem, Customer, Order, OrderItem } from '@/config/supabase'
+import { supabase, MenuCategory, MenuItem, Customer, Order, OrderItem, TodaysMenu } from '@/config/supabase'
 
 // Menu Categories API
 export const menuCategoriesApi = {
@@ -380,6 +380,132 @@ export const customersApi = {
       .from('customers')
       .delete()
       .eq('id', id)
+    
+    if (error) throw error
+  }
+}
+
+// Today's Menu API
+export const todaysMenuApi = {
+  // Get today's menu items with full menu item details
+  getForDate: async (date: string) => {
+    const { data, error } = await supabase
+      .from('todays_menu')
+      .select(`
+        *,
+        menu_items (
+          *,
+          menu_categories (name)
+        )
+      `)
+      .eq('date', date)
+      .eq('is_available', true)
+      .order('display_order')
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get all items for admin management (including unavailable ones)
+  getForDateAdmin: async (date: string) => {
+    const { data, error } = await supabase
+      .from('todays_menu')
+      .select(`
+        *,
+        menu_items (
+          *,
+          menu_categories (name)
+        )
+      `)
+      .eq('date', date)
+      .order('display_order')
+    
+    if (error) throw error
+    return data
+  },
+
+  // Add item to today's menu
+  add: async (menuItemId: string, date: string, specialNote?: string) => {
+    const { data, error } = await supabase
+      .from('todays_menu')
+      .insert({
+        menu_item_id: menuItemId,
+        date: date,
+        is_available: true,
+        special_note: specialNote,
+        display_order: 0
+      })
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as TodaysMenu
+  },
+
+  // Remove item from today's menu
+  remove: async (id: string) => {
+    const { error } = await supabase
+      .from('todays_menu')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Toggle availability of item in today's menu
+  toggleAvailability: async (id: string, isAvailable: boolean) => {
+    const { data, error } = await supabase
+      .from('todays_menu')
+      .update({ 
+        is_available: isAvailable,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as TodaysMenu
+  },
+
+  // Update special note for today's menu item
+  updateNote: async (id: string, specialNote: string) => {
+    const { data, error } = await supabase
+      .from('todays_menu')
+      .update({ 
+        special_note: specialNote,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as TodaysMenu
+  },
+
+  // Update display order
+  updateOrder: async (id: string, displayOrder: number) => {
+    const { data, error } = await supabase
+      .from('todays_menu')
+      .update({ 
+        display_order: displayOrder,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as TodaysMenu
+  },
+
+  // Clear all items for a specific date
+  clearForDate: async (date: string) => {
+    const { error } = await supabase
+      .from('todays_menu')
+      .delete()
+      .eq('date', date)
     
     if (error) throw error
   }

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Phone, Mail, ChefHat, Settings } from "lucide-react";
+import { Phone, Mail, ChefHat, Settings, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactSection from "@/components/ContactSection";
 import HeroSection from "@/components/HeroSection";
@@ -19,6 +19,16 @@ const Index = () => {
     setActiveSection("contact");
     setTimeout(() => {
       contactSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  const scrollToMenu = () => {
+    setActiveSection("menu");
+    setTimeout(() => {
+      const menuSection = document.getElementById('menu-heading');
+      if (menuSection) {
+        menuSection.scrollIntoView({ behavior: "smooth" });
+      }
     }, 100);
   };
 
@@ -123,7 +133,7 @@ const Index = () => {
                 
                 <div className="hidden md:flex space-x-6 items-center">
                   <button
-                    onClick={() => setActiveSection("menu")}
+                    onClick={scrollToMenu}
                     className={`px-4 py-2 rounded-lg transition-colors ${
                       activeSection === "menu" 
                         ? "bg-orange-500 text-white" 
@@ -133,20 +143,10 @@ const Index = () => {
                     Menu
                   </button>
                   <button
-                    onClick={() => navigate("/recipe-finder")}
-                    className="px-4 py-2 rounded-lg transition-colors text-gray-600 hover:text-orange-500"
+                    onClick={() => navigate("/todays-menu")}
+                    className="px-4 py-2 rounded-lg transition-colors text-gray-600 hover:text-orange-500 flex items-center gap-1"
                   >
-                    Recipe Finder
-                  </button>
-                  <button
-                    onClick={scrollToContact}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      activeSection === "contact" 
-                        ? "bg-orange-500 text-white" 
-                        : "text-gray-600 hover:text-orange-500"
-                    }`}
-                  >
-                    Contact
+                    Today's Menu
                   </button>
                   
                   {/* Global Menu Search */}
@@ -245,11 +245,129 @@ const Index = () => {
           )}
         </main>
 
+        {/* Footer */}
+        <footer className="bg-white border-t border-orange-100 py-12">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              {/* Brand Section */}
+              <div className="md:col-span-2">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">G</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xl text-gray-900">Ghar Ka Khana</h3>
+                    <p className="text-sm text-orange-600">Delicious Home Catering</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 mb-4 max-w-md">
+                  Experience the warmth of traditional Indian cuisine made with love, fresh ingredients, and time-honored recipes.
+                </p>
+                <div className="flex space-x-4">
+                  <Button
+                    onClick={() => window.open("https://wa.me/12017131850", "_blank")}
+                    size="sm"
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    WhatsApp
+                  </Button>
+                  <Button
+                    onClick={() => window.open("tel:+12017131850", "_blank")}
+                    size="sm"
+                    variant="outline"
+                    className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call Us
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick Links */}
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4">Quick Links</h4>
+                <ul className="space-y-2">
+                  <li>
+                    <button
+                      onClick={() => setActiveSection("menu")}
+                      className="text-gray-600 hover:text-orange-500 transition-colors"
+                    >
+                      Menu Categories
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => navigate("/todays-menu")}
+                      className="text-gray-600 hover:text-orange-500 transition-colors flex items-center gap-1"
+                    >
+                      Today's Menu
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => navigate("/recipe-finder")}
+                      className="text-gray-600 hover:text-orange-500 transition-colors"
+                    >
+                      Recipe Finder
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => navigate("/about-us")}
+                      className="text-gray-600 hover:text-orange-500 transition-colors"
+                    >
+                      About Us
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Contact Info */}
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4">Contact Info</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Phone className="w-4 h-4 text-orange-500" />
+                    <span className="text-gray-600">(201) 713-1850</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Mail className="w-4 h-4 text-orange-500" />
+                    <span className="text-gray-600">info@gharkakhana.com</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="w-4 h-4 text-orange-500" />
+                    <span className="text-gray-600">Glen Allen, VA</span>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={() => navigate("/about-us")}
+                    className="text-orange-600 hover:text-orange-700 font-medium text-sm"
+                  >
+                    View full contact details →
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section */}
+            <div className="border-t border-orange-100 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-500 text-sm">
+                © 2024 Ghar Ka Khana. All rights reserved.
+              </p>
+              <div className="flex space-x-4 mt-4 md:mt-0">
+                <span className="text-gray-500 text-sm">Made with ❤️ for authentic taste</span>
+              </div>
+            </div>
+          </div>
+        </footer>
+
         {/* Mobile Navigation */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 p-4" role="navigation" aria-label="Mobile navigation">
           <div className="flex space-x-2">
             <button
-              onClick={() => setActiveSection("menu")}
+              onClick={scrollToMenu}
               className={`flex-1 py-3 px-2 rounded-lg text-center transition-colors text-sm ${
                 activeSection === "menu" 
                   ? "bg-orange-500 text-white" 
@@ -259,20 +377,11 @@ const Index = () => {
               Menu
             </button>
             <button
-              onClick={() => navigate("/recipe-finder")}
-              className="flex-1 py-3 px-2 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50"
+              onClick={() => navigate("/todays-menu")}
+              className="flex-1 py-3 px-2 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
             >
-              Recipe Finder
-            </button>
-            <button
-              onClick={scrollToContact}
-              className={`flex-1 py-3 px-2 rounded-lg text-center transition-colors text-sm ${
-                activeSection === "contact" 
-                  ? "bg-orange-500 text-white" 
-                  : "text-gray-600 bg-orange-50"
-              }`}
-            >
-              Contact
+              <span className="text-orange-500">⭐</span>
+              Today's
             </button>
             <div className="flex items-center justify-center">
               <GlobalSearchButton />

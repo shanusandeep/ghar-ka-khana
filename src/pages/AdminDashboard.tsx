@@ -5,12 +5,13 @@ import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogOut, Plus, Package, ClipboardList, Users, BarChart3, Home, DollarSign } from 'lucide-react'
+import { LogOut, Plus, Package, ClipboardList, Users, BarChart3, Home, DollarSign, Star } from 'lucide-react'
 import OrderManagement from '@/components/OrderManagement'
 import MenuManagement from '@/components/MenuManagement'
 import PreparationDashboard from '@/components/PreparationDashboard'
 import CustomerManagement from '@/components/CustomerManagement'
 import FinancialDashboard from '@/components/FinancialDashboard'
+import TodaysMenuManagement from '@/components/TodaysMenuManagement'
 import { GlobalSearchButton } from '@/components/GlobalSearchButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
@@ -88,7 +89,7 @@ const AdminDashboard = () => {
         <main className="container mx-auto px-4 py-6 lg:py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Desktop Tab Navigation - Hidden on mobile */}
-            <TabsList className="hidden md:grid w-full grid-cols-5 h-auto p-1">
+            <TabsList className="hidden md:grid w-full grid-cols-6 h-auto p-1">
               <TabsTrigger value="orders" className="flex items-center justify-center gap-2 p-3">
                 <ClipboardList className="w-4 h-4" />
                 <span>Orders</span>
@@ -96,6 +97,9 @@ const AdminDashboard = () => {
               <TabsTrigger value="menu" className="flex items-center justify-center gap-2 p-3">
                 <Package className="w-4 h-4" />
                 <span>Menu</span>
+              </TabsTrigger>
+              <TabsTrigger value="todays-menu" className="flex items-center justify-center gap-2 p-3">
+                <span>Today's Menu</span>
               </TabsTrigger>
               <TabsTrigger value="preparation" className="flex items-center justify-center gap-2 p-3">
                 <BarChart3 className="w-4 h-4" />
@@ -126,6 +130,12 @@ const AdminDashboard = () => {
               </ErrorBoundary>
             </TabsContent>
 
+            <TabsContent value="todays-menu" className="space-y-6">
+              <ErrorBoundary>
+                <TodaysMenuManagement />
+              </ErrorBoundary>
+            </TabsContent>
+
             <TabsContent value="preparation" className="space-y-6">
               <ErrorBoundary>
                 <PreparationDashboard />
@@ -148,7 +158,7 @@ const AdminDashboard = () => {
 
         {/* Mobile Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-50">
-          <div className="grid grid-cols-5 h-16">
+          <div className="grid grid-cols-6 h-16">
             <button
               onClick={() => setActiveTab('orders')}
               className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
@@ -171,6 +181,18 @@ const AdminDashboard = () => {
             >
               <Package className="w-5 h-5" />
               <span className="text-xs font-medium">Menu</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('todays-menu')}
+              className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
+                activeTab === 'todays-menu' 
+                  ? 'text-orange-600 bg-orange-50' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Star className="w-4 h-4" />
+              <span className="text-xs font-medium">Today's</span>
             </button>
             
             <button

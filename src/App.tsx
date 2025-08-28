@@ -11,7 +11,9 @@ import MainCourse from "./pages/MainCourse";
 import Breads from "./pages/Breads";
 import Rice from "./pages/Rice";
 import Dessert from "./pages/Dessert";
+import TodaysMenu from "./pages/TodaysMenu";
 import RecipeFinder from "./pages/RecipeFinder";
+import AboutUs from "./pages/AboutUs";
 import AdminDashboard from "./pages/AdminDashboard";
 import LoginForm from "./components/LoginForm";
 import NotFound from "./pages/NotFound";
@@ -44,7 +46,9 @@ const AppContent = () => {
         <Route path="/breads" element={<Breads />} />
         <Route path="/rice" element={<Rice />} />
         <Route path="/dessert" element={<Dessert />} />
+        <Route path="/todays-menu" element={<TodaysMenu />} />
         <Route path="/recipe-finder" element={<RecipeFinder />} />
+        <Route path="/about-us" element={<AboutUs />} />
         
         {/* Admin routes */}
         <Route 
