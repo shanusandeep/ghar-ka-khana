@@ -25,6 +25,7 @@ interface FinancialAnalyticsProps {
   orders: any[]
   customers: any[]
   timePeriod: string
+  onStatusClick?: (status: string) => void
 }
 
 interface DayOfWeekStat {
@@ -40,7 +41,7 @@ interface DayOfWeekAccumulator {
   count: number
 }
 
-const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: FinancialAnalyticsProps) => {
+const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod, onStatusClick }: FinancialAnalyticsProps) => {
   // Get display label for time period
   const getTimePeriodLabel = (period: string) => {
     switch (period) {
@@ -268,6 +269,43 @@ const FinancialAnalytics = ({ dailyStats, orders, customers, timePeriod }: Finan
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Order Status Cards */}
+      {onStatusClick && (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {statusData.map((status, index) => {
+            const statusColors = {
+              received: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600', icon: 'text-blue-500' },
+              paid: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-600', icon: 'text-green-500' },
+              delivered: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-600', icon: 'text-purple-500' }
+            }
+            const colors = statusColors[status.name.toLowerCase() as keyof typeof statusColors] || 
+                          { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-600', icon: 'text-gray-500' }
+            
+            return (
+              <Card 
+                key={status.name}
+                className={`cursor-pointer hover:shadow-md transition-all ${colors.bg} ${colors.border} border-2 hover:scale-105`}
+                onClick={() => onStatusClick(status.name.toLowerCase())}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{status.name} Orders</p>
+                      <p className={`text-2xl font-bold ${colors.text}`}>{status.value}</p>
+                      <p className="text-xs text-gray-500">{status.percentage}% of total</p>
+                    </div>
+                    <div className={`p-3 rounded-lg ${colors.bg}`}>
+                      <Package className={`w-6 h-6 ${colors.icon}`} />
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-2">Click to view orders</p>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+
       {/* Performance Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric) => (

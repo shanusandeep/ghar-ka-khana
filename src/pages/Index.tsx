@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import ContactSection from "@/components/ContactSection";
 import HeroSection from "@/components/HeroSection";
 import CategoryCard from "@/components/CategoryCard";
+import { GlobalSearchButton } from "@/components/GlobalSearchButton";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -148,6 +149,9 @@ const Index = () => {
                     Contact
                   </button>
                   
+                  {/* Global Menu Search */}
+                  <GlobalSearchButton />
+                  
                   {/* Admin link - only show if user is logged in */}
                   {user && (
                     <Button
@@ -270,6 +274,9 @@ const Index = () => {
             >
               Contact
             </button>
+            <div className="flex items-center justify-center">
+              <GlobalSearchButton />
+            </div>
           </div>
         </nav>
 

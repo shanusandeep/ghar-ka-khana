@@ -82,6 +82,8 @@ const FinancialDashboard = () => {
   const [ordersModalOpen, setOrdersModalOpen] = useState(false)
   const [orderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<OrderWithItems | null>(null)
+  const [statusOrdersModalOpen, setStatusOrdersModalOpen] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState<string>('')
 
   useEffect(() => {
     loadOrders()
@@ -477,6 +479,11 @@ const FinancialDashboard = () => {
   const handleOrderClick = (order: OrderWithItems) => {
     setSelectedOrder(order)
     setOrderDetailsModalOpen(true)
+  }
+
+  const handleStatusClick = (status: string) => {
+    setSelectedStatus(status)
+    setStatusOrdersModalOpen(true)
   }
 
   const getTopItemsBySales = () => {
@@ -1110,6 +1117,7 @@ const FinancialDashboard = () => {
             orders={orders}
             customers={customers}
             timePeriod={filterState.timePeriod}
+            onStatusClick={handleStatusClick}
           />
         </TabsContent>
       </Tabs>
@@ -1695,6 +1703,159 @@ const FinancialDashboard = () => {
               })()}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Status Orders Modal */}
+      <Dialog open={statusOrdersModalOpen} onOpenChange={setStatusOrdersModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-indigo-500" />
+              {selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1)} Orders
+            </DialogTitle>
+            <DialogDescription>
+              Complete list of {selectedStatus.toLowerCase()} orders for the selected period
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 mt-4">
+            {(() => {
+              let filteredOrders = [...orders]
+              
+              // Filter by selected status
+              filteredOrders = filteredOrders.filter(order => order.status === selectedStatus)
+
+              // Apply time filters (same logic as FinancialAnalytics)
+              const now = new Date()
+              let startDate: Date
+              let endDate: Date = now
+
+              switch (filterState.timePeriod) {
+                case 'today':
+                  startDate = startOfDay(now)
+                  endDate = endOfDay(now)
+                  break
+                case '7d':
+                  startDate = subDays(now, 7)
+                  break
+                case '30d':
+                  startDate = subDays(now, 30)
+                  break
+                case 'thisMonth':
+                  startDate = startOfMonth(now)
+                  endDate = endOfMonth(now)
+                  break
+                case 'lastMonth':
+                  startDate = startOfMonth(subMonths(now, 1))
+                  endDate = endOfMonth(subMonths(now, 1))
+                  break
+                case 'thisQuarter':
+                  startDate = startOfQuarter(now)
+                  break
+                case 'thisYear':
+                  startDate = startOfYear(now)
+                  break
+                case 'quarter':
+                  startDate = startOfQuarter(subQuarters(now, 1))
+                  endDate = endOfMonth(subQuarters(now, 1))
+                  break
+                case 'year':
+                  startDate = startOfYear(subYears(now, 1))
+                  endDate = endOfMonth(subYears(now, 1))
+                  break
+                case 'custom':
+                  if (filterState.customStartDate && filterState.customEndDate) {
+                    startDate = startOfDay(parseISO(filterState.customStartDate))
+                    endDate = endOfDay(parseISO(filterState.customEndDate))
+                  } else {
+                    startDate = subDays(now, 7)
+                  }
+                  break
+                default:
+                  startDate = subDays(now, 7)
+              }
+
+              filteredOrders = filteredOrders.filter(order => {
+                const deliveryDate = parseISO(order.delivery_date)
+                return deliveryDate >= startDate && deliveryDate <= endDate
+              })
+
+              // Sort by delivery date descending (most recent first)
+              filteredOrders.sort((a, b) => new Date(b.delivery_date).getTime() - new Date(a.delivery_date).getTime())
+
+              if (filteredOrders.length === 0) {
+                return (
+                  <div className="text-center text-gray-500 py-8">
+                    <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-lg font-medium">No {selectedStatus.toLowerCase()} orders found</p>
+                    <p className="text-sm">No {selectedStatus.toLowerCase()} orders for the selected period</p>
+                  </div>
+                )
+              }
+
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-4 p-3 bg-indigo-50 rounded-lg">
+                    <div>
+                      <p className="font-semibold text-indigo-800">
+                        {selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1)} Orders: {filteredOrders.length}
+                      </p>
+                      <p className="text-sm text-indigo-600">
+                        Total Amount: ${filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <Package className="w-8 h-8 text-indigo-600" />
+                  </div>
+
+                  {filteredOrders.map((order) => {
+                    const customer = customers.find(c => c.id === order.customer_id)
+                    const deliveryDate = parseISO(order.delivery_date)
+                    const deliveryTime = order.delivery_time
+                    return (
+                      <div 
+                        key={order.id} 
+                        className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100 cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => handleOrderClick(order)}
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <Package className="w-5 h-5 text-indigo-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {customer ? customer.name : 'Unknown Customer'}
+                            </p>
+                            <div className="flex items-center space-x-3 text-sm text-gray-600">
+                              <span>Order #{order.order_number || order.id?.slice(0, 8)}</span>
+                              <span>•</span>
+                              <span>{format(deliveryDate, 'MMM dd, yyyy')}</span>
+                              <span>•</span>
+                              <span>{deliveryTime || format(deliveryDate, 'hh:mm a')}</span>
+                              <span>•</span>
+                              <span className={`capitalize font-medium ${
+                                selectedStatus === 'paid' ? 'text-green-600' : 
+                                selectedStatus === 'received' ? 'text-blue-600' : 
+                                'text-orange-600'
+                              }`}>
+                                {order.status}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-indigo-600">
+                            ${(order.total_amount || 0).toFixed(2)}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">Click for details</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </>
+              )
+            })()}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

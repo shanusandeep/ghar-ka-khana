@@ -11,6 +11,7 @@ import MenuManagement from '@/components/MenuManagement'
 import PreparationDashboard from '@/components/PreparationDashboard'
 import CustomerManagement from '@/components/CustomerManagement'
 import FinancialDashboard from '@/components/FinancialDashboard'
+import { GlobalSearchButton } from '@/components/GlobalSearchButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 
@@ -56,6 +57,7 @@ const AdminDashboard = () => {
                   <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
                 <div className="flex items-center space-x-2">
+                  <GlobalSearchButton />
                   <Button 
                     variant="outline" 
                     size="sm"

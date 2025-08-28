@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import MenuSection from "@/components/MenuSection";
+import { GlobalSearchButton } from "@/components/GlobalSearchButton";
 import { menuItemsApi } from "@/services/api";
 import { MenuItem } from "@/config/supabase";
 import { useToast } from "@/hooks/use-toast";
@@ -237,7 +238,11 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Navratna Pulav")]: "/food_pics/rice/navratan-pulav.png",
         [normalizeName("Navratan Pulao")]: "/food_pics/rice/navratan-pulav.png",
         [normalizeName("Egg Fried Rice")]: "/food_pics/rice/egg-fried-rice.png",
-        [normalizeName("Anda Fried Rice")]: "/food_pics/rice/egg-fried-rice.png"
+        [normalizeName("Anda Fried Rice")]: "/food_pics/rice/egg-fried-rice.png",
+        // Chicken Biryani variants
+        [normalizeName("Chicken Biryani")]: "/food_pics/rice/chicken-biryani.png",
+        [normalizeName("Chicken Biriyani")]: "/food_pics/rice/chicken-biryani.png",
+        [normalizeName("Chicken Dum Biryani")]: "/food_pics/rice/chicken-biryani.png"
       },
       "main course": {
         [normalizeName("Chhole Bhature")]: "/food_pics/main_course/chhole-bhature.jpg",
@@ -353,6 +358,9 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
           </Button>
           
           <div className="flex items-center gap-4">
+            {/* Global Search */}
+            <GlobalSearchButton />
+            
             {/* Admin link - only show if user is logged in */}
             {user && (
               <Button
