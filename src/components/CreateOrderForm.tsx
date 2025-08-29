@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react'
 import { ordersApi, menuItemsApi, customersApi } from '@/services/api'
 import { MenuItem, Customer, Order, OrderItem as DBOrderItem } from '@/config/supabase'
 import { useToast } from '@/hooks/use-toast'
-import CustomerInfoForm from './forms/CustomerInfoForm'
-import DeliveryInfoForm from './forms/DeliveryInfoForm'
+import CustomerDeliveryForm from './forms/CustomerDeliveryForm'
 import MenuItemSelector from './forms/MenuItemSelector'
 import OrderItemsList from './forms/OrderItemsList'
 import DiscountForm from './forms/DiscountForm'
@@ -304,25 +303,20 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <CustomerInfoForm
-          customerName={customerName}
-          setCustomerName={setCustomerName}
-          customerPhone={customerPhone}
-          setCustomerPhone={setCustomerPhone}
-          existingCustomer={existingCustomer}
-          setExistingCustomer={setExistingCustomer}
-        />
-
-        <DeliveryInfoForm
-          deliveryDate={deliveryDate}
-          setDeliveryDate={setDeliveryDate}
-          deliveryTime={deliveryTime}
-          setDeliveryTime={setDeliveryTime}
-          specialInstructions={specialInstructions}
-          setSpecialInstructions={setSpecialInstructions}
-        />
-      </div>
+      <CustomerDeliveryForm
+        customerName={customerName}
+        setCustomerName={setCustomerName}
+        customerPhone={customerPhone}
+        setCustomerPhone={setCustomerPhone}
+        existingCustomer={existingCustomer}
+        setExistingCustomer={setExistingCustomer}
+        deliveryDate={deliveryDate}
+        setDeliveryDate={setDeliveryDate}
+        deliveryTime={deliveryTime}
+        setDeliveryTime={setDeliveryTime}
+        specialInstructions={specialInstructions}
+        setSpecialInstructions={setSpecialInstructions}
+      />
 
       <div className="space-y-4">
         <MenuItemSelector
