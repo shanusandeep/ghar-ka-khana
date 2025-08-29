@@ -347,17 +347,21 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${bgGradient}`}>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 sm:mb-8">
           <Button
             onClick={() => navigate("/")}
             variant="outline"
+            size="sm"
+            className="text-sm"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Menu
+            <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Back to Menu</span>
+            <span className="sm:hidden">Back</span>
           </Button>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Global Search */}
             <GlobalSearchButton />
             
@@ -369,25 +373,28 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
                 size="sm"
                 className="border-orange-200 text-orange-600 hover:bg-orange-50"
               >
-                <Settings className="w-4 h-4 mr-2" />
-                Admin
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">Admin</span>
               </Button>
             )}
-            
-            {/* Diet Filter */}
-            <div className="flex items-center gap-2">
+          </div>
+        </div>
+
+        {/* Diet Filter - Moved to separate section for better mobile layout */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <span className="text-sm font-medium text-gray-700">Filter:</span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Badge
                 variant={dietFilter === 'all' ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-gray-100 px-3 py-1"
+                className="cursor-pointer hover:bg-gray-100 px-3 py-1 text-xs sm:text-sm"
                 onClick={() => setDietFilter('all')}
               >
                 All
               </Badge>
               <Badge
                 variant={dietFilter === 'veg' ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-green-100 px-3 py-1 bg-green-50 text-green-700 border-green-200"
+                className="cursor-pointer hover:bg-green-100 px-3 py-1 bg-green-50 text-green-700 border-green-200 text-xs sm:text-sm"
                 onClick={() => setDietFilter('veg')}
               >
                 <Leaf className="w-3 h-3 mr-1" />
@@ -395,7 +402,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
               </Badge>
               <Badge
                 variant={dietFilter === 'egg' ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-yellow-100 px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200"
+                className="cursor-pointer hover:bg-yellow-100 px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 text-xs sm:text-sm"
                 onClick={() => setDietFilter('egg')}
               >
                 <Egg className="w-3 h-3 mr-1" />
@@ -403,13 +410,12 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
               </Badge>
               <Badge
                 variant={dietFilter === 'non-veg' ? 'default' : 'outline'}
-                className="cursor-pointer hover:bg-red-100 px-3 py-1 bg-red-50 text-red-700 border-red-200"
+                className="cursor-pointer hover:bg-red-100 px-3 py-1 bg-red-50 text-red-700 border-red-200 text-xs sm:text-sm"
                 onClick={() => setDietFilter('non-veg')}
               >
                 <Beef className="w-3 h-3 mr-1" />
                 Non-Veg
               </Badge>
-            </div>
             </div>
           </div>
         </div>

@@ -276,40 +276,38 @@ const TodaysMenu = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-orange-100">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Button
               onClick={() => navigate("/")}
-              variant="outline"
-              className="mr-4"
+              variant="ghost"
+              size="sm"
+              className="text-gray-600 hover:text-gray-900"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Menu
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
             
-            <div className="flex items-center space-x-4">
-              <div className="text-center">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Today's Menu
-                </h1>
-                <p className="text-orange-600 text-sm">
-                  {format(new Date(), 'EEEE, MMMM dd, yyyy')}
-                </p>
-              </div>
+            <div className="text-center flex-1">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+                Today's Menu
+              </h1>
+              <p className="text-orange-600 text-xs sm:text-sm">
+                {format(new Date(), 'EEEE, MMM dd, yyyy')}
+              </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <GlobalSearchButton />
               
               {user && (
                 <Button
                   onClick={() => navigate("/admin")}
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                  className="text-gray-600 hover:text-gray-900"
                 >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Admin
+                  <Settings className="w-4 h-4" />
                 </Button>
               )}
             </div>
@@ -318,35 +316,42 @@ const TodaysMenu = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4 sm:py-8">
         {loading ? (
           <div className="text-center py-16">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
             <p className="text-gray-500 mt-4">Loading today's special menu...</p>
           </div>
         ) : todaysMenuItems.length === 0 ? (
-          <Card className="max-w-2xl mx-auto">
-            <CardContent className="text-center py-16">
-              <Calendar className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">No Special Menu Today</h2>
-              <p className="text-gray-600 mb-6">
-                We don't have a special menu available for pickup today. Please check our regular menu categories.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={() => navigate("/")}>
-                  View Full Menu
-                </Button>
-                <Button
-                  onClick={() => window.open("https://wa.me/12017131850", "_blank")}
-                  variant="outline"
-                  className="bg-green-500 hover:bg-green-600 text-white border-green-500"
-                >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Contact Us
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="max-w-md mx-auto">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardContent className="text-center py-8 px-4">
+                <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h2 className="text-xl font-bold text-gray-900 mb-3">No Special Menu Today</h2>
+                <p className="text-gray-600 mb-6 text-sm">
+                  We don't have a special menu available for pickup today. Please check our regular menu categories.
+                </p>
+                <div className="space-y-3">
+                  <Button 
+                    onClick={() => navigate("/")}
+                    className="w-full"
+                    size="lg"
+                  >
+                    View Full Menu
+                  </Button>
+                  <Button
+                    onClick={() => window.open("https://wa.me/12017131850", "_blank")}
+                    variant="outline"
+                    className="w-full border-green-500 text-green-600 hover:bg-green-50"
+                    size="lg"
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    Contact Us
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         ) : (
           <div className="space-y-8">
 
@@ -354,15 +359,15 @@ const TodaysMenu = () => {
             {/* Menu Items by Category */}
             {Object.entries(groupedItems).map(([categoryName, items]: [string, any]) => (
               <div key={categoryName}>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <div className="w-1 h-8 bg-orange-500 rounded-full"></div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                  <div className="w-1 h-6 sm:h-8 bg-orange-500 rounded-full"></div>
                   {categoryName}
-                  <Badge variant="outline" className="ml-2">
+                  <Badge variant="outline" className="ml-2 text-xs">
                     {items.length} item{items.length !== 1 ? 's' : ''}
                   </Badge>
                 </h3>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
                   {items.map((item: any) => (
                     <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <div className="aspect-square relative">
@@ -422,20 +427,21 @@ const TodaysMenu = () => {
             ))}
 
             {/* Ready to Order Section - Moved to bottom */}
-            <div className="text-center mt-12">
-              <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl p-6 max-w-2xl mx-auto">
+            <div className="text-center mt-8 sm:mt-12">
+              <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto">
                 <div className="flex items-center justify-center gap-2 mb-3">
-                  <Star className="w-5 h-5 text-yellow-300" />
-                  <h2 className="text-xl font-bold">Ready to Order?</h2>
-                  <Star className="w-5 h-5 text-yellow-300" />
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
+                  <h2 className="text-lg sm:text-xl font-bold">Ready to Order?</h2>
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
                 </div>
-                <p className="mb-4 opacity-90">
+                <p className="mb-4 opacity-90 text-sm sm:text-base">
                   Call or WhatsApp us to place your order for pickup today!
                 </p>
                 <Button
                   onClick={() => window.open("https://wa.me/12017131850", "_blank")}
                   variant="secondary"
-                  className="bg-white text-orange-600 hover:bg-orange-50"
+                  className="bg-white text-orange-600 hover:bg-orange-50 w-full sm:w-auto"
+                  size="lg"
                 >
                   <Phone className="w-4 h-4 mr-2" />
                   Order via WhatsApp

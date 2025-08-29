@@ -74,6 +74,18 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
     }
   }, [isOpen])
 
+  // Handle mobile viewport for keyboard
+  useEffect(() => {
+    if (isOpen) {
+      // Prevent body scroll when dialog is open on mobile
+      document.body.style.overflow = 'hidden'
+      
+      return () => {
+        document.body.style.overflow = 'unset'
+      }
+    }
+  }, [isOpen])
+
   // Filter items based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -391,7 +403,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[100vh] top-0 sm:top-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Search className="w-5 h-5 text-blue-500" />
@@ -425,7 +437,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
           </div>
 
           {/* Search Results */}
-          <div className="overflow-y-auto max-h-96">
+          <div className="overflow-y-auto max-h-96 sm:max-h-96 max-h-[calc(100vh-200px)]">
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>

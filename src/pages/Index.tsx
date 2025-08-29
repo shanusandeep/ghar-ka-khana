@@ -364,11 +364,11 @@ const Index = () => {
         </footer>
 
         {/* Mobile Navigation */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 p-4" role="navigation" aria-label="Mobile navigation">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 p-2" role="navigation" aria-label="Mobile navigation">
           <div className="flex space-x-2">
             <button
               onClick={scrollToMenu}
-              className={`flex-1 py-3 px-2 rounded-lg text-center transition-colors text-sm ${
+              className={`flex-1 py-2 px-2 rounded-lg text-center transition-colors text-sm ${
                 activeSection === "menu" 
                   ? "bg-orange-500 text-white" 
                   : "text-gray-600 bg-orange-50"
@@ -378,10 +378,10 @@ const Index = () => {
             </button>
             <button
               onClick={() => navigate("/todays-menu")}
-              className="flex-1 py-3 px-2 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-2 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
             >
               <span className="text-orange-500">⭐</span>
-              Today's
+              Today's Menu
             </button>
             <div className="flex items-center justify-center">
               <GlobalSearchButton />
@@ -390,7 +390,7 @@ const Index = () => {
         </nav>
 
         {/* Footer spacing for mobile nav */}
-        <div className="md:hidden h-20" aria-hidden="true"></div>
+        <div className="md:hidden h-16" aria-hidden="true"></div>
       </div>
     </>
   );
