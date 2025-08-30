@@ -46,6 +46,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [loading, setLoading] = useState(false)
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>([])
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
@@ -186,9 +187,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
   }
 
   const handleItemClick = (item: MenuItem) => {
-    const route = getCategoryRoute(item)
-    navigate(route)
-    onClose()
+    setSelectedItem(item)
   }
 
   const clearSearch = () => {
@@ -403,17 +402,14 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[100vh] top-0 sm:top-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Search className="w-5 h-5 text-blue-500" />
-            Search Menu Items
-          </DialogTitle>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[80vh] w-[calc(100vw-2rem)] sm:w-auto mx-auto mt-4 sm:mt-0">
+        <DialogHeader className="pb-0">
+          <DialogTitle className="sr-only">Search Menu Items</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative bg-white z-10 pb-2 border-b border-gray-200 p-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               ref={searchInputRef}
@@ -421,8 +417,9 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
               placeholder="Search for dishes, ingredients, or descriptions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10 h-12 text-base"
+              className="pl-10 pr-10 h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white shadow-sm"
               autoComplete="off"
+              autoFocus={isOpen}
             />
             {searchQuery && (
               <Button
@@ -437,7 +434,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
           </div>
 
           {/* Search Results */}
-          <div className="overflow-y-auto max-h-96 sm:max-h-96 max-h-[calc(100vh-200px)]">
+          <div className="overflow-y-auto max-h-96 sm:max-h-96 max-h-[calc(80vh-200px)]">
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
@@ -475,10 +472,10 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
                   {filteredItems.map((item) => (
                     <Card 
                       key={item.id} 
-                      className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-blue-500"
+                      className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-blue-500 group"
                       onClick={() => handleItemClick(item)}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-3">
                         <div className="flex items-start gap-4">
                           {/* Item Image */}
                           <div className="flex-shrink-0">
@@ -495,74 +492,46 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
                           
                           {/* Item Content */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-gray-900 truncate">
-                                {highlightText(item.name, searchQuery)}
-                              </h3>
-                              <Badge variant="outline" className="text-xs flex-shrink-0">
-                                {getCategoryName(item)}
-                              </Badge>
-                            </div>
+                            <h3 className="font-semibold text-gray-900 truncate mb-1">
+                              {highlightText(item.name, searchQuery)}
+                            </h3>
+                            
+                            <Badge variant="outline" className="text-xs mb-1">
+                              {getCategoryName(item)}
+                            </Badge>
                             
                             {item.description && (
-                              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              <p className="text-sm text-gray-600 line-clamp-1">
                                 {highlightText(item.description, searchQuery)}
                               </p>
                             )}
                             
-                            {item.ingredients && (
-                              <div className="flex items-center gap-1 mb-2">
-                                <ChefHat className="w-3 h-3 text-gray-400" />
-                                <p className="text-xs text-gray-500 line-clamp-1">
-                                  {highlightText(
-                                    Array.isArray(item.ingredients) 
-                                      ? item.ingredients.join(', ') 
-                                      : item.ingredients, 
-                                    searchQuery
-                                  )}
-                                </p>
-                              </div>
-                            )}
-                            
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Package className="w-3 h-3" />
-                                <span>Available</span>
-                              </div>
-                              {item.preparation_time && (
-                                <div className="flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  <span>{item.preparation_time} min</span>
-                                </div>
-                              )}
-                              <div className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                <span>Click to view in category</span>
-                              </div>
-                            </div>
+                            <p className="text-xs text-blue-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Click to view details
+                            </p>
                           </div>
                           
                           {/* Price Section */}
                           <div className="flex-shrink-0 text-right">
                             <div className="space-y-1">
                               {item.price_per_piece && (
-                                <p className="text-sm font-medium text-green-600">
+                                <p className="text-sm font-semibold text-green-600">
                                   ${item.price_per_piece.toFixed(2)}/pc
                                 </p>
                               )}
                               {item.price_per_plate && (
-                                <p className="text-sm font-medium text-green-600">
+                                <p className="text-sm font-semibold text-green-600">
                                   ${item.price_per_plate.toFixed(2)}
                                 </p>
                               )}
                               {item.price_half_tray && (
-                                <p className="text-xs text-green-600">
-                                  Half: ${item.price_half_tray.toFixed(2)}
+                                <p className="text-xs text-gray-600">
+                                  Half Tray: ${item.price_half_tray.toFixed(2)}
                                 </p>
                               )}
                               {item.price_full_tray && (
-                                <p className="text-xs text-green-600">
-                                  Full: ${item.price_full_tray.toFixed(2)}
+                                <p className="text-xs text-gray-600">
+                                  Full Tray: ${item.price_full_tray.toFixed(2)}
                                 </p>
                               )}
                             </div>
@@ -574,13 +543,8 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
                 </div>
               </>
             ) : (
-              <div className="text-center py-8">
-                <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-lg font-medium text-gray-600">Search our menu</p>
-                <p className="text-sm text-gray-500">
-                  Start typing to find dishes, ingredients, or browse by description
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2 justify-center">
+              <div className="text-center py-4">
+                <div className="flex flex-wrap gap-2 justify-center">
                   <Badge 
                     variant="secondary" 
                     className="cursor-pointer hover:bg-gray-200"
@@ -615,6 +579,125 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
           </div>
         </div>
       </DialogContent>
+      
+      {/* Item Details Modal */}
+      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-blue-500" />
+              {selectedItem?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedItem && (
+            <div className="space-y-4">
+              {/* Item Image */}
+              <div className="flex justify-center">
+                <img
+                  src={getItemImageSrc(selectedItem)}
+                  alt={selectedItem.name}
+                  className="w-48 h-48 object-cover rounded-lg"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = getDefaultImage(getCategoryName(selectedItem));
+                  }}
+                />
+              </div>
+              
+              {/* Item Details */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline">
+                    {getCategoryName(selectedItem)}
+                  </Badge>
+                  <span className="text-sm text-gray-500">
+                    Item #{selectedItem.id.slice(0, 8)}
+                  </span>
+                </div>
+                
+                {selectedItem.description && (
+                  <p className="text-gray-600">
+                    {selectedItem.description}
+                  </p>
+                )}
+                
+                {selectedItem.ingredients && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Ingredients</h4>
+                    <p className="text-sm text-gray-600">
+                      {Array.isArray(selectedItem.ingredients) 
+                        ? selectedItem.ingredients.join(', ') 
+                        : selectedItem.ingredients}
+                    </p>
+                  </div>
+                )}
+                
+                {/* Pricing */}
+                <div className="border-t pt-3">
+                  <h4 className="font-medium text-gray-900 mb-2">Pricing</h4>
+                  <div className="space-y-2">
+                    {selectedItem.price_per_piece && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Per Piece</span>
+                        <span className="font-semibold text-green-600">
+                          ${selectedItem.price_per_piece.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    {selectedItem.price_per_plate && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Per Plate</span>
+                        <span className="font-semibold text-green-600">
+                          ${selectedItem.price_per_plate.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    {selectedItem.price_half_tray && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Half Tray</span>
+                        <span className="font-semibold text-green-600">
+                          ${selectedItem.price_half_tray.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    {selectedItem.price_full_tray && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Full Tray</span>
+                        <span className="font-semibold text-green-600">
+                          ${selectedItem.price_full_tray.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-3">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => {
+                      const route = getCategoryRoute(selectedItem)
+                      navigate(route)
+                      setSelectedItem(null)
+                      onClose()
+                    }}
+                  >
+                    View in Category
+                  </Button>
+                  <Button 
+                    className="flex-1"
+                    onClick={() => setSelectedItem(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   )
 }
