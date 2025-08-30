@@ -81,8 +81,18 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
       // Prevent body scroll when dialog is open on mobile
       document.body.style.overflow = 'hidden'
       
+      // Add viewport meta tag for better mobile keyboard handling
+      const viewport = document.querySelector('meta[name="viewport"]')
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover')
+      }
+      
       return () => {
         document.body.style.overflow = 'unset'
+        // Restore original viewport
+        if (viewport) {
+          viewport.setAttribute('content', 'width=device-width, initial-scale=1')
+        }
       }
     }
   }, [isOpen])
@@ -402,7 +412,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[80vh] w-[calc(100vw-2rem)] sm:w-auto mx-auto mt-4 sm:mt-0">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[60vh] w-[calc(100vw-2rem)] sm:w-auto mx-auto mt-2 sm:mt-0">
         <DialogHeader className="pb-0">
           <DialogTitle className="sr-only">Search Menu Items</DialogTitle>
         </DialogHeader>
@@ -434,7 +444,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
           </div>
 
           {/* Search Results */}
-          <div className="overflow-y-auto max-h-96 sm:max-h-96 max-h-[calc(80vh-200px)]">
+          <div className="overflow-y-auto max-h-96 sm:max-h-96 max-h-[calc(60vh-150px)]">
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
