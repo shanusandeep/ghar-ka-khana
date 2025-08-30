@@ -604,9 +604,8 @@ const OrderManagement = () => {
         <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
           <SheetHeader>
             <SheetTitle>New Order</SheetTitle>
-            <SheetDescription>Create a new customer order</SheetDescription>
           </SheetHeader>
-          <div className="mt-6">
+          <div className="border-b border-gray-200 pb-4 mt-4 mb-6">
             <CreateOrderForm
               onOrderCreated={() => {
                 loadOrders();

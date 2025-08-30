@@ -43,11 +43,10 @@ const OrderItemsList = ({ orderItems, setOrderItems }: OrderItemsListProps) => {
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Order Items</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <div className="space-y-3">
+      <div className="border-b border-gray-200 pb-2">
+        <h3 className="text-base font-semibold text-gray-900">Order Items</h3>
+      </div>
         {orderItems.map((item, index) => (
           <div key={index} className="flex items-center justify-between p-2 border rounded">
             <div className="flex-1">
@@ -93,8 +92,7 @@ const OrderItemsList = ({ orderItems, setOrderItems }: OrderItemsListProps) => {
             <span>${getTotalAmount().toFixed(2)}</span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
   )
 }
 

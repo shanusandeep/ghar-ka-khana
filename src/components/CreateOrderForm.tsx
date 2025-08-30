@@ -302,7 +302,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <CustomerDeliveryForm
         customerName={customerName}
         setCustomerName={setCustomerName}
@@ -318,7 +318,8 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
         setSpecialInstructions={setSpecialInstructions}
       />
 
-      <div className="space-y-4">
+      <div className="border-t border-gray-200 pt-6">
+        <div className="space-y-4">
         <MenuItemSelector
           menuItems={menuItems}
           orderItems={orderItems}
@@ -344,9 +345,11 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           totalAmount={getTotalAmount()}
         />
       </div>
+      </div>
 
       {/* Fixed bottom section for buttons */}
-      <div className="sticky bottom-0 bg-white border-t pt-4 mt-6">
+      <div className="border-t border-gray-200 pt-6">
+        <div className="sticky bottom-0 bg-white pt-4">
         <OrderSummary
           loading={loading}
           orderItems={orderItems}
@@ -354,6 +357,7 @@ const CreateOrderForm = ({ onOrderCreated, onClose, existingOrder }: CreateOrder
           onClose={onClose}
           isEditing={!!existingOrder}
         />
+        </div>
       </div>
     </div>
   )

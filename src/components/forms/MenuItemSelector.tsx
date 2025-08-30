@@ -96,11 +96,10 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
   )
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Add Menu Items</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <div className="space-y-3">
+      <div className="border-b border-gray-200 pb-2">
+        <h3 className="text-base font-semibold text-gray-900">Add Menu Items</h3>
+      </div>
         {/* Searchable Dropdown */}
         <div>
           <Popover open={searchOpen} onOpenChange={setSearchOpen}>
@@ -164,30 +163,30 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
           </Popover>
         </div>
 
-        {/* Last 3 Items Ordered */}
+        {/* Recent Orders */}
         {topOrderItems.length > 0 && (
           <div>
-            <h5 className="font-medium mb-2">Last 3 Items Ordered</h5>
-            <div className="grid gap-2">
-              {topOrderItems.slice(0, 3).map((recentItem, index) => {
+            <h5 className="font-medium mb-3">Recent Orders</h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {topOrderItems.slice(0, 4).map((recentItem, index) => {
                 const menuItem = menuItems.find(item => item.name === recentItem.item_name)
                 if (!menuItem) return null
                 
                 return (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded text-sm bg-green-50">
-                    <div className="flex-1">
-                      <span className="font-medium">{recentItem.item_name}</span>
-                      <div className="text-xs text-gray-500">Recently ordered</div>
+                  <div key={index} className="flex flex-col p-3 border rounded-lg text-sm bg-green-50 hover:bg-green-100 transition-colors">
+                    <div className="flex-1 mb-2">
+                      <span className="font-medium text-gray-900">{recentItem.item_name}</span>
+                      <div className="text-xs text-gray-500 mt-1">Recently ordered</div>
                     </div>
-                    <div className="flex gap-1">
-                      {getAvailableSizes(menuItem).map((size) => (
+                    <div className="flex flex-wrap gap-1">
+                      {getAvailableSizes(menuItem).slice(0, 2).map((size) => (
                         <Button
                           key={size.type}
                           type="button"
                           size="sm"
                           variant="outline"
                           onClick={() => addOrderItem(menuItem, size.type as 'plate' | 'half_tray' | 'full_tray')}
-                          className="text-xs"
+                          className="text-xs h-7 px-2"
                         >
                           <Plus className="w-3 h-3 mr-1" />
                           ${size.price}
@@ -200,8 +199,7 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
   )
 }
 

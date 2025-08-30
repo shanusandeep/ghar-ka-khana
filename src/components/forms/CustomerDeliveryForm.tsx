@@ -50,8 +50,6 @@ const CustomerDeliveryForm = ({
   const [searchQuery, setSearchQuery] = useState('')
   const [isCustomerSelectorOpen, setIsCustomerSelectorOpen] = useState(false)
   const [isNewCustomerOpen, setIsNewCustomerOpen] = useState(false)
-  const [showDeliveryTime, setShowDeliveryTime] = useState(false)
-  const [showSpecialInstructions, setShowSpecialInstructions] = useState(false)
   const [newCustomerData, setNewCustomerData] = useState({
     name: '',
     phone: '',
@@ -78,19 +76,7 @@ const CustomerDeliveryForm = ({
     }
   }, [searchQuery, customers])
 
-  // Show delivery time if there's an existing value
-  useEffect(() => {
-    if (deliveryTime && deliveryTime.trim() !== '') {
-      setShowDeliveryTime(true)
-    }
-  }, [deliveryTime])
 
-  // Show special instructions if there are existing instructions
-  useEffect(() => {
-    if (specialInstructions && specialInstructions.trim() !== '') {
-      setShowSpecialInstructions(true)
-    }
-  }, [specialInstructions])
 
   const loadTopCustomers = async () => {
     try {
@@ -141,19 +127,15 @@ const CustomerDeliveryForm = ({
     setCustomerPhone('')
   }
 
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Customer & Delivery Information</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Customer and Delivery in a responsive grid - optimized for Family Hub and Phone */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Customer Section */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Label className="text-sm font-medium">Customer</Label>
-            </div>
+    return (
+    <div className="space-y-4">
+      {/* Customer and Delivery in a responsive grid - optimized for Family Hub and Phone */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Customer Section */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-medium">Customer</Label>
+          </div>
             
             <div className="flex gap-2">
               <Popover open={isCustomerSelectorOpen} onOpenChange={setIsCustomerSelectorOpen}>
@@ -296,19 +278,76 @@ const CustomerDeliveryForm = ({
             )}
           </div>
 
-          {/* Delivery Section - Collapsible */}
+          {/* Delivery Section - Popup */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">Delivery</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowDeliveryTime(!showDeliveryTime)}
-                className="text-blue-600 hover:text-blue-700 p-0 h-auto text-xs"
-              >
-                {showDeliveryTime ? 'Hide Options' : 'Show Options'}
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 hover:text-blue-700 p-0 h-auto text-xs"
+                  >
+                    Options
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delivery Options</DialogTitle>
+                    <DialogDescription>Configure delivery date, time, and special instructions</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    {/* Delivery Date */}
+                    <div className="space-y-2">
+                      <Label>Delivery Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal"
+                          >
+                            <Calendar className="mr-2 h-4 w-4" />
+                            {deliveryDate ? format(new Date(deliveryDate), 'PPP') : "Pick a date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={deliveryDate ? new Date(deliveryDate) : undefined}
+                            onSelect={(date) => setDeliveryDate(date ? format(date, 'yyyy-MM-dd') : '')}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {/* Delivery Time */}
+                    <div className="space-y-2">
+                      <Label>Delivery Time</Label>
+                      <Input
+                        type="time"
+                        value={deliveryTime}
+                        onChange={(e) => setDeliveryTime(e.target.value)}
+                        className="w-full"
+                        placeholder="Select time"
+                      />
+                    </div>
+
+                    {/* Special Instructions */}
+                    <div className="space-y-2">
+                      <Label>Special Instructions</Label>
+                      <Textarea
+                        value={specialInstructions}
+                        onChange={(e) => setSpecialInstructions(e.target.value)}
+                        placeholder="Any special instructions for this order..."
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
             
             {/* Default Today Display */}
@@ -340,38 +379,9 @@ const CustomerDeliveryForm = ({
                 </PopoverContent>
               </Popover>
             </div>
-
-            {/* Collapsible Delivery Options */}
-            {showDeliveryTime && (
-              <div className="space-y-3 pt-3 border-t border-blue-200">
-                {/* Delivery Time */}
-                <div className="space-y-2">
-                  <Label className="text-sm">Delivery Time</Label>
-                  <Input
-                    type="time"
-                    value={deliveryTime}
-                    onChange={(e) => setDeliveryTime(e.target.value)}
-                    className="w-full"
-                    placeholder="Select time"
-                  />
-                </div>
-
-                {/* Special Instructions */}
-                <div className="space-y-2">
-                  <Label className="text-sm">Special Instructions</Label>
-                  <Textarea
-                    value={specialInstructions}
-                    onChange={(e) => setSpecialInstructions(e.target.value)}
-                    placeholder="Any special instructions for this order..."
-                    className="min-h-[80px]"
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
   )
 }
 
