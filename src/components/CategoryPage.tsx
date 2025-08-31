@@ -193,7 +193,11 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Moong Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
         [normalizeName("Mung Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
         [normalizeName("Moong Daal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
-        [normalizeName("Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png"
+        [normalizeName("Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
+        // Veg Cutlet variants
+        [normalizeName("Veg Cutlet")]: "/food_pics/starter/veg-cutlet.png",
+        [normalizeName("Vegetable Cutlet")]: "/food_pics/starter/veg-cutlet.png",
+        [normalizeName("Veg Cutlets")]: "/food_pics/starter/veg-cutlet.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",

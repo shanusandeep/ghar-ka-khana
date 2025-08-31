@@ -84,8 +84,17 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
       // Add viewport meta tag for better mobile keyboard handling
       const viewport = document.querySelector('meta[name="viewport"]')
       if (viewport) {
-        viewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover')
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, height=device-height')
       }
+      
+      // Force viewport to adjust for keyboard
+      const handleResize = () => {
+        const vh = window.innerHeight * 0.01
+        document.documentElement.style.setProperty('--vh', `${vh}px`)
+      }
+      
+      handleResize()
+      window.addEventListener('resize', handleResize)
       
       return () => {
         document.body.style.overflow = 'unset'
@@ -93,6 +102,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
         if (viewport) {
           viewport.setAttribute('content', 'width=device-width, initial-scale=1')
         }
+        window.removeEventListener('resize', handleResize)
       }
     }
   }, [isOpen])
@@ -412,7 +422,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[60vh] w-[calc(100vw-2rem)] sm:w-auto mx-auto mt-2 sm:mt-0">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[60vh] w-[calc(100vw-2rem)] sm:w-auto mx-auto mt-0 sm:mt-0 fixed inset-0 sm:relative sm:inset-auto">
         <DialogHeader className="pb-0">
           <DialogTitle className="sr-only">Search Menu Items</DialogTitle>
         </DialogHeader>
@@ -444,7 +454,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
           </div>
 
           {/* Search Results */}
-          <div className="overflow-y-auto max-h-96 sm:max-h-96 max-h-[calc(60vh-150px)]">
+          <div className="overflow-y-auto max-h-96 sm:max-h-96" style={{ maxHeight: 'calc(100vh - 200px)' }}>
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
