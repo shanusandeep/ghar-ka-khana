@@ -268,7 +268,11 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
         [normalizeName("Moong Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
         [normalizeName("Mung Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
         [normalizeName("Moong Daal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
-        [normalizeName("Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png"
+        [normalizeName("Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
+        // Veg Cutlet variants
+        [normalizeName("Veg Cutlet")]: "/food_pics/starter/veg-cutlet.png",
+        [normalizeName("Vegetable Cutlet")]: "/food_pics/starter/veg-cutlet.png",
+        [normalizeName("Veg Cutlets")]: "/food_pics/starter/veg-cutlet.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -422,7 +426,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden sm:max-h-[80vh] max-h-[60vh] w-[calc(100vw-2rem)] sm:w-auto mx-auto mt-0 sm:mt-0 fixed inset-0 sm:relative sm:inset-auto">
+      <DialogContent className="max-w-2xl w-[calc(100vw-2rem)] sm:w-auto mx-auto sm:mt-8 !fixed !top-4 !left-2 !right-2 sm:!relative sm:!top-auto sm:!left-auto sm:!right-auto !translate-x-0 !translate-y-0 sm:!translate-x-[-50%] sm:!translate-y-[-50%] max-h-[calc(100vh-2rem)] sm:max-h-[80vh] overflow-hidden">
         <DialogHeader className="pb-0">
           <DialogTitle className="sr-only">Search Menu Items</DialogTitle>
         </DialogHeader>
@@ -454,7 +458,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
           </div>
 
           {/* Search Results */}
-          <div className="overflow-y-auto max-h-96 sm:max-h-96" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          <div className="overflow-y-auto flex-1" style={{ maxHeight: 'calc(100vh - 300px)' }}>
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
