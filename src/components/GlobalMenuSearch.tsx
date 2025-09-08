@@ -300,6 +300,11 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
         [normalizeName("Moong Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
         [normalizeName("Mung Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
         [normalizeName("Moong Daal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
+        // Gajar Ka Halwa variants
+        [normalizeName("Gajar ka Halwa")]: "/food_pics/desert/gajar-ka-halwa.png",
+        [normalizeName("Gajar Ka Halwa")]: "/food_pics/desert/gajar-ka-halwa.png",
+        [normalizeName("Gajar Ka Halva")]: "/food_pics/desert/gajar-ka-halwa.png",
+        [normalizeName("Carrot Halwa")]: "/food_pics/desert/gajar-ka-halwa.png",
         // Rasmalai variants
         [normalizeName("Rasmalai")]: "/food_pics/desert/rasmalai.png",
         [normalizeName("Ras Malai")]: "/food_pics/desert/rasmalai.png"
