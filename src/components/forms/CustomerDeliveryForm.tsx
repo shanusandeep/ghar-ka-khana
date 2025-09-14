@@ -309,14 +309,22 @@ const CustomerDeliveryForm = ({
                             className="w-full justify-start text-left font-normal"
                           >
                             <Calendar className="mr-2 h-4 w-4" />
-                            {deliveryDate ? format(new Date(deliveryDate), 'PPP') : "Pick a date"}
+                            {deliveryDate ? format(new Date(deliveryDate + 'T00:00:00'), 'PPP') : "Pick a date"}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <CalendarComponent
                             mode="single"
-                            selected={deliveryDate ? new Date(deliveryDate) : undefined}
-                            onSelect={(date) => setDeliveryDate(date ? format(date, 'yyyy-MM-dd') : '')}
+                            selected={deliveryDate ? new Date(deliveryDate + 'T00:00:00') : undefined}
+                            onSelect={(date) => {
+                              if (date) {
+                                // Create a date in local timezone to avoid timezone issues
+                                const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                                setDeliveryDate(format(localDate, 'yyyy-MM-dd'));
+                              } else {
+                                setDeliveryDate('');
+                              }
+                            }}
                             initialFocus
                           />
                         </PopoverContent>
@@ -356,7 +364,7 @@ const CustomerDeliveryForm = ({
                 <Calendar className="w-4 h-4 text-blue-600" />
                 <div>
                   <p className="font-medium text-blue-900">Today</p>
-                  <p className="text-sm text-blue-700">{deliveryDate ? format(new Date(deliveryDate), 'PPP') : 'Not set'}</p>
+                  <p className="text-sm text-blue-700">{deliveryDate ? format(new Date(deliveryDate + 'T00:00:00'), 'PPP') : 'Not set'}</p>
                 </div>
               </div>
               <Popover>
@@ -372,8 +380,16 @@ const CustomerDeliveryForm = ({
                 <PopoverContent className="w-auto p-0" align="end">
                   <CalendarComponent
                     mode="single"
-                    selected={deliveryDate ? new Date(deliveryDate) : undefined}
-                    onSelect={(date) => setDeliveryDate(date ? format(date, 'yyyy-MM-dd') : '')}
+                    selected={deliveryDate ? new Date(deliveryDate + 'T00:00:00') : undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        // Create a date in local timezone to avoid timezone issues
+                        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                        setDeliveryDate(format(localDate, 'yyyy-MM-dd'));
+                      } else {
+                        setDeliveryDate('');
+                      }
+                    }}
                     initialFocus
                   />
                 </PopoverContent>

@@ -232,7 +232,19 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Carrot Halwa")]: "/food_pics/desert/gajar-ka-halwa.png",
         // Rasmalai variants
         [normalizeName("Rasmalai")]: "/food_pics/desert/rasmalai.png",
-        [normalizeName("Ras Malai")]: "/food_pics/desert/rasmalai.png"
+        [normalizeName("Ras Malai")]: "/food_pics/desert/rasmalai.png",
+        // Kalakand variants
+        [normalizeName("Kalakand")]: "/food_pics/desert/kalakand.png",
+        [normalizeName("Kala Kand")]: "/food_pics/desert/kalakand.png",
+        [normalizeName("Kalakhand")]: "/food_pics/desert/kalakand.png",
+        // Baklava variants
+        [normalizeName("Baklava")]: "/food_pics/desert/baklava.png",
+        [normalizeName("Baklawa")]: "/food_pics/desert/baklava.png",
+        // Paan variants
+        [normalizeName("Paan")]: "/food_pics/desert/paan.png",
+        [normalizeName("Betel Paan")]: "/food_pics/desert/paan.png",
+        [normalizeName("Sweet Paan")]: "/food_pics/desert/paan.png",
+        [normalizeName("Meetha Paan")]: "/food_pics/desert/paan.png"
       },
       "rice": {
         [normalizeName("Tava Pulav")]: "/food_pics/rice/tava-pulav.png",

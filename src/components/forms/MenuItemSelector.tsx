@@ -185,7 +185,7 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => addOrderItem(menuItem, size.type as 'plate' | 'half_tray' | 'full_tray')}
+                          onClick={() => addOrderItem(menuItem, size.type as 'plate' | 'half_tray' | 'full_tray' | 'piece')}
                           className="text-xs h-7 px-2"
                         >
                           <Plus className="w-3 h-3 mr-1" />
