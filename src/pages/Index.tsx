@@ -208,6 +208,56 @@ const Index = () => {
                 ))}
               </div>
 
+              {/* Party/Catering Orders Section */}
+              <section aria-labelledby="catering-heading" className="mt-16 mb-16">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-200">
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mb-4">
+                      <span className="text-2xl">🎉</span>
+                    </div>
+                    <h3 id="catering-heading" className="text-3xl font-bold text-gray-900 mb-4">
+                      Party & Catering Orders
+                    </h3>
+                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                      Planning a special event? We provide delicious catering services for parties, 
+                      celebrations, and gatherings. Contact us to discuss your requirements!
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                      <div className="text-3xl mb-2">🎂</div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Birthday Parties</h4>
+                      <p className="text-sm text-gray-600">Make celebrations memorable with our authentic flavors</p>
+                    </div>
+                    <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                      <div className="text-3xl mb-2">💒</div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Wedding Events</h4>
+                      <p className="text-sm text-gray-600">Traditional dishes for your special day</p>
+                    </div>
+                    <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                      <div className="text-3xl mb-2">🏢</div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Corporate Events</h4>
+                      <p className="text-sm text-gray-600">Professional catering for business gatherings</p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <Button
+                      onClick={() => window.open("https://wa.me/12017131850?text=Hi! I'm interested in party/catering services. Could you please provide more details?", "_blank")}
+                      size="lg"
+                      className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2 mx-auto"
+                    >
+                      <Phone className="w-5 h-5" />
+                      Contact for Catering
+                    </Button>
+                    <p className="text-sm text-gray-500 mt-3">
+                      Click to message us on WhatsApp for custom catering quotes
+                    </p>
+                  </div>
+                </div>
+              </section>
+
               {/* Call to Action */}
               <section aria-labelledby="cta-heading" className="mt-16 text-center bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-8 text-white">
                 <h3 id="cta-heading" className="text-2xl font-bold mb-4">Ready to Order?</h3>
