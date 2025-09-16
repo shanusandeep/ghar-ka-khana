@@ -197,7 +197,17 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         // Veg Cutlet variants
         [normalizeName("Veg Cutlet")]: "/food_pics/starter/veg-cutlet.png",
         [normalizeName("Vegetable Cutlet")]: "/food_pics/starter/veg-cutlet.png",
-        [normalizeName("Veg Cutlets")]: "/food_pics/starter/veg-cutlet.png"
+        [normalizeName("Veg Cutlets")]: "/food_pics/starter/veg-cutlet.png",
+        // Cajun Potatoes variants
+        [normalizeName("Cajun Potatoes")]: "/food_pics/starter/cajun-potatoes.png",
+        [normalizeName("Cajun Potato")]: "/food_pics/starter/cajun-potatoes.png",
+        // Pinwheel Rolls variants
+        [normalizeName("Pinwheel Rolls")]: "/food_pics/starter/pinwheel-rolls.png",
+        [normalizeName("Pinwheel Roll")]: "/food_pics/starter/pinwheel-rolls.png",
+        // Veg Puff variants
+        [normalizeName("Veg Puff")]: "/food_pics/starter/veg-puff.png",
+        [normalizeName("Vegetable Puff")]: "/food_pics/starter/veg-puff.png",
+        [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -244,7 +254,11 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Paan")]: "/food_pics/desert/paan.png",
         [normalizeName("Betel Paan")]: "/food_pics/desert/paan.png",
         [normalizeName("Sweet Paan")]: "/food_pics/desert/paan.png",
-        [normalizeName("Meetha Paan")]: "/food_pics/desert/paan.png"
+        [normalizeName("Meetha Paan")]: "/food_pics/desert/paan.png",
+        // Fruit Custard variants
+        [normalizeName("Fruit Custard")]: "/food_pics/desert/fruit-custard.png",
+        [normalizeName("Fruit Custurd")]: "/food_pics/desert/fruit-custard.png",
+        [normalizeName("Mixed Fruit Custard")]: "/food_pics/desert/fruit-custard.png"
       },
       "rice": {
         [normalizeName("Tava Pulav")]: "/food_pics/rice/tava-pulav.png",

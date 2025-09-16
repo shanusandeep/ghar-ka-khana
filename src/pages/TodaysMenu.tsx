@@ -88,7 +88,21 @@ const TodaysMenu = () => {
         [normalizeName("Moong Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
         [normalizeName("Mung Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
         [normalizeName("Moong Daal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
-        [normalizeName("Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png"
+        [normalizeName("Dal Kachori")]: "/food_pics/starter/moong-dal-kachori.png",
+        // Veg Cutlet variants
+        [normalizeName("Veg Cutlet")]: "/food_pics/starter/veg-cutlet.png",
+        [normalizeName("Vegetable Cutlet")]: "/food_pics/starter/veg-cutlet.png",
+        [normalizeName("Veg Cutlets")]: "/food_pics/starter/veg-cutlet.png",
+        // Cajun Potatoes variants
+        [normalizeName("Cajun Potatoes")]: "/food_pics/starter/cajun-potatoes.png",
+        [normalizeName("Cajun Potato")]: "/food_pics/starter/cajun-potatoes.png",
+        // Pinwheel Rolls variants
+        [normalizeName("Pinwheel Rolls")]: "/food_pics/starter/pinwheel-rolls.png",
+        [normalizeName("Pinwheel Roll")]: "/food_pics/starter/pinwheel-rolls.png",
+        // Veg Puff variants
+        [normalizeName("Veg Puff")]: "/food_pics/starter/veg-puff.png",
+        [normalizeName("Vegetable Puff")]: "/food_pics/starter/veg-puff.png",
+        [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -116,9 +130,30 @@ const TodaysMenu = () => {
         [normalizeName("Moong Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
         [normalizeName("Mung Dal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
         [normalizeName("Moong Daal Halwa")]: "/food_pics/desert/moong-dal-halwa.png",
+        // Gajar Ka Halwa variants
+        [normalizeName("Gajar ka Halwa")]: "/food_pics/desert/gajar-ka-halwa.png",
+        [normalizeName("Gajar Ka Halwa")]: "/food_pics/desert/gajar-ka-halwa.png",
+        [normalizeName("Gajar Ka Halva")]: "/food_pics/desert/gajar-ka-halwa.png",
+        [normalizeName("Carrot Halwa")]: "/food_pics/desert/gajar-ka-halwa.png",
         // Rasmalai variants
         [normalizeName("Rasmalai")]: "/food_pics/desert/rasmalai.png",
-        [normalizeName("Ras Malai")]: "/food_pics/desert/rasmalai.png"
+        [normalizeName("Ras Malai")]: "/food_pics/desert/rasmalai.png",
+        // Kalakand variants
+        [normalizeName("Kalakand")]: "/food_pics/desert/kalakand.png",
+        [normalizeName("Kala Kand")]: "/food_pics/desert/kalakand.png",
+        [normalizeName("Kalakhand")]: "/food_pics/desert/kalakand.png",
+        // Baklava variants
+        [normalizeName("Baklava")]: "/food_pics/desert/baklava.png",
+        [normalizeName("Baklawa")]: "/food_pics/desert/baklava.png",
+        // Paan variants
+        [normalizeName("Paan")]: "/food_pics/desert/paan.png",
+        [normalizeName("Betel Paan")]: "/food_pics/desert/paan.png",
+        [normalizeName("Sweet Paan")]: "/food_pics/desert/paan.png",
+        [normalizeName("Meetha Paan")]: "/food_pics/desert/paan.png",
+        // Fruit Custard variants
+        [normalizeName("Fruit Custard")]: "/food_pics/desert/fruit-custard.png",
+        [normalizeName("Fruit Custurd")]: "/food_pics/desert/fruit-custard.png",
+        [normalizeName("Mixed Fruit Custard")]: "/food_pics/desert/fruit-custard.png"
       },
       "rice": {
         [normalizeName("Tava Pulav")]: "/food_pics/rice/tava-pulav.png",

@@ -47,6 +47,7 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
   const [loading, setLoading] = useState(false)
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>([])
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
@@ -74,6 +75,18 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
       loadData()
     }
   }, [isOpen])
+
+  // Check if mobile and handle responsive positioning
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Handle mobile viewport for keyboard
   useEffect(() => {
@@ -272,7 +285,17 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
         // Veg Cutlet variants
         [normalizeName("Veg Cutlet")]: "/food_pics/starter/veg-cutlet.png",
         [normalizeName("Vegetable Cutlet")]: "/food_pics/starter/veg-cutlet.png",
-        [normalizeName("Veg Cutlets")]: "/food_pics/starter/veg-cutlet.png"
+        [normalizeName("Veg Cutlets")]: "/food_pics/starter/veg-cutlet.png",
+        // Cajun Potatoes variants
+        [normalizeName("Cajun Potatoes")]: "/food_pics/starter/cajun-potatoes.png",
+        [normalizeName("Cajun Potato")]: "/food_pics/starter/cajun-potatoes.png",
+        // Pinwheel Rolls variants
+        [normalizeName("Pinwheel Rolls")]: "/food_pics/starter/pinwheel-rolls.png",
+        [normalizeName("Pinwheel Roll")]: "/food_pics/starter/pinwheel-rolls.png",
+        // Veg Puff variants
+        [normalizeName("Veg Puff")]: "/food_pics/starter/veg-puff.png",
+        [normalizeName("Vegetable Puff")]: "/food_pics/starter/veg-puff.png",
+        [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -319,7 +342,11 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
         [normalizeName("Paan")]: "/food_pics/desert/paan.png",
         [normalizeName("Betel Paan")]: "/food_pics/desert/paan.png",
         [normalizeName("Sweet Paan")]: "/food_pics/desert/paan.png",
-        [normalizeName("Meetha Paan")]: "/food_pics/desert/paan.png"
+        [normalizeName("Meetha Paan")]: "/food_pics/desert/paan.png",
+        // Fruit Custard variants
+        [normalizeName("Fruit Custard")]: "/food_pics/desert/fruit-custard.png",
+        [normalizeName("Fruit Custurd")]: "/food_pics/desert/fruit-custard.png",
+        [normalizeName("Mixed Fruit Custard")]: "/food_pics/desert/fruit-custard.png"
       },
       "rice": {
         [normalizeName("Tava Pulav")]: "/food_pics/rice/tava-pulav.png",
@@ -443,7 +470,18 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl w-[calc(100vw-2rem)] sm:w-auto mx-auto sm:mt-8 !fixed !top-4 !left-2 !right-2 sm:!relative sm:!top-auto sm:!left-auto sm:!right-auto !translate-x-0 !translate-y-0 sm:!translate-x-[-50%] sm:!translate-y-[-50%] max-h-[calc(100vh-2rem)] sm:max-h-[80vh] overflow-hidden">
+      <DialogContent 
+        className="max-w-2xl w-[calc(100vw-2rem)] sm:w-auto max-h-[calc(100vh-2rem)] sm:max-h-[80vh] overflow-hidden"
+        style={{
+          position: 'fixed',
+          top: isMobile ? '1rem' : '50%',
+          left: isMobile ? '1rem' : '50%',
+          right: isMobile ? '1rem' : 'auto',
+          transform: isMobile ? 'none' : 'translate(-50%, -50%)',
+          margin: 0
+        }}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader className="pb-0">
           <DialogTitle className="sr-only">Search Menu Items</DialogTitle>
         </DialogHeader>
