@@ -266,6 +266,19 @@ const OrderManagement = () => {
   const [dateFilter, setDateFilter] = useState<Date | null>(new Date())
   const [showUpcomingOnly, setShowUpcomingOnly] = useState(false)
 
+  // Helper function to safely parse dates
+  const parseDeliveryDate = (dateString: string) => {
+    // Handle different date formats
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      // ISO format or datetime format
+      return new Date(dateString)
+    } else {
+      // Assume YYYY-MM-DD format
+      const [year, month, day] = dateString.split('-').map(Number)
+      return new Date(year, month - 1, day) // month is 0-indexed
+    }
+  }
+
   useEffect(() => {
     loadOrders()
   }, [])
@@ -368,11 +381,28 @@ const OrderManagement = () => {
     // Handle upcoming orders filter
     if (showUpcomingOnly) {
       const today = new Date()
-      const orderDate = new Date(order.delivery_date)
+      const orderDate = parseDeliveryDate(order.delivery_date)
       // Set time to start of day for accurate comparison
       today.setHours(0, 0, 0, 0)
       orderDate.setHours(0, 0, 0, 0)
-      upcomingMatch = orderDate > today
+      upcomingMatch = orderDate > today && !isNaN(orderDate.getTime())
+      
+      // When showing upcoming orders, ignore status filter to show all future orders
+      // This ensures we see all upcoming orders regardless of their current status
+      statusMatch = true
+      
+      // Debug: Log filtering decisions
+      console.log('Filter check:', {
+        id: order.id,
+        delivery_date: order.delivery_date,
+        parsed_date: orderDate.toISOString(),
+        today: today.toISOString(),
+        upcomingMatch: upcomingMatch,
+        statusMatch: statusMatch,
+        dateMatch: dateMatch,
+        isValidDate: !isNaN(orderDate.getTime()),
+        finalResult: statusMatch && dateMatch && upcomingMatch
+      })
     }
     
     // Handle specific date filter (only when not showing upcoming only)
@@ -392,10 +422,23 @@ const OrderManagement = () => {
   // Calculate upcoming orders count for preview
   const upcomingOrdersCount = orders.filter(order => {
     const today = new Date()
-    const orderDate = new Date(order.delivery_date)
+    const orderDate = parseDeliveryDate(order.delivery_date)
     today.setHours(0, 0, 0, 0)
     orderDate.setHours(0, 0, 0, 0)
-    return orderDate > today
+    const isUpcoming = orderDate > today
+    
+    // Debug: Log all orders to see what's happening
+    console.log('Order check:', {
+      id: order.id,
+      delivery_date: order.delivery_date,
+      parsed_date: orderDate.toISOString(),
+      today: today.toISOString(),
+      isUpcoming: isUpcoming,
+      status: order.status,
+      isValidDate: !isNaN(orderDate.getTime())
+    })
+    
+    return isUpcoming && !isNaN(orderDate.getTime())
   }).length
 
   if (loading) {
@@ -471,7 +514,7 @@ const OrderManagement = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium mb-1">Status</label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <Select value={statusFilter} onValueChange={setStatusFilter} disabled={showUpcomingOnly}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -482,6 +525,11 @@ const OrderManagement = () => {
                       <SelectItem value="paid">Paid</SelectItem>
                     </SelectContent>
                   </Select>
+                  {showUpcomingOnly && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Status filter disabled when showing upcoming orders
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-medium mb-1">Date</label>
