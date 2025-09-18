@@ -277,7 +277,12 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         // Chicken Biryani variants
         [normalizeName("Chicken Biryani")]: "/food_pics/rice/chicken-biryani.png",
         [normalizeName("Chicken Biriyani")]: "/food_pics/rice/chicken-biryani.png",
-        [normalizeName("Chicken Dum Biryani")]: "/food_pics/rice/chicken-biryani.png"
+        [normalizeName("Chicken Dum Biryani")]: "/food_pics/rice/chicken-biryani.png",
+        // Veg Biryani variants
+        [normalizeName("Veg Biryani")]: "/food_pics/rice/veg-biryani.png",
+        [normalizeName("Vegetable Biryani")]: "/food_pics/rice/veg-biryani.png",
+        [normalizeName("Veg Biriyani")]: "/food_pics/rice/veg-biryani.png",
+        [normalizeName("Vegetable Biriyani")]: "/food_pics/rice/veg-biryani.png"
       },
       "main course": {
         [normalizeName("Chhole Bhature")]: "/food_pics/main_course/chhole-bhature.jpg",
