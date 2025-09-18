@@ -264,6 +264,7 @@ const OrderManagement = () => {
   const [filterPopoverOpen, setFilterPopoverOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [dateFilter, setDateFilter] = useState<Date | null>(new Date())
+  const [showUpcomingOnly, setShowUpcomingOnly] = useState(false)
 
   useEffect(() => {
     loadOrders()
@@ -362,17 +363,40 @@ const OrderManagement = () => {
   const filteredOrders = orders.filter(order => {
     let statusMatch = statusFilter === 'all' || order.status === statusFilter
     let dateMatch = true
-    if (dateFilter) {
+    let upcomingMatch = true
+    
+    // Handle upcoming orders filter
+    if (showUpcomingOnly) {
+      const today = new Date()
+      const orderDate = new Date(order.delivery_date)
+      // Set time to start of day for accurate comparison
+      today.setHours(0, 0, 0, 0)
+      orderDate.setHours(0, 0, 0, 0)
+      upcomingMatch = orderDate > today
+    }
+    
+    // Handle specific date filter (only when not showing upcoming only)
+    if (dateFilter && !showUpcomingOnly) {
       const orderDateStr = order.delivery_date
       const filterDateStr = format(dateFilter, 'yyyy-MM-dd')
       dateMatch = orderDateStr === filterDateStr
     }
-    return statusMatch && dateMatch
+    
+    return statusMatch && dateMatch && upcomingMatch
   })
 
   // Calculate daily total
   const dailyTotal = filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
   const orderCount = filteredOrders.length
+  
+  // Calculate upcoming orders count for preview
+  const upcomingOrdersCount = orders.filter(order => {
+    const today = new Date()
+    const orderDate = new Date(order.delivery_date)
+    today.setHours(0, 0, 0, 0)
+    orderDate.setHours(0, 0, 0, 0)
+    return orderDate > today
+  }).length
 
   if (loading) {
     return (
@@ -389,12 +413,12 @@ const OrderManagement = () => {
       <div className="flex justify-between items-center mb-4">
         {/* Daily Total Display */}
         <div className="flex items-center gap-4">
-          {dateFilter && (
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg px-4 py-2">
+          {(dateFilter || showUpcomingOnly) && (
+            <div className={`bg-gradient-to-r ${showUpcomingOnly ? 'from-green-50 to-emerald-50 border-green-200' : 'from-green-50 to-blue-50 border-green-200'} border rounded-lg px-4 py-2`}>
               <div className="flex items-center gap-4">
                 <div>
                   <div className="text-sm font-medium text-gray-700">
-                    {format(dateFilter, 'MMM dd, yyyy')}
+                    {showUpcomingOnly ? 'Upcoming Orders' : format(dateFilter!, 'MMM dd, yyyy')}
                   </div>
                   <div className="text-xs text-gray-500">
                     {orderCount} {orderCount === 1 ? 'order' : 'orders'}
@@ -402,11 +426,11 @@ const OrderManagement = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-bold text-green-600">
+                  <div className={`text-xl font-bold ${showUpcomingOnly ? 'text-green-600' : 'text-green-600'}`}>
                     ${dailyTotal.toFixed(2)}
                   </div>
                   <div className="text-xs text-gray-500">
-                                          {orderCount > 0 ? `Avg: $${(dailyTotal / orderCount).toFixed(2)}` : 'No orders'}
+                    {orderCount > 0 ? `Avg: $${(dailyTotal / orderCount).toFixed(2)}` : 'No orders'}
                   </div>
                 </div>
               </div>
@@ -414,6 +438,29 @@ const OrderManagement = () => {
           )}
         </div>
         <div className="flex items-center gap-2">
+          {/* Upcoming Orders Toggle */}
+          <Button 
+            variant={showUpcomingOnly ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setShowUpcomingOnly(!showUpcomingOnly)
+              if (!showUpcomingOnly) {
+                setDateFilter(null) // Clear date filter when showing upcoming
+              } else {
+                setDateFilter(new Date()) // Return to today's view when turning off upcoming
+              }
+            }}
+            className={showUpcomingOnly ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "border-gray-300 hover:bg-gray-50"}
+          >
+            <Clock className="w-4 h-4 mr-2" />
+            Upcoming
+            {!showUpcomingOnly && upcomingOrdersCount > 0 && (
+              <Badge variant="secondary" className="ml-2 text-xs">
+                {upcomingOrdersCount}
+              </Badge>
+            )}
+          </Button>
+          
           <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
             <PopoverTrigger asChild>
               <Button size="icon" variant="outline">
@@ -443,14 +490,31 @@ const OrderManagement = () => {
                     selected={dateFilter}
                     onSelect={setDateFilter}
                     className="rounded-md border"
+                    disabled={showUpcomingOnly}
                   />
-                  {dateFilter && (
+                  {dateFilter && !showUpcomingOnly && (
                     <Button size="sm" variant="ghost" className="mt-2" onClick={() => setDateFilter(null)}>
                       Clear Date
                     </Button>
                   )}
+                  {showUpcomingOnly && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Date filter disabled when showing upcoming orders
+                    </p>
+                  )}
                 </div>
-                <Button size="sm" variant="outline" className="w-full" onClick={() => { setStatusFilter('all'); setDateFilter(null); }}>Clear Filters</Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => { 
+                    setStatusFilter('all'); 
+                    setDateFilter(new Date()); // Return to today's view
+                    setShowUpcomingOnly(false);
+                  }}
+                >
+                  Clear All Filters
+                </Button>
               </div>
             </PopoverContent>
           </Popover>
