@@ -349,7 +349,15 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Rajma")]: "/food_pics/main_course/Rajma.png",
         [normalizeName("Rajmah")]: "/food_pics/main_course/Rajma.png",
         [normalizeName("Kidney Beans")]: "/food_pics/main_course/Rajma.png",
-        [normalizeName("Red Kidney Beans")]: "/food_pics/main_course/Rajma.png"
+        [normalizeName("Red Kidney Beans")]: "/food_pics/main_course/Rajma.png",
+        // New additions - Kadhi, Kaala Chana, Aloo Matar
+        [normalizeName("Kadhi")]: "/food_pics/main_course/kadhi.png",
+        [normalizeName("Kaala Chana")]: "/food_pics/main_course/kaala-chana.png",
+        [normalizeName("Kala Chana")]: "/food_pics/main_course/kaala-chana.png",
+        [normalizeName("Black Chana")]: "/food_pics/main_course/kaala-chana.png",
+        [normalizeName("Aloo Matar")]: "/food_pics/main_course/aloo-matar.png",
+        [normalizeName("Aloo Mattar")]: "/food_pics/main_course/aloo-matar.png",
+        [normalizeName("Potato Peas")]: "/food_pics/main_course/aloo-matar.png"
       }
     };
 

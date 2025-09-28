@@ -206,6 +206,14 @@ const TodaysMenu = () => {
         // Baingan/Baigan Bharta
         [normalizeName("Baigan Bharta")]: "/food_pics/main_course/baigan-bharta.png",
         [normalizeName("Baingan Bharta")]: "/food_pics/main_course/baigan-bharta.png",
+        // New additions - Kadhi, Kaala Chana, Aloo Matar
+        [normalizeName("Kadhi")]: "/food_pics/main_course/kadhi.png",
+        [normalizeName("Kaala Chana")]: "/food_pics/main_course/kaala-chana.png",
+        [normalizeName("Kala Chana")]: "/food_pics/main_course/kaala-chana.png",
+        [normalizeName("Black Chana")]: "/food_pics/main_course/kaala-chana.png",
+        [normalizeName("Aloo Matar")]: "/food_pics/main_course/aloo-matar.png",
+        [normalizeName("Aloo Mattar")]: "/food_pics/main_course/aloo-matar.png",
+        [normalizeName("Potato Peas")]: "/food_pics/main_course/aloo-matar.png",
         [normalizeName("Eggplant Bharta")]: "/food_pics/main_course/baigan-bharta.png",
         // Egg Curry
         [normalizeName("Egg Curry")]: "/food_pics/main_course/egg-curry.png",
