@@ -6,6 +6,15 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Create a separate anonymous client for public operations (reviews)
+export const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false
+  }
+})
+
 // Database types
 export interface Profile {
   id: string
@@ -99,4 +108,42 @@ export interface TodaysMenu {
   display_order: number
   created_at: string
   updated_at: string
+}
+
+export interface Review {
+  id: string
+  full_name: string
+  review_text: string
+  status: 'pending' | 'approved' | 'rejected'
+  rating?: number
+  created_at: string
+  updated_at: string
+  reviewed_by?: string
+  reviewed_at?: string
+  review_menu_items?: {
+    id: string
+    menu_items: {
+      id: string
+      name: string
+      image_url?: string
+      menu_categories?: {
+        name: string
+      }
+    }
+  }[]
+}
+
+export interface ReviewMenuItem {
+  id: string
+  review_id: string
+  menu_item_id: string
+  created_at: string
+  menu_items?: {
+    id: string
+    name: string
+    image_url?: string
+    menu_categories?: {
+      name: string
+    }
+  }
 }

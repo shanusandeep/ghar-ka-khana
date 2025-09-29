@@ -1,5 +1,5 @@
 
-import { supabase, MenuCategory, MenuItem, Customer, Order, OrderItem, TodaysMenu } from '@/config/supabase'
+import { supabase, supabaseAnon, MenuCategory, MenuItem, Customer, Order, OrderItem, TodaysMenu } from '@/config/supabase'
 
 // Menu Categories API
 export const menuCategoriesApi = {
@@ -506,6 +506,172 @@ export const todaysMenuApi = {
       .from('todays_menu')
       .delete()
       .eq('date', date)
+    
+    if (error) throw error
+  }
+}
+
+// Reviews API
+export const reviewsApi = {
+  getAll: async () => {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        review_menu_items (
+          id,
+          menu_items (
+            id,
+            name,
+            image_url,
+            menu_categories (name)
+          )
+        )
+      `)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as Review[]
+  },
+
+  getApproved: async () => {
+    const { data, error } = await supabaseAnon
+      .from('reviews')
+      .select(`
+        *,
+        review_menu_items (
+          id,
+          menu_items (
+            id,
+            name,
+            image_url,
+            menu_categories (name)
+          )
+        )
+      `)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as Review[]
+  },
+
+  getPending: async () => {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        review_menu_items (
+          id,
+          menu_items (
+            id,
+            name,
+            image_url,
+            menu_categories (name)
+          )
+        )
+      `)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as Review[]
+  },
+
+  create: async (review: { 
+    full_name: string
+    review_text: string
+    rating?: number
+    status: 'pending' | 'approved' | 'rejected'
+    menu_item_ids?: string[]
+  }) => {
+    console.log('API: Creating review with data:', review)
+    
+    // Create the review using anonymous client
+    const { data: reviewData, error: reviewError } = await supabaseAnon
+      .from('reviews')
+      .insert({
+        full_name: review.full_name,
+        review_text: review.review_text,
+        rating: review.rating,
+        status: review.status
+      })
+      .select()
+      .single()
+    
+    if (reviewError) {
+      console.error('API: Error creating review:', reviewError)
+      throw reviewError
+    }
+    
+    console.log('API: Review created successfully:', reviewData)
+    
+    // If menu items are provided, create the junction table entries
+    if (review.menu_item_ids && review.menu_item_ids.length > 0) {
+      console.log('API: Creating junction entries for menu items:', review.menu_item_ids)
+      
+      const junctionEntries = review.menu_item_ids.map(menu_item_id => ({
+        review_id: reviewData.id,
+        menu_item_id
+      }))
+      
+      console.log('API: Junction entries to insert:', junctionEntries)
+      
+      const { error: junctionError } = await supabaseAnon
+        .from('review_menu_items')
+        .insert(junctionEntries)
+      
+      if (junctionError) {
+        console.error('API: Error creating junction entries:', junctionError)
+        throw junctionError
+      }
+      
+      console.log('API: Junction entries created successfully')
+    }
+    
+    // Fetch the complete review with menu items using anonymous client
+    const { data: completeReview, error: fetchError } = await supabaseAnon
+      .from('reviews')
+      .select(`
+        *,
+        review_menu_items (
+          id,
+          menu_items (
+            id,
+            name,
+            image_url,
+            menu_categories (name)
+          )
+        )
+      `)
+      .eq('id', reviewData.id)
+      .single()
+    
+    if (fetchError) throw fetchError
+    return completeReview as Review
+  },
+
+  updateStatus: async (id: string, status: 'approved' | 'rejected', reviewedBy: string) => {
+    const { data, error } = await supabase
+      .from('reviews')
+      .update({ 
+        status, 
+        reviewed_by: reviewedBy,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as Review
+  },
+
+  delete: async (id: string) => {
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', id)
     
     if (error) throw error
   }

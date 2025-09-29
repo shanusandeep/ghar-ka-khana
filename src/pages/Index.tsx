@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Phone, Mail, ChefHat, Settings, MapPin } from "lucide-react";
+import { Phone, Mail, ChefHat, Settings, MapPin, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactSection from "@/components/ContactSection";
 import HeroSection from "@/components/HeroSection";
@@ -147,6 +147,13 @@ const Index = () => {
                     className="px-4 py-2 rounded-lg transition-colors text-gray-600 hover:text-orange-500 flex items-center gap-1"
                   >
                     Today's Menu
+                  </button>
+                  <button
+                    onClick={() => navigate("/reviews")}
+                    className="px-4 py-2 rounded-lg transition-colors text-gray-600 hover:text-orange-500 flex items-center gap-1"
+                  >
+                    <Star className="w-4 h-4" />
+                    Reviews
                   </button>
                   
                   {/* Global Menu Search */}
@@ -415,10 +422,10 @@ const Index = () => {
 
         {/* Mobile Navigation */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 p-2" role="navigation" aria-label="Mobile navigation">
-          <div className="flex space-x-2">
+          <div className="flex space-x-1">
             <button
               onClick={scrollToMenu}
-              className={`flex-1 py-2 px-2 rounded-lg text-center transition-colors text-sm ${
+              className={`flex-1 py-2 px-1 rounded-lg text-center transition-colors text-sm ${
                 activeSection === "menu" 
                   ? "bg-orange-500 text-white" 
                   : "text-gray-600 bg-orange-50"
@@ -428,10 +435,17 @@ const Index = () => {
             </button>
             <button
               onClick={() => navigate("/todays-menu")}
-              className="flex-1 py-2 px-2 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
             >
               <span className="text-orange-500">⭐</span>
-              Today's Menu
+              <span className="hidden xs:inline">Today's</span>
+            </button>
+            <button
+              onClick={() => navigate("/reviews")}
+              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
+            >
+              <Star className="w-4 h-4 text-orange-500" />
+              <span className="hidden xs:inline">Reviews</span>
             </button>
             <div className="flex items-center justify-center">
               <GlobalSearchButton />

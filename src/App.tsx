@@ -14,6 +14,7 @@ import Dessert from "./pages/Dessert";
 import TodaysMenu from "./pages/TodaysMenu";
 import RecipeFinder from "./pages/RecipeFinder";
 import AboutUs from "./pages/AboutUs";
+import Reviews from "./pages/Reviews";
 import AdminDashboard from "./pages/AdminDashboard";
 import LoginForm from "./components/LoginForm";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const AppContent = () => {
         <Route path="/todays-menu" element={<TodaysMenu />} />
         <Route path="/recipe-finder" element={<RecipeFinder />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/reviews" element={<Reviews />} />
         
         {/* Admin routes */}
         <Route 

@@ -5,13 +5,14 @@ import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogOut, Plus, Package, ClipboardList, Users, BarChart3, Home, DollarSign, Star } from 'lucide-react'
+import { LogOut, Plus, Package, ClipboardList, Users, BarChart3, Home, DollarSign, Star, MessageSquare } from 'lucide-react'
 import OrderManagement from '@/components/OrderManagement'
 import MenuManagement from '@/components/MenuManagement'
 import PreparationDashboard from '@/components/PreparationDashboard'
 import CustomerManagement from '@/components/CustomerManagement'
 import FinancialDashboard from '@/components/FinancialDashboard'
 import TodaysMenuManagement from '@/components/TodaysMenuManagement'
+import ReviewManagement from '@/components/ReviewManagement'
 import { GlobalSearchButton } from '@/components/GlobalSearchButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
@@ -89,7 +90,7 @@ const AdminDashboard = () => {
         <main className="container mx-auto px-4 py-6 lg:py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Desktop Tab Navigation - Hidden on mobile */}
-            <TabsList className="hidden md:grid w-full grid-cols-6 h-auto p-1">
+            <TabsList className="hidden md:grid w-full grid-cols-7 h-auto p-1">
               <TabsTrigger value="orders" className="flex items-center justify-center gap-2 p-3">
                 <ClipboardList className="w-4 h-4" />
                 <span>Orders</span>
@@ -108,6 +109,10 @@ const AdminDashboard = () => {
               <TabsTrigger value="customers" className="flex items-center justify-center gap-2 p-3">
                 <Users className="w-4 h-4" />
                 <span>Customers</span>
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="flex items-center justify-center gap-2 p-3">
+                <MessageSquare className="w-4 h-4" />
+                <span>Reviews</span>
               </TabsTrigger>
               <TabsTrigger value="financial" className="flex items-center justify-center gap-2 p-3">
                 <DollarSign className="w-4 h-4" />
@@ -148,6 +153,12 @@ const AdminDashboard = () => {
               </ErrorBoundary>
             </TabsContent>
 
+            <TabsContent value="reviews" className="space-y-6">
+              <ErrorBoundary>
+                <ReviewManagement />
+              </ErrorBoundary>
+            </TabsContent>
+
             <TabsContent value="financial" className="space-y-6">
               <ErrorBoundary>
                 <FinancialDashboard />
@@ -158,7 +169,7 @@ const AdminDashboard = () => {
 
         {/* Mobile Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-50">
-          <div className="grid grid-cols-6 h-16">
+          <div className="grid grid-cols-7 h-16">
             <button
               onClick={() => setActiveTab('orders')}
               className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
@@ -215,8 +226,20 @@ const AdminDashboard = () => {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <Users className="w-5 h-5" />
+              <Users className="w-4 h-4" />
               <span className="text-xs font-medium">Customers</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
+                activeTab === 'reviews' 
+                  ? 'text-orange-600 bg-orange-50' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span className="text-xs font-medium">Reviews</span>
             </button>
 
             <button
@@ -227,7 +250,7 @@ const AdminDashboard = () => {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <DollarSign className="w-5 h-5" />
+              <DollarSign className="w-4 h-4" />
               <span className="text-xs font-medium">Finance</span>
             </button>
           </div>
