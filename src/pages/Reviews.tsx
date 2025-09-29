@@ -50,32 +50,34 @@ const Reviews = () => {
         </div>
       </header>
 
-      <div className="py-8">
+      <div className="py-4 md:py-8">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
           {/* Page Content Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 md:mb-8">
             <div className="flex items-center justify-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
-                <Star className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
+                <Star className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">Customer Reviews</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Customer Reviews</h1>
             </div>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-4">
               Read what our customers have to say about their dining experience at Ghar Ka Khana
             </p>
           </div>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
-              <TabsTrigger value="view" className="flex items-center space-x-2">
+            <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-6 md:mb-8">
+              <TabsTrigger value="view" className="flex items-center space-x-1 md:space-x-2 text-sm md:text-base">
                 <MessageSquare className="w-4 h-4" />
-                <span>View Reviews</span>
+                <span className="hidden sm:inline">View Reviews</span>
+                <span className="sm:hidden">View</span>
               </TabsTrigger>
-              <TabsTrigger value="submit" className="flex items-center space-x-2">
+              <TabsTrigger value="submit" className="flex items-center space-x-1 md:space-x-2 text-sm md:text-base">
                 <Star className="w-4 h-4" />
-                <span>Write Review</span>
+                <span className="hidden sm:inline">Write Review</span>
+                <span className="sm:hidden">Write</span>
               </TabsTrigger>
             </TabsList>
 
@@ -91,10 +93,10 @@ const Reviews = () => {
           </Tabs>
 
           {/* Call to Action */}
-          <Card className="mt-12 bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-            <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold mb-4">Loved Your Experience?</h2>
-              <p className="text-lg mb-6 opacity-90">
+          <Card className="mt-8 md:mt-12 bg-gradient-to-r from-orange-500 to-amber-500 text-white">
+            <CardContent className="p-6 md:p-8 text-center">
+              <h2 className="text-xl md:text-2xl font-bold mb-4">Loved Your Experience?</h2>
+              <p className="text-base md:text-lg mb-6 opacity-90">
                 Share your thoughts and help others discover the authentic flavors of Ghar Ka Khana
               </p>
               <Button

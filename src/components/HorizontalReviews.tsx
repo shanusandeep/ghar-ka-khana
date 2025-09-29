@@ -1,34 +1,73 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Star, Calendar, User, Utensils, Eye } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Star, Calendar, User, Utensils } from 'lucide-react'
 import { reviewsApi, Review } from '@/services/api'
 import { format } from 'date-fns'
+import { useNavigate } from 'react-router-dom'
 import ImageModal from '@/components/ImageModal'
 import ReviewPopup from '@/components/ReviewPopup'
 
-interface ReviewsDisplayProps {
-  limit?: number
-  showTitle?: boolean
-}
-
-const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
+const HorizontalReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set())
+  const [isScrolling, setIsScrolling] = useState(false)
   const [modalImage, setModalImage] = useState<{ url: string; name: string; ingredients?: string[]; price?: string; note?: string } | null>(null)
   const [reviewPopup, setReviewPopup] = useState<Review | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     loadReviews()
   }, [])
 
+  useEffect(() => {
+    if (reviews.length > 0) {
+      startAutoScroll()
+    }
+  }, [reviews])
+
+  const startAutoScroll = () => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    let scrollAmount = 0
+    const scrollSpeed = 1 // pixels per frame
+    const scrollInterval = 30 // milliseconds
+
+    const scroll = () => {
+      if (container && !isScrolling) {
+        scrollAmount += scrollSpeed
+        container.scrollLeft = scrollAmount
+
+        // Reset scroll when reaching the end
+        if (scrollAmount >= container.scrollWidth - container.clientWidth) {
+          scrollAmount = 0
+        }
+      }
+    }
+
+    const intervalId = setInterval(scroll, scrollInterval)
+
+    // Pause scrolling on hover
+    const handleMouseEnter = () => setIsScrolling(true)
+    const handleMouseLeave = () => setIsScrolling(false)
+
+    container.addEventListener('mouseenter', handleMouseEnter)
+    container.addEventListener('mouseleave', handleMouseLeave)
+
+    return () => {
+      clearInterval(intervalId)
+      container.removeEventListener('mouseenter', handleMouseEnter)
+      container.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }
+
   const loadReviews = async () => {
     try {
       setLoading(true)
       const data = await reviewsApi.getApproved()
-      setReviews(limit ? data.slice(0, limit) : data)
+      setReviews(data.slice(0, 10)) // Show only first 10 reviews
     } catch (err) {
       console.error('Error loading reviews:', err)
       setError('Failed to load reviews')
@@ -45,7 +84,7 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-4 h-4 ${
+            className={`w-3 h-3 ${
               star <= rating
                 ? 'text-yellow-400 fill-current'
                 : 'text-gray-300'
@@ -58,18 +97,18 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
 
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), 'MMM dd, yyyy')
+      return format(new Date(dateString), 'MMM dd')
     } catch {
       return dateString
     }
   }
 
-  const getItemImage = (review: Review) => {
-    if (review.menu_items?.image_url) return review.menu_items.image_url
+  const getItemImage = (item: any) => {
+    if (item?.image_url) return item.image_url
     
-    // Fallback to category-based image mapping (same logic as MenuItemSelector)
-    const categoryName = review.menu_items?.menu_categories?.name?.toLowerCase() || ''
-    const itemName = review.menu_items?.name?.toLowerCase().replace(/[^a-z0-9]+/g, "").trim() || ''
+    // Fallback to category-based image mapping
+    const categoryName = item?.menu_categories?.name?.toLowerCase() || ''
+    const itemName = item?.name?.toLowerCase().replace(/[^a-z0-9]+/g, "").trim() || ''
     
     const itemImageMap: { [key: string]: { [key: string]: string } } = {
       "main course": {
@@ -153,18 +192,8 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
     return itemImageMap[categoryName]?.[itemName] || "/placeholder.svg"
   }
 
-  const toggleReviewExpansion = (reviewId: string) => {
-    const newExpanded = new Set(expandedReviews)
-    if (newExpanded.has(reviewId)) {
-      newExpanded.delete(reviewId)
-    } else {
-      newExpanded.add(reviewId)
-    }
-    setExpandedReviews(newExpanded)
-  }
-
   const handleItemClick = (item: any) => {
-    const imageUrl = getItemImage({ menu_items: item })
+    const imageUrl = getItemImage(item)
     const ingredients = item.ingredients ? item.ingredients.split(',').map((i: string) => i.trim()) : []
     
     // Format price information
@@ -207,100 +236,77 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        {showTitle && (
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
-        )}
-        <div className="grid gap-4">
+      <section className="py-8">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>
+        </div>
+        <div className="flex space-x-4 overflow-x-auto pb-4">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="h-4 bg-gray-200 rounded w-32"></div>
-                  <div className="h-4 bg-gray-200 rounded w-20"></div>
-                </div>
+            <Card key={i} className="min-w-[280px] animate-pulse">
+              <CardContent className="p-4">
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
               </CardContent>
             </Card>
           ))}
         </div>
-      </div>
+      </section>
     )
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-red-600">{error}</p>
-      </div>
-    )
-  }
-
-  if (reviews.length === 0) {
-    return (
-      <div className="text-center py-8">
-        {showTitle && (
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
-        )}
-        <p className="text-gray-600">No reviews yet. Be the first to share your experience!</p>
-      </div>
-    )
+  if (error || reviews.length === 0) {
+    return null // Don't show anything if no reviews
   }
 
   return (
-    <div className="space-y-6">
-      {showTitle && (
-        <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>
-      )}
+    <section className="py-8">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">What Our Customers Say</h2>
+        <p className="text-gray-600 mt-2">Real reviews from satisfied customers</p>
+      </div>
       
-      <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 max-w-6xl mx-auto">
-        {reviews.map((review) => {
-          const isExpanded = expandedReviews.has(review.id)
-          const shouldTruncate = review.review_text.length > 150 && !isExpanded
-          const hasMoreItems = review.review_menu_items && review.review_menu_items.length > 2
-          const shouldShowViewDetails = shouldTruncate || hasMoreItems
-          
-          return (
-            <Card key={review.id} className="hover:shadow-md transition-shadow h-64 flex flex-col">
-              <CardContent className="p-4 flex flex-col h-full">
+      <div ref={scrollContainerRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+        {reviews.map((review) => (
+          <Card key={review.id} className="min-w-[280px] max-w-[320px] hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
               {/* Review Header */}
               <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2">
-                    <User className="w-5 h-5 text-gray-500" />
-                    <h3 className="font-semibold text-gray-900">{review.full_name}</h3>
-                  </div>
-                  {renderStars(review.rating)}
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-gray-500" />
+                  <h3 className="font-semibold text-gray-900 text-sm">{review.full_name}</h3>
                 </div>
-                <div className="flex items-center space-x-1 text-sm text-gray-500">
-                  <Calendar className="w-4 h-4" />
+                <div className="flex items-center space-x-1 text-xs text-gray-500">
+                  <Calendar className="w-3 h-3" />
                   <span>{formatDate(review.created_at)}</span>
                 </div>
               </div>
 
-              {/* Menu Items Information */}
+              {/* Rating */}
+              {renderStars(review.rating)}
+
+              {/* Menu Items */}
               {review.review_menu_items && review.review_menu_items.length > 0 && (
-                <div className="mb-3">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Utensils className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm font-medium text-gray-700">
+                <div className="mt-3 mb-3">
+                  <div className="flex items-center space-x-1 mb-2">
+                    <Utensils className="w-3 h-3 text-orange-500" />
+                    <span className="text-xs font-medium text-gray-700">
                       {review.review_menu_items.length} item{review.review_menu_items.length !== 1 ? 's' : ''}:
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1">
                     {review.review_menu_items.slice(0, 2).map((reviewMenuItem) => {
                       const item = reviewMenuItem.menu_items
                       return (
                         <div 
                           key={reviewMenuItem.id} 
-                          className="flex items-center space-x-2 bg-gray-50 rounded-md px-2 py-1 cursor-pointer hover:bg-gray-100 transition-colors"
+                          className="flex items-center space-x-1 bg-gray-50 rounded px-2 py-1 cursor-pointer hover:bg-gray-100 transition-colors"
                           onClick={() => handleItemClick(item)}
                         >
                           <img
-                            src={getItemImage({ menu_items: item })}
+                            src={getItemImage(item)}
                             alt={item.name}
-                            className="w-6 h-6 object-cover rounded"
+                            className="w-4 h-4 object-cover rounded"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = "/placeholder.svg"
                             }}
@@ -309,7 +315,7 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
                         </div>
                       )
                     })}
-                    {hasMoreItems && (
+                    {review.review_menu_items.length > 2 && (
                       <div className="text-xs text-gray-500 px-2 py-1">
                         +{review.review_menu_items.length - 2} more
                       </div>
@@ -319,35 +325,25 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
               )}
               
               {/* Review Text */}
-              <div className="flex-1 flex flex-col">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap flex-1">
-                  {shouldTruncate ? `${review.review_text.substring(0, 150)}...` : review.review_text}
-                </p>
-                {shouldShowViewDetails && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openReviewPopup(review)}
-                    className="mt-2 self-start p-0 h-auto text-orange-600 hover:text-orange-700"
-                  >
-                    <Eye className="w-4 h-4 mr-1" />
-                    View Details
-                  </Button>
-                )}
-              </div>
+              <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
+                {review.review_text.length > 120 
+                  ? `${review.review_text.substring(0, 120)}...` 
+                  : review.review_text
+                }
+              </p>
             </CardContent>
-            </Card>
-          )
-        })}
+          </Card>
+        ))}
       </div>
       
-      {limit && reviews.length === limit && (
-        <div className="text-center">
-          <p className="text-gray-600">
-            Showing {limit} of {reviews.length} reviews
-          </p>
-        </div>
-      )}
+      <div className="text-center mt-4">
+        <button
+          onClick={() => navigate("/reviews")}
+          className="text-orange-600 hover:text-orange-700 font-medium text-sm"
+        >
+          View All Reviews →
+        </button>
+      </div>
 
       {/* Image Modal */}
       {modalImage && (
@@ -368,8 +364,8 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
         review={reviewPopup}
         onClose={closeReviewPopup}
       />
-    </div>
+    </section>
   )
 }
 
-export default ReviewsDisplay
+export default HorizontalReviews

@@ -9,6 +9,7 @@ import { reviewsApi, Review } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { format } from 'date-fns'
 import ConfirmationDialog from '@/components/ConfirmationDialog'
+import ImageModal from '@/components/ImageModal'
 
 const ReviewManagement = () => {
   const [reviews, setReviews] = useState<Review[]>([])
@@ -21,6 +22,7 @@ const ReviewManagement = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set())
+  const [modalImage, setModalImage] = useState<{ url: string; name: string; ingredients?: string[]; price?: string; note?: string } | null>(null)
   
   const { toast } = useToast()
   const { user } = useAuth()
@@ -262,6 +264,40 @@ const ReviewManagement = () => {
     return itemImageMap[categoryName]?.[itemName] || "/placeholder.svg"
   }
 
+  const handleItemClick = (item: any) => {
+    const imageUrl = getItemImage({ menu_items: item })
+    const ingredients = item.ingredients ? item.ingredients.split(',').map((i: string) => i.trim()) : []
+    
+    // Format price information
+    let price = ''
+    if (item.price_per_piece && item.pieces_per_plate) {
+      price = `$${item.price_per_piece} per piece`
+      if (item.price_per_plate) {
+        price += ` / $${item.price_per_plate} per plate`
+      }
+    } else {
+      const prices = []
+      if (item.price_per_plate) prices.push(`$${item.price_per_plate}`)
+      if (item.price_half_tray) prices.push(`$${item.price_half_tray}`)
+      if (item.price_full_tray) prices.push(`$${item.price_full_tray}`)
+      if (prices.length > 0) {
+        price = prices.join(' / ')
+      }
+    }
+
+    setModalImage({
+      url: imageUrl,
+      name: item.name,
+      ingredients: ingredients.length > 0 ? ingredients : undefined,
+      price: price || undefined,
+      note: item.note || undefined
+    })
+  }
+
+  const closeModal = () => {
+    setModalImage(null)
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -312,7 +348,11 @@ const ReviewManagement = () => {
               {review.review_menu_items.map((reviewMenuItem) => {
                 const item = reviewMenuItem.menu_items
                 return (
-                  <div key={reviewMenuItem.id} className="flex items-center space-x-2 bg-gray-50 rounded-md px-2 py-1">
+                  <div 
+                    key={reviewMenuItem.id} 
+                    className="flex items-center space-x-2 bg-gray-50 rounded-md px-2 py-1 cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleItemClick(item)}
+                  >
                     <img
                       src={getItemImage({ menu_items: item })}
                       alt={item.name}
@@ -549,6 +589,19 @@ const ReviewManagement = () => {
         loading={actionLoading === selectedReview?.id}
         destructive={true}
       />
+
+      {/* Image Modal */}
+      {modalImage && (
+        <ImageModal
+          isOpen={!!modalImage}
+          imageUrl={modalImage.url}
+          imageName={modalImage.name}
+          ingredients={modalImage.ingredients}
+          price={modalImage.price}
+          note={modalImage.note}
+          onClose={closeModal}
+        />
+      )}
     </div>
   )
 }

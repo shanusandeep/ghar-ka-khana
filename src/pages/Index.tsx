@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import ContactSection from "@/components/ContactSection";
 import HeroSection from "@/components/HeroSection";
 import CategoryCard from "@/components/CategoryCard";
+import HorizontalReviews from "@/components/HorizontalReviews";
 import { GlobalSearchButton } from "@/components/GlobalSearchButton";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
@@ -265,6 +266,9 @@ const Index = () => {
                 </div>
               </section>
 
+              {/* Customer Reviews Section */}
+              <HorizontalReviews />
+
               {/* Call to Action */}
               <section aria-labelledby="cta-heading" className="mt-16 text-center bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-8 text-white">
                 <h3 id="cta-heading" className="text-2xl font-bold mb-4">Ready to Order?</h3>
@@ -425,7 +429,7 @@ const Index = () => {
           <div className="flex space-x-1">
             <button
               onClick={scrollToMenu}
-              className={`flex-1 py-2 px-1 rounded-lg text-center transition-colors text-sm ${
+              className={`flex-1 py-2 px-1 rounded-lg text-center transition-colors text-xs ${
                 activeSection === "menu" 
                   ? "bg-orange-500 text-white" 
                   : "text-gray-600 bg-orange-50"
@@ -435,19 +439,19 @@ const Index = () => {
             </button>
             <button
               onClick={() => navigate("/todays-menu")}
-              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-xs text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
             >
               <span className="text-orange-500">⭐</span>
-              <span className="hidden xs:inline">Today's</span>
+              <span className="hidden sm:inline">Today's</span>
             </button>
             <button
               onClick={() => navigate("/reviews")}
-              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-sm text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-xs text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
             >
-              <Star className="w-4 h-4 text-orange-500" />
-              <span className="hidden xs:inline">Reviews</span>
+              <Star className="w-3 h-3 text-orange-500" />
+              <span className="hidden sm:inline">Reviews</span>
             </button>
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center min-w-[60px]">
               <GlobalSearchButton />
             </div>
           </div>
