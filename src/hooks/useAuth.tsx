@@ -20,14 +20,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log('AuthProvider: useEffect triggered')
-    
-    // Test Supabase connection first
-    console.log('AuthProvider: Testing Supabase connection...')
     const testConnection = async () => {
       try {
         const result = await supabase.from('profiles').select('count').limit(1)
-        console.log('AuthProvider: Supabase connection test result:', result)
       } catch (error) {
         console.error('AuthProvider: Supabase connection test failed:', error)
       }
@@ -36,17 +31,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Add a timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
-      console.log('AuthProvider: Timeout reached, forcing loading to false')
+
       setLoading(false)
     }, 10000) // 10 seconds timeout
     
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('AuthProvider: Initial session:', session ? 'exists' : 'null')
       setSession(session)
       setUser(session?.user ?? null)
       if (session?.user) {
-        console.log('AuthProvider: User found, setting temporary admin profile')
         // TEMPORARY: Skip profile fetch and set default admin profile
         setProfile({
           id: session.user.id,
@@ -60,12 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Uncomment below to re-enable profile fetching once we fix the issue
         // fetchProfile(session.user.id)
       } else {
-        console.log('AuthProvider: No user, setting loading to false')
         setLoading(false)
       }
       clearTimeout(timeoutId) // Clear timeout if we get a response
     }).catch((error) => {
-      console.error('AuthProvider: Error getting session:', error)
       setLoading(false)
       clearTimeout(timeoutId)
     })
@@ -73,11 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('AuthProvider: Auth state changed:', event, session ? 'session exists' : 'no session')
+
         setSession(session)
         setUser(session?.user ?? null)
         if (session?.user) {
-          console.log('AuthProvider: Setting temporary admin profile after auth change')
           // TEMPORARY: Skip profile fetch and set default admin profile
           setProfile({
             id: session.user.id,
