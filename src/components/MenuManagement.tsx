@@ -29,6 +29,7 @@ const MenuManagement = ({ editItem, editCategory }: MenuManagementProps) => {
   const [isNewCategoryOpen, setIsNewCategoryOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
   const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null)
+  const [deletingCategory, setDeletingCategory] = useState<MenuCategory | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
@@ -124,6 +125,43 @@ const MenuManagement = ({ editItem, editCategory }: MenuManagementProps) => {
       toast({
         title: "Error",
         description: "Failed to delete menu item",
+        variant: "destructive"
+      })
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  const deleteCategory = async () => {
+    if (!deletingCategory) return
+
+    setDeleteLoading(true)
+    try {
+      // Check if category has any menu items
+      const categoryItems = items.filter(item => item.category_id === deletingCategory.id)
+      if (categoryItems.length > 0) {
+        toast({
+          title: "Cannot Delete Category",
+          description: `This category has ${categoryItems.length} menu item(s). Please delete or move the items first.`,
+          variant: "destructive"
+        })
+        setDeletingCategory(null)
+        setDeleteLoading(false)
+        return
+      }
+
+      await menuCategoriesApi.delete(deletingCategory.id)
+      await loadData()
+      setDeletingCategory(null)
+      toast({
+        title: "Success",
+        description: "Category deleted successfully"
+      })
+    } catch (error) {
+      console.error('Error deleting category:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete category",
         variant: "destructive"
       })
     } finally {
@@ -446,7 +484,12 @@ const MenuManagement = ({ editItem, editCategory }: MenuManagementProps) => {
                       <Button variant="outline" size="sm">
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setDeletingCategory(category)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -485,7 +528,7 @@ const MenuManagement = ({ editItem, editCategory }: MenuManagementProps) => {
         </SheetContent>
       </Sheet>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Menu Item Confirmation Dialog */}
       <ConfirmationDialog
         open={!!deletingItem}
         onOpenChange={() => setDeletingItem(null)}
@@ -499,6 +542,27 @@ const MenuManagement = ({ editItem, editCategory }: MenuManagementProps) => {
         }
         confirmText="Delete Item"
         onConfirm={deleteMenuItem}
+        destructive={true}
+        loading={deleteLoading}
+      />
+
+      {/* Delete Category Confirmation Dialog */}
+      <ConfirmationDialog
+        open={!!deletingCategory}
+        onOpenChange={() => setDeletingCategory(null)}
+        title="Delete Category"
+        description={
+          <div>
+            Are you sure you want to delete the category <strong>{deletingCategory?.name}</strong>?
+            <br />
+            This action cannot be undone and will permanently remove the category.
+            <br />
+            <br />
+            <strong>Note:</strong> This category must be empty (no menu items) to be deleted.
+          </div>
+        }
+        confirmText="Delete Category"
+        onConfirm={deleteCategory}
         destructive={true}
         loading={deleteLoading}
       />

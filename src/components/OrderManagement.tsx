@@ -427,17 +427,6 @@ const OrderManagement = () => {
     orderDate.setHours(0, 0, 0, 0)
     const isUpcoming = orderDate > today
     
-    // Debug: Log all orders to see what's happening
-    console.log('Order check:', {
-      id: order.id,
-      delivery_date: order.delivery_date,
-      parsed_date: orderDate.toISOString(),
-      today: today.toISOString(),
-      isUpcoming: isUpcoming,
-      status: order.status,
-      isValidDate: !isNaN(orderDate.getTime())
-    })
-    
     return isUpcoming && !isNaN(orderDate.getTime())
   }).length
 
