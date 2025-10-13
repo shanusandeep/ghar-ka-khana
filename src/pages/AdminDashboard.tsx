@@ -41,19 +41,19 @@ const AdminDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 pb-16 md:pb-0">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-orange-100">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">G</span>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm sm:text-lg">G</span>
                 </div>
                 <div>
-                  <h1 className="font-bold text-xl text-gray-900">Ghar Ka Khana</h1>
-                  <p className="text-sm text-orange-600">Admin Dashboard</p>
+                  <h1 className="font-bold text-lg sm:text-xl text-gray-900">Ghar Ka Khana</h1>
+                  <p className="text-xs sm:text-sm text-orange-600">Admin Dashboard</p>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between sm:justify-end space-x-4">
+              <div className="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-4">
                 <div className="text-left sm:text-right">
                   <p className="text-sm font-medium text-gray-900">{profile?.full_name || 'Admin'}</p>
                   <p className="text-xs text-gray-500">{user?.email}</p>
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-6 lg:py-8">
+        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Desktop Tab Navigation - Hidden on mobile */}
             <TabsList className="hidden md:grid w-full grid-cols-7 h-auto p-1">

@@ -441,15 +441,16 @@ const OrderManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Mobile: Stack vertically, Desktop: Side by side */}
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
         {/* Daily Total Display */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 order-1 lg:order-1">
           {(dateFilter || showUpcomingOnly) && (
-            <div className={`bg-gradient-to-r ${showUpcomingOnly ? 'from-green-50 to-emerald-50 border-green-200' : 'from-green-50 to-blue-50 border-green-200'} border rounded-lg px-4 py-2`}>
-              <div className="flex items-center gap-4">
-                <div>
-                  <div className="text-sm font-medium text-gray-700">
+            <div className={`bg-gradient-to-r ${showUpcomingOnly ? 'from-green-50 to-emerald-50 border-green-200' : 'from-green-50 to-blue-50 border-green-200'} border rounded-lg px-3 sm:px-4 py-2 flex-1 min-w-0`}>
+              <div className="flex items-center gap-2 sm:gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium text-gray-700 truncate">
                     {showUpcomingOnly ? 'Upcoming Orders' : format(dateFilter!, 'MMM dd, yyyy')}
                   </div>
                   <div className="text-xs text-gray-500">
@@ -457,8 +458,8 @@ const OrderManagement = () => {
                     {statusFilter !== 'all' && ` (${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)})`}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className={`text-xl font-bold ${showUpcomingOnly ? 'text-green-600' : 'text-green-600'}`}>
+                <div className="text-right flex-shrink-0">
+                  <div className={`text-lg sm:text-xl font-bold ${showUpcomingOnly ? 'text-green-600' : 'text-green-600'}`}>
                     ${dailyTotal.toFixed(2)}
                   </div>
                   <div className="text-xs text-gray-500">
@@ -469,93 +470,102 @@ const OrderManagement = () => {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {/* Upcoming Orders Toggle */}
-          <Button 
-            variant={showUpcomingOnly ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setShowUpcomingOnly(!showUpcomingOnly)
-              if (!showUpcomingOnly) {
-                setDateFilter(null) // Clear date filter when showing upcoming
-              } else {
-                setDateFilter(new Date()) // Return to today's view when turning off upcoming
-              }
-            }}
-            className={showUpcomingOnly ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "border-gray-300 hover:bg-gray-50"}
-          >
-            <Clock className="w-4 h-4 mr-2" />
-            Upcoming
-            {!showUpcomingOnly && upcomingOrdersCount > 0 && (
-              <Badge variant="secondary" className="ml-2 text-xs">
-                {upcomingOrdersCount}
-              </Badge>
-            )}
-          </Button>
-          
-          <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
-            <PopoverTrigger asChild>
-              <Button size="icon" variant="outline">
-                <FilterIcon className="w-5 h-5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium mb-1">Status</label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter} disabled={showUpcomingOnly}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="received">Received</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {showUpcomingOnly && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Status filter disabled when showing upcoming orders
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">Date</label>
-                  <Calendar
-                    mode="single"
-                    selected={dateFilter}
-                    onSelect={setDateFilter}
-                    className="rounded-md border"
-                    disabled={showUpcomingOnly}
-                  />
-                  {dateFilter && !showUpcomingOnly && (
-                    <Button size="sm" variant="ghost" className="mt-2" onClick={() => setDateFilter(null)}>
-                      Clear Date
-                    </Button>
-                  )}
-                  {showUpcomingOnly && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      Date filter disabled when showing upcoming orders
-                    </p>
-                  )}
-                </div>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={() => { 
-                    setStatusFilter('all'); 
-                    setDateFilter(new Date()); // Return to today's view
-                    setShowUpcomingOnly(false);
-                  }}
-                >
-                  Clear All Filters
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+          {/* Mobile: Stack buttons vertically, Desktop: Keep horizontal */}
+          <div className="flex items-center gap-2 order-2 sm:order-1">
+            {/* Upcoming Orders Toggle */}
+            <Button 
+              variant={showUpcomingOnly ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setShowUpcomingOnly(!showUpcomingOnly)
+                if (!showUpcomingOnly) {
+                  setDateFilter(null) // Clear date filter when showing upcoming
+                } else {
+                  setDateFilter(new Date()) // Return to today's view when turning off upcoming
+                }
+              }}
+              className={`${showUpcomingOnly ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "border-gray-300 hover:bg-gray-50"} whitespace-nowrap`}
+            >
+              <Clock className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Upcoming</span>
+              {!showUpcomingOnly && upcomingOrdersCount > 0 && (
+                <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs">
+                  {upcomingOrdersCount}
+                </Badge>
+              )}
+            </Button>
+            
+            <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button size="icon" variant="outline">
+                  <FilterIcon className="w-5 h-5" />
                 </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-          <Button onClick={() => setIsNewOrderOpen(true)} data-new-order>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Status</label>
+                    <Select value={statusFilter} onValueChange={setStatusFilter} disabled={showUpcomingOnly}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="received">Received</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="paid">Paid</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {showUpcomingOnly && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Status filter disabled when showing upcoming orders
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Date</label>
+                    <Calendar
+                      mode="single"
+                      selected={dateFilter}
+                      onSelect={setDateFilter}
+                      className="rounded-md border"
+                      disabled={showUpcomingOnly}
+                    />
+                    {dateFilter && !showUpcomingOnly && (
+                      <Button size="sm" variant="ghost" className="mt-2" onClick={() => setDateFilter(null)}>
+                        Clear Date
+                      </Button>
+                    )}
+                    {showUpcomingOnly && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        Date filter disabled when showing upcoming orders
+                      </p>
+                    )}
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => { 
+                      setStatusFilter('all'); 
+                      setDateFilter(new Date()); // Return to today's view
+                      setShowUpcomingOnly(false);
+                    }}
+                  >
+                    Clear All Filters
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          {/* New Order Button - Full width on mobile, auto width on desktop */}
+          <Button 
+            onClick={() => setIsNewOrderOpen(true)} 
+            data-new-order
+            className="w-full sm:w-auto order-1 sm:order-2 whitespace-nowrap"
+          >
             <Plus className="w-4 h-4 mr-2" /> New Order
           </Button>
         </div>

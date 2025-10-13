@@ -6,6 +6,7 @@ import HeroSection from "@/components/HeroSection";
 import CategoryCard from "@/components/CategoryCard";
 import HorizontalReviews from "@/components/HorizontalReviews";
 import { GlobalSearchButton } from "@/components/GlobalSearchButton";
+import HamburgerMenu from "@/components/HamburgerMenu";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -182,6 +183,12 @@ const Index = () => {
                     <Phone className="w-4 h-4" />
                     <span className="hidden sm:inline">WhatsApp</span>
                   </Button>
+                  
+                  {/* Hamburger Menu */}
+                  <HamburgerMenu 
+                    activeSection={activeSection} 
+                    onMenuClick={scrollToMenu}
+                  />
                 </div>
               </div>
             </div>
@@ -424,41 +431,6 @@ const Index = () => {
           </div>
         </footer>
 
-        {/* Mobile Navigation */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 p-2" role="navigation" aria-label="Mobile navigation">
-          <div className="flex space-x-1">
-            <button
-              onClick={scrollToMenu}
-              className={`flex-1 py-2 px-1 rounded-lg text-center transition-colors text-xs ${
-                activeSection === "menu" 
-                  ? "bg-orange-500 text-white" 
-                  : "text-gray-600 bg-orange-50"
-              }`}
-            >
-              Menu
-            </button>
-            <button
-              onClick={() => navigate("/todays-menu")}
-              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-xs text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
-            >
-              <span className="text-orange-500">⭐</span>
-              <span className="hidden sm:inline">Today's</span>
-            </button>
-            <button
-              onClick={() => navigate("/reviews")}
-              className="flex-1 py-2 px-1 rounded-lg text-center transition-colors text-xs text-gray-600 bg-orange-50 flex items-center justify-center gap-1"
-            >
-              <Star className="w-3 h-3 text-orange-500" />
-              <span className="hidden sm:inline">Reviews</span>
-            </button>
-            <div className="flex items-center justify-center min-w-[60px]">
-              <GlobalSearchButton />
-            </div>
-          </div>
-        </nav>
-
-        {/* Footer spacing for mobile nav */}
-        <div className="md:hidden h-16" aria-hidden="true"></div>
       </div>
     </>
   );
