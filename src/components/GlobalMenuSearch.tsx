@@ -257,6 +257,11 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
         [normalizeName("Chicken Kathi Roll")]: "/food_pics/starter/chicken-kaati-roll.png",
         // Pakodas
         [normalizeName("Moong Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
+        // Aloo Chat variants
+        [normalizeName("Aloo Chat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Aloo Chaat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Alu Chat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Alu Chaat")]: "/food_pics/starter/aloo-chat.png",
         [normalizeName("Mung Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
         [normalizeName("Moong Daal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
         [normalizeName("Palak Onion Pakoda")]: "/food_pics/starter/palak-onion-pakoda.png",

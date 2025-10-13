@@ -80,7 +80,8 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
         "veg kaati roll": "/food_pics/starter/veg-kaati-roll.png",
         "egg kaati roll": "/food_pics/starter/egg-kaati-roll.png",
         "chicken kaati roll": "/food_pics/starter/chicken-kaati-roll.png",
-        "moong dal pakoda": "/food_pics/starter/moong-dal-pakoda.png"
+        "moong dal pakoda": "/food_pics/starter/moong-dal-pakoda.png",
+        "aloo chat": "/food_pics/starter/aloo-chat.png"
       },
       "breads": {
         "roti": "/food_pics/breads/roti.png",
