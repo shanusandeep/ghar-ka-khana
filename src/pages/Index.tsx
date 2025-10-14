@@ -7,6 +7,8 @@ import CategoryCard from "@/components/CategoryCard";
 import HorizontalReviews from "@/components/HorizontalReviews";
 import { GlobalSearchButton } from "@/components/GlobalSearchButton";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import PageHeader from "@/components/PageHeader";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -119,80 +121,13 @@ const Index = () => {
 
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
         {/* Navigation */}
-        <header>
-          <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm border-b border-orange-100" role="navigation" aria-label="Main navigation">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">G</span>
-                  </div>
-                  <div>
-                    <h1 className="font-bold text-xl text-gray-900">Ghar Ka Khana</h1>
-                    <p className="text-sm text-orange-600">Delicious Home Catering</p>
-                  </div>
-                </div>
-                
-                <div className="hidden md:flex space-x-6 items-center">
-                  <button
-                    onClick={scrollToMenu}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      activeSection === "menu" 
-                        ? "bg-orange-500 text-white" 
-                        : "text-gray-600 hover:text-orange-500"
-                    }`}
-                  >
-                    Menu
-                  </button>
-                  <button
-                    onClick={() => navigate("/todays-menu")}
-                    className="px-4 py-2 rounded-lg transition-colors text-gray-600 hover:text-orange-500 flex items-center gap-1"
-                  >
-                    Today's Menu
-                  </button>
-                  <button
-                    onClick={() => navigate("/reviews")}
-                    className="px-4 py-2 rounded-lg transition-colors text-gray-600 hover:text-orange-500 flex items-center gap-1"
-                  >
-                    <Star className="w-4 h-4" />
-                    Reviews
-                  </button>
-                  
-                  {/* Global Menu Search */}
-                  <GlobalSearchButton />
-                  
-                  {/* Admin link - only show if user is logged in */}
-                  {user && (
-                    <Button
-                      onClick={() => navigate("/admin")}
-                      variant="outline"
-                      size="sm"
-                      className="ml-4 border-orange-200 text-orange-600 hover:bg-orange-50"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Admin
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Button
-                    onClick={() => window.open("https://wa.me/12017131850", "_blank")}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span className="hidden sm:inline">WhatsApp</span>
-                  </Button>
-                  
-                  {/* Hamburger Menu */}
-                  <HamburgerMenu 
-                    activeSection={activeSection} 
-                    onMenuClick={scrollToMenu}
-                  />
-                </div>
-              </div>
-            </div>
-          </nav>
+        <header className="sticky top-0 z-50">
+          <PageHeader 
+            title="Ghar Ka Khana"
+            subtitle="Delicious Home Catering"
+            activeSection={activeSection}
+            onMenuClick={scrollToMenu}
+          />
         </header>
 
         {/* Hero Section */}
@@ -200,6 +135,9 @@ const Index = () => {
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-8" role="main">
+          {/* Customer Reviews Section - Moved to top */}
+          <HorizontalReviews />
+
           {activeSection === "menu" && (
             <section aria-labelledby="menu-heading">
               <div className="text-center mb-12">
@@ -273,8 +211,6 @@ const Index = () => {
                 </div>
               </section>
 
-              {/* Customer Reviews Section */}
-              <HorizontalReviews />
 
               {/* Call to Action */}
               <section aria-labelledby="cta-heading" className="mt-16 text-center bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-8 text-white">
@@ -430,6 +366,9 @@ const Index = () => {
             </div>
           </div>
         </footer>
+
+        {/* Floating WhatsApp Button */}
+        <FloatingWhatsApp />
 
       </div>
     </>

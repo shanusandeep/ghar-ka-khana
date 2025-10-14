@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { GlobalSearchButton } from '@/components/GlobalSearchButton'
+import PageHeader from '@/components/PageHeader'
+import FloatingWhatsApp from '@/components/FloatingWhatsApp'
 
 const AboutUs = () => {
   const navigate = useNavigate()
@@ -13,45 +15,13 @@ const AboutUs = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-orange-100">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button
-              onClick={() => navigate("/")}
-              variant="outline"
-              className="mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-            
-            <div className="text-center flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">
-                About Us
-              </h1>
-              <p className="text-orange-600 text-sm">
-                Our Story & Mission
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <GlobalSearchButton />
-              
-              {user && (
-                <Button
-                  onClick={() => navigate("/admin")}
-                  variant="outline"
-                  size="sm"
-                  className="border-orange-200 text-orange-600 hover:bg-orange-50"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Admin
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader 
+        title="About Us"
+        subtitle="Our Story & Mission"
+        showBackButton={true}
+        backTo="/"
+        activeSection="about"
+      />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -312,6 +282,9 @@ const AboutUs = () => {
           </p>
         </div>
       </footer>
+
+      {/* Floating WhatsApp Button */}
+      <FloatingWhatsApp />
     </div>
   )
 }

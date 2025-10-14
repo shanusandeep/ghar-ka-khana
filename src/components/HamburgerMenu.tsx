@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, Star, Search, ChefHat, Calendar, MessageSquare, Settings } from "lucide-react";
+import { Menu, X, Star, ChefHat, Calendar, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GlobalSearchButton } from "./GlobalSearchButton";
 
 interface HamburgerMenuProps {
   activeSection: string;
@@ -55,7 +54,7 @@ const HamburgerMenu = ({ activeSection, onMenuClick }: HamburgerMenuProps) => {
         variant="ghost"
         size="icon"
         onClick={toggleMenu}
-        className="md:hidden p-2 hover:bg-orange-50"
+        className="p-2 hover:bg-orange-50"
         aria-label="Open navigation menu"
       >
         {isOpen ? (
@@ -68,7 +67,7 @@ const HamburgerMenu = ({ activeSection, onMenuClick }: HamburgerMenuProps) => {
       {/* Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-80 z-40 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-80 z-40"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
@@ -77,7 +76,7 @@ const HamburgerMenu = ({ activeSection, onMenuClick }: HamburgerMenuProps) => {
 
       {/* Mobile Menu */}
       <div 
-        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden border-l border-gray-200 ${
+        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-gray-200 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{ 
@@ -122,8 +121,12 @@ const HamburgerMenu = ({ activeSection, onMenuClick }: HamburgerMenuProps) => {
             </Button>
 
             <Button
-              variant="ghost"
-              className="w-full justify-start h-12 text-left text-gray-700 hover:bg-orange-50 font-medium"
+              variant={activeSection === "todays-menu" ? "default" : "ghost"}
+              className={`w-full justify-start h-12 text-left font-medium ${
+                activeSection === "todays-menu" 
+                  ? "bg-orange-500 hover:bg-orange-600 text-white" 
+                  : "text-gray-700 hover:bg-orange-50"
+              }`}
               onClick={() => handleNavigation("/todays-menu")}
             >
               <Calendar className="w-5 h-5 mr-3" />
@@ -131,8 +134,12 @@ const HamburgerMenu = ({ activeSection, onMenuClick }: HamburgerMenuProps) => {
             </Button>
 
             <Button
-              variant="ghost"
-              className="w-full justify-start h-12 text-left text-gray-700 hover:bg-orange-50 font-medium"
+              variant={activeSection === "reviews" ? "default" : "ghost"}
+              className={`w-full justify-start h-12 text-left font-medium ${
+                activeSection === "reviews" 
+                  ? "bg-orange-500 hover:bg-orange-600 text-white" 
+                  : "text-gray-700 hover:bg-orange-50"
+              }`}
               onClick={() => handleNavigation("/reviews")}
             >
               <Star className="w-5 h-5 mr-3" />
@@ -140,8 +147,12 @@ const HamburgerMenu = ({ activeSection, onMenuClick }: HamburgerMenuProps) => {
             </Button>
 
             <Button
-              variant="ghost"
-              className="w-full justify-start h-12 text-left text-gray-700 hover:bg-orange-50 font-medium"
+              variant={activeSection === "about" ? "default" : "ghost"}
+              className={`w-full justify-start h-12 text-left font-medium ${
+                activeSection === "about" 
+                  ? "bg-orange-500 hover:bg-orange-600 text-white" 
+                  : "text-gray-700 hover:bg-orange-50"
+              }`}
               onClick={() => handleNavigation("/about-us")}
             >
               <MessageSquare className="w-5 h-5 mr-3" />
@@ -157,13 +168,6 @@ const HamburgerMenu = ({ activeSection, onMenuClick }: HamburgerMenuProps) => {
               Admin Dashboard
             </Button>
 
-            {/* Search Section */}
-            <div className="pt-4 border-t border-gray-200 bg-white">
-              <div className="text-sm font-medium text-gray-500 mb-3">Search</div>
-              <div className="flex justify-center">
-                <GlobalSearchButton />
-              </div>
-            </div>
           </div>
 
           {/* Footer */}

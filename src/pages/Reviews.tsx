@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MessageSquare, Star, ArrowLeft, Home } from 'lucide-react'
+import PageHeader from '@/components/PageHeader'
+import FloatingWhatsApp from '@/components/FloatingWhatsApp'
 
 const Reviews = () => {
   const [activeTab, setActiveTab] = useState('view')
@@ -14,41 +16,13 @@ const Reviews = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Header with Navigation */}
-      <header className="bg-white shadow-sm border-b border-orange-100">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button
-                onClick={() => navigate("/")}
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to Home</span>
-              </Button>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">G</span>
-                </div>
-                <div>
-                  <h1 className="font-bold text-xl text-gray-900">Ghar Ka Khana</h1>
-                  <p className="text-sm text-orange-600">Customer Reviews</p>
-                </div>
-              </div>
-            </div>
-            <Button
-              onClick={() => navigate("/")}
-              variant="outline"
-              size="sm"
-              className="flex items-center space-x-2"
-            >
-              <Home className="w-4 h-4" />
-              <span className="hidden sm:inline">Home</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <PageHeader 
+        title="Ghar Ka Khana"
+        subtitle="Customer Reviews"
+        showBackButton={true}
+        backTo="/"
+        activeSection="reviews"
+      />
 
       <div className="py-4 md:py-8">
         <div className="container mx-auto px-4">
@@ -113,6 +87,9 @@ const Reviews = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating WhatsApp Button */}
+      <FloatingWhatsApp />
     </div>
   )
 }

@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { GlobalSearchButton } from '@/components/GlobalSearchButton'
+import PageHeader from '@/components/PageHeader'
+import FloatingWhatsApp from '@/components/FloatingWhatsApp'
 import { todaysMenuApi } from '@/services/api'
 import { format } from 'date-fns'
 
@@ -323,45 +325,13 @@ const TodaysMenu = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-orange-100">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <Button
-              onClick={() => navigate("/")}
-              variant="ghost"
-              size="sm"
-              className="text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Back</span>
-            </Button>
-            
-            <div className="text-center flex-1">
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
-                Today's Menu
-              </h1>
-              <p className="text-orange-600 text-xs sm:text-sm">
-                {format(new Date(), 'EEEE, MMM dd, yyyy')}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <GlobalSearchButton />
-              
-              {user && (
-                <Button
-                  onClick={() => navigate("/admin")}
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  <Settings className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader 
+        title="Today's Menu"
+        subtitle={format(new Date(), 'EEEE, MMM dd, yyyy')}
+        showBackButton={true}
+        backTo="/"
+        activeSection="todays-menu"
+      />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-4 sm:py-8">
@@ -511,6 +481,9 @@ const TodaysMenu = () => {
           </p>
         </div>
       </footer>
+
+      {/* Floating WhatsApp Button */}
+      <FloatingWhatsApp />
     </div>
   )
 }
