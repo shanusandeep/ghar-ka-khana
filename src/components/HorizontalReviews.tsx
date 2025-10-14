@@ -266,9 +266,13 @@ const HorizontalReviews = () => {
         <p className="text-gray-600 mt-2">Real reviews from satisfied customers</p>
       </div>
       
-      <div ref={scrollContainerRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+      <div ref={scrollContainerRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide justify-center md:justify-start">
         {reviews.map((review) => (
-          <Card key={review.id} className="min-w-[280px] max-w-[320px] hover:shadow-md transition-shadow">
+          <Card 
+            key={review.id} 
+            className="min-w-[280px] max-w-[320px] hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => openReviewPopup(review)}
+          >
             <CardContent className="p-4">
               {/* Review Header */}
               <div className="flex items-start justify-between mb-3">
@@ -301,7 +305,10 @@ const HorizontalReviews = () => {
                         <div 
                           key={reviewMenuItem.id} 
                           className="flex items-center space-x-1 bg-gray-50 rounded px-2 py-1 cursor-pointer hover:bg-gray-100 transition-colors"
-                          onClick={() => handleItemClick(item)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleItemClick(item)
+                          }}
                         >
                           <img
                             src={getItemImage(item)}
