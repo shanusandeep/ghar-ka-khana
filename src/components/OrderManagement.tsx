@@ -442,14 +442,14 @@ const OrderManagement = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Mobile: Stack vertically, Desktop: Side by side */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
-        {/* Daily Total Display */}
-        <div className="flex items-center gap-4 order-1 lg:order-1">
+      {/* Single row layout with proper alignment */}
+      <div className="flex items-center justify-between gap-4 mb-6 mx-auto">
+        {/* Daily Total Display - Left side */}
+        <div className="flex items-center">
           {(dateFilter || showUpcomingOnly) && (
-            <div className={`bg-gradient-to-r ${showUpcomingOnly ? 'from-green-50 to-emerald-50 border-green-200' : 'from-green-50 to-blue-50 border-green-200'} border rounded-lg px-3 sm:px-4 py-2 flex-1 min-w-0`}>
+            <div className={`bg-gradient-to-r ${showUpcomingOnly ? 'from-green-50 to-emerald-50 border-green-200' : 'from-green-50 to-blue-50 border-green-200'} border rounded-lg px-3 sm:px-4 py-2`}>
               <div className="flex items-center gap-2 sm:gap-4">
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0">
                   <div className="text-sm font-medium text-gray-700 truncate">
                     {showUpcomingOnly ? 'Upcoming Orders' : format(dateFilter!, 'MMM dd, yyyy')}
                   </div>
@@ -470,9 +470,9 @@ const OrderManagement = () => {
             </div>
           )}
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
-          {/* Mobile: Stack buttons vertically, Desktop: Keep horizontal */}
-          <div className="flex items-center gap-2 order-2 sm:order-1">
+        
+        {/* Filter buttons - Right side */}
+        <div className="flex items-center gap-2">
             {/* Upcoming Orders Toggle */}
             <Button 
               variant={showUpcomingOnly ? "default" : "outline"}
@@ -558,20 +558,30 @@ const OrderManagement = () => {
                 </div>
               </PopoverContent>
             </Popover>
-          </div>
-          
-          {/* New Order Button - Full width on mobile, auto width on desktop */}
-          <Button 
-            onClick={() => setIsNewOrderOpen(true)} 
-            data-new-order
-            className="w-full sm:w-auto order-1 sm:order-2 whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4 mr-2" /> New Order
-          </Button>
+            
+            {/* Desktop New Order Button */}
+            <Button 
+              onClick={() => setIsNewOrderOpen(true)} 
+              data-new-order
+              className="hidden lg:flex whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4 mr-2" /> New Order
+            </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
+      {/* Floating New Order Button - Mobile only */}
+      <Button 
+        onClick={() => setIsNewOrderOpen(true)} 
+        data-new-order
+        className="fixed bottom-20 right-4 lg:hidden bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-full shadow-lg z-50 transform hover:scale-110 transition-all duration-200"
+        size="icon"
+        aria-label="New Order"
+      >
+        <Plus className="w-6 h-6" />
+      </Button>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
         {filteredOrders.length === 0 ? (
           <div className="col-span-full">
             <Card>

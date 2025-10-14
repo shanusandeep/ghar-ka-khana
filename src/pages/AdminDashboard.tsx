@@ -15,6 +15,7 @@ import TodaysMenuManagement from '@/components/TodaysMenuManagement'
 import ReviewManagement from '@/components/ReviewManagement'
 import { GlobalSearchButton } from '@/components/GlobalSearchButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import PageHeader from '@/components/PageHeader'
 
 
 const AdminDashboard = () => {
@@ -44,7 +45,22 @@ const AdminDashboard = () => {
           <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
+                <img 
+                  src="/images/gharkakhana.png" 
+                  alt="Ghar Ka Khana Logo" 
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                  onError={(e) => {
+                    // Fallback to the original G icon if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+                <div 
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full items-center justify-center hidden"
+                  style={{ display: 'none' }}
+                >
                   <span className="text-white font-bold text-sm sm:text-lg">G</span>
                 </div>
                 <div>
@@ -87,7 +103,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
+        <main className="container mx-auto px-4 sm:px-6 pb-4 sm:py-6 lg:py-8 max-w-7xl">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Desktop Tab Navigation - Hidden on mobile */}
             <TabsList className="hidden md:grid w-full grid-cols-7 h-auto p-1">
