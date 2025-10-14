@@ -111,7 +111,8 @@ const MultiMenuItemSelector = ({
         "vegpuff": "/food_pics/starter/veg-puff.png",
         "vegsliders": "/food_pics/starter/veg-sliders.png",
         "vadapav": "/food_pics/starter/vada-pav.png",
-        "aloochat": "/food_pics/starter/aloo-chat.png"
+        "aloochat": "/food_pics/starter/aloo-chat.png",
+        "babycornchilli": "/food_pics/starter/babycorn-chilli.png"
       },
       "breads": {
         "roti": "/food_pics/breads/roti.png",

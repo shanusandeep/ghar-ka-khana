@@ -169,6 +169,11 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Chicken Kathi Roll")]: "/food_pics/starter/chicken-kaati-roll.png",
         // Pakodas
         [normalizeName("Moong Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
+        // Babycorn Chilli variants
+        [normalizeName("Babycorn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
+        [normalizeName("Baby Corn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
+        [normalizeName("Babycorn Chili")]: "/food_pics/starter/babycorn-chilli.png",
+        [normalizeName("Baby Corn Chili")]: "/food_pics/starter/babycorn-chilli.png",
         [normalizeName("Mung Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
         [normalizeName("Moong Daal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
         [normalizeName("Palak Onion Pakoda")]: "/food_pics/starter/palak-onion-pakoda.png",

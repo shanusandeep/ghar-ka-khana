@@ -104,7 +104,12 @@ const TodaysMenu = () => {
         // Veg Puff variants
         [normalizeName("Veg Puff")]: "/food_pics/starter/veg-puff.png",
         [normalizeName("Vegetable Puff")]: "/food_pics/starter/veg-puff.png",
-        [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png"
+        [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png",
+        // Babycorn Chilli variants
+        [normalizeName("Babycorn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
+        [normalizeName("Baby Corn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
+        [normalizeName("Babycorn Chili")]: "/food_pics/starter/babycorn-chilli.png",
+        [normalizeName("Baby Corn Chili")]: "/food_pics/starter/babycorn-chilli.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
