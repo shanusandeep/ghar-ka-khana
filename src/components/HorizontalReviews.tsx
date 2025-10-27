@@ -23,13 +23,23 @@ const HorizontalReviews = () => {
 
   useEffect(() => {
     if (reviews.length > 0) {
-      startAutoScroll()
+      return startAutoScroll()
     }
   }, [reviews])
 
   const startAutoScroll = () => {
     const container = scrollContainerRef.current
     if (!container) return
+
+    // Detect if device is mobile/touch
+    const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    
+    // Don't start auto-scroll on mobile devices
+    if (isMobile) {
+      return () => {
+        // Cleanup function for mobile (no-op)
+      }
+    }
 
     let scrollAmount = 0
     const scrollSpeed = 1 // pixels per frame
@@ -49,7 +59,7 @@ const HorizontalReviews = () => {
 
     const intervalId = setInterval(scroll, scrollInterval)
 
-    // Pause scrolling on hover
+    // Pause scrolling on hover (desktop)
     const handleMouseEnter = () => setIsScrolling(true)
     const handleMouseLeave = () => setIsScrolling(false)
 
@@ -267,11 +277,11 @@ const HorizontalReviews = () => {
         <p className="text-gray-600 mt-2">Real reviews from satisfied customers</p>
       </div>
       
-      <div ref={scrollContainerRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide justify-center md:justify-start">
+      <div ref={scrollContainerRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide justify-center md:justify-start snap-x snap-mandatory scroll-smooth">
         {reviews.map((review) => (
           <Card 
             key={review.id} 
-            className="min-w-[280px] max-w-[320px] hover:shadow-md transition-shadow cursor-pointer"
+            className="min-w-[280px] max-w-[320px] hover:shadow-md transition-shadow cursor-pointer snap-start flex-shrink-0"
             onClick={() => openReviewPopup(review)}
           >
             <CardContent className="p-4">

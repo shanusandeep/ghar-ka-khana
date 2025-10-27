@@ -109,7 +109,9 @@ const TodaysMenu = () => {
         [normalizeName("Babycorn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
         [normalizeName("Baby Corn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
         [normalizeName("Babycorn Chili")]: "/food_pics/starter/babycorn-chilli.png",
-        [normalizeName("Baby Corn Chili")]: "/food_pics/starter/babycorn-chilli.png"
+        [normalizeName("Baby Corn Chili")]: "/food_pics/starter/babycorn-chilli.png",
+        // Fish Fry variants
+        [normalizeName("Fish Fry")]: "/food_pics/starter/fish-fry.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -256,7 +258,14 @@ const TodaysMenu = () => {
         [normalizeName("Rajma")]: "/food_pics/main_course/Rajma.png",
         [normalizeName("Rajmah")]: "/food_pics/main_course/Rajma.png",
         [normalizeName("Kidney Beans")]: "/food_pics/main_course/Rajma.png",
-        [normalizeName("Red Kidney Beans")]: "/food_pics/main_course/Rajma.png"
+        [normalizeName("Red Kidney Beans")]: "/food_pics/main_course/Rajma.png",
+        // Butter Chicken variants
+        [normalizeName("Butter Chicken")]: "/food_pics/main_course/butter-chicken.png",
+        [normalizeName("Butter Chiken")]: "/food_pics/main_course/butter-chicken.png",
+        // Mutton Roganjosh variants
+        [normalizeName("Mutton Roganjosh")]: "/food_pics/main_course/mutton-roganjosh.png",
+        [normalizeName("Mutton Rogan Josh")]: "/food_pics/main_course/mutton-roganjosh.png",
+        [normalizeName("Mutton Rogan Gosh")]: "/food_pics/main_course/mutton-roganjosh.png"
       }
     };
 

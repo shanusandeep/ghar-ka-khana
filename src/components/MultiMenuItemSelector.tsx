@@ -91,7 +91,9 @@ const MultiMenuItemSelector = ({
         "bharvakarela": "/food_pics/main_course/bharva-karela.png",
         "baigankalonji": "/food_pics/main_course/baigan-kalonji.png",
         "chickenchilli": "/food_pics/main_course/chicken-chilli.png",
-        "vegnoodles": "/food_pics/main_course/veg-noodles.png"
+        "vegnoodles": "/food_pics/main_course/veg-noodles.png",
+        "butterchicken": "/food_pics/main_course/butter-chicken.png",
+        "muttonroganjosh": "/food_pics/main_course/mutton-roganjosh.png"
       },
       "starter items": {
         "chholebhature": "/food_pics/starter/chhole-bhature.png",
@@ -112,7 +114,8 @@ const MultiMenuItemSelector = ({
         "vegsliders": "/food_pics/starter/veg-sliders.png",
         "vadapav": "/food_pics/starter/vada-pav.png",
         "aloochat": "/food_pics/starter/aloo-chat.png",
-        "babycornchilli": "/food_pics/starter/babycorn-chilli.png"
+        "babycornchilli": "/food_pics/starter/babycorn-chilli.png",
+        "fishfry": "/food_pics/starter/fish-fry.png"
       },
       "breads": {
         "roti": "/food_pics/breads/roti.png",

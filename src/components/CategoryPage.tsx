@@ -212,7 +212,9 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         // Veg Puff variants
         [normalizeName("Veg Puff")]: "/food_pics/starter/veg-puff.png",
         [normalizeName("Vegetable Puff")]: "/food_pics/starter/veg-puff.png",
-        [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png"
+        [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png",
+        // Fish Fry variants
+        [normalizeName("Fish Fry")]: "/food_pics/starter/fish-fry.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -362,7 +364,14 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Black Chana")]: "/food_pics/main_course/kaala-chana.png",
         [normalizeName("Aloo Matar")]: "/food_pics/main_course/aloo-matar.png",
         [normalizeName("Aloo Mattar")]: "/food_pics/main_course/aloo-matar.png",
-        [normalizeName("Potato Peas")]: "/food_pics/main_course/aloo-matar.png"
+        [normalizeName("Potato Peas")]: "/food_pics/main_course/aloo-matar.png",
+        // Butter Chicken variants
+        [normalizeName("Butter Chicken")]: "/food_pics/main_course/butter-chicken.png",
+        [normalizeName("Butter Chiken")]: "/food_pics/main_course/butter-chicken.png",
+        // Mutton Roganjosh variants
+        [normalizeName("Mutton Roganjosh")]: "/food_pics/main_course/mutton-roganjosh.png",
+        [normalizeName("Mutton Rogan Josh")]: "/food_pics/main_course/mutton-roganjosh.png",
+        [normalizeName("Mutton Rogan Gosh")]: "/food_pics/main_course/mutton-roganjosh.png"
       }
     };
 

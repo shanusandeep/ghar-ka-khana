@@ -71,7 +71,9 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
         "achari chicken": "/food_pics/main_course/achari-chicken.png",
         "aloo gobhi masala": "/food_pics/main_course/aloo-gobhi-masala.png",
         "bharva karela": "/food_pics/main_course/bharva-karela.png",
-        "baigan kalonji": "/food_pics/main_course/baigan-kalonji.png"
+        "baigan kalonji": "/food_pics/main_course/baigan-kalonji.png",
+        "butter chicken": "/food_pics/main_course/butter-chicken.png",
+        "mutton roganjosh": "/food_pics/main_course/mutton-roganjosh.png"
       },
       "starter items": {
         "chhole bhature": "/food_pics/starter/chhole-bhature.png",
@@ -82,7 +84,8 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
         "chicken kaati roll": "/food_pics/starter/chicken-kaati-roll.png",
         "moong dal pakoda": "/food_pics/starter/moong-dal-pakoda.png",
         "aloo chat": "/food_pics/starter/aloo-chat.png",
-        "babycorn chilli": "/food_pics/starter/babycorn-chilli.png"
+        "babycorn chilli": "/food_pics/starter/babycorn-chilli.png",
+        "fish fry": "/food_pics/starter/fish-fry.png"
       },
       "breads": {
         "roti": "/food_pics/breads/roti.png",
