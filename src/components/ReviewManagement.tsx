@@ -262,7 +262,7 @@ const ReviewManagement = () => {
       }
     }
     
-    return itemImageMap[categoryName]?.[itemName] || "/placeholder.svg"
+    return itemImageMap[categoryName]?.[itemName] || "/images/image-coming-soon.png"
   }
 
   const handleItemClick = (item: any) => {
@@ -359,7 +359,7 @@ const ReviewManagement = () => {
                       alt={item.name}
                       className="w-6 h-6 object-cover rounded"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.svg"
+                        (e.target as HTMLImageElement).src = "/images/image-coming-soon.png"
                       }}
                     />
                     <span className="text-xs font-medium text-gray-900">{item.name}</span>

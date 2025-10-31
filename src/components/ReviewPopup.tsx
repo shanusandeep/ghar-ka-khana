@@ -124,7 +124,7 @@ const ReviewPopup = ({ isOpen, review, onClose }: ReviewPopupProps) => {
       }
     }
     
-    return itemImageMap[categoryName]?.[itemName] || "/placeholder.svg"
+    return itemImageMap[categoryName]?.[itemName] || "/images/image-coming-soon.png"
   }
 
   useEffect(() => {
@@ -201,7 +201,7 @@ const ReviewPopup = ({ isOpen, review, onClose }: ReviewPopupProps) => {
                         alt={item.name}
                         className="w-16 h-16 object-cover rounded-lg"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.svg"
+                          (e.target as HTMLImageElement).src = "/images/image-coming-soon.png"
                         }}
                       />
                       <span className="text-sm font-medium text-gray-900 text-center">{item.name}</span>

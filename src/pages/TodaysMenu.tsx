@@ -111,7 +111,24 @@ const TodaysMenu = () => {
         [normalizeName("Babycorn Chili")]: "/food_pics/starter/babycorn-chilli.png",
         [normalizeName("Baby Corn Chili")]: "/food_pics/starter/babycorn-chilli.png",
         // Fish Fry variants
-        [normalizeName("Fish Fry")]: "/food_pics/starter/fish-fry.png"
+        [normalizeName("Fish Fry")]: "/food_pics/starter/fish-fry.png",
+        // Momo variants
+        [normalizeName("Veg Momos")]: "/food_pics/starter/veg-momos.png",
+        [normalizeName("Veg Momo")]: "/food_pics/starter/veg-momos.png",
+        [normalizeName("Vegetable Momos")]: "/food_pics/starter/veg-momos.png",
+        [normalizeName("Fried Veg Momos")]: "/food_pics/starter/fried-veg-momos.png",
+        [normalizeName("Fried Veg Momo")]: "/food_pics/starter/fried-veg-momos.png",
+        [normalizeName("Chicken Momos")]: "/food_pics/starter/chicken-momos.png",
+        [normalizeName("Chicken Momo")]: "/food_pics/starter/chicken-momos.png",
+        [normalizeName("Fried Chicken Momos")]: "/food_pics/starter/fried-chicken-momos.png",
+        [normalizeName("Fried Chicken Momo")]: "/food_pics/starter/fried-chicken-momos.png",
+        // Aloo Chat variants
+        [normalizeName("Aloo Chat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Aloo Chaat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Alu Chat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Alu Chaat")]: "/food_pics/starter/aloo-chat.png",
+        // Vada Pav variants
+        [normalizeName("Vada Pav")]: "/food_pics/starter/vada-pav.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -276,14 +293,7 @@ const TodaysMenu = () => {
   };
 
   const getDefaultImage = (categoryName: string) => {
-    const defaultImages: { [key: string]: string } = {
-      "Starter Items": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Main Course": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Breads": "https://images.unsplash.com/photo-1574653853027-5a3d8c4e8a8e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Rice": "https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Dessert": "https://images.unsplash.com/photo-1551024506-0bccd828d307?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-    };
-    return defaultImages[categoryName] || defaultImages["Main Course"];
+    return "/images/image-coming-soon.png";
   }
 
   const getItemImageSrc = (item: any) => {

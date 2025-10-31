@@ -121,7 +121,7 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
       }
     }
     
-    return itemImageMap[categoryName]?.[itemName] || "/placeholder.svg"
+    return itemImageMap[categoryName]?.[itemName] || "/images/image-coming-soon.png"
   }
 
   return (
@@ -139,9 +139,9 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
                 src={getItemImage(selectedItem)}
                 alt={selectedItem.name}
                 className="w-6 h-6 object-cover rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder.svg"
-                }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images/image-coming-soon.png"
+                  }}
               />
               <span className="truncate">{selectedItem.name}</span>
               <span className="text-xs text-gray-500">
@@ -219,9 +219,9 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
                         src={getItemImage(item)}
                         alt={item.name}
                         className="w-6 h-6 object-cover rounded"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.svg"
-                        }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images/image-coming-soon.png"
+                  }}
                       />
                       <span>{item.name}</span>
                     </div>

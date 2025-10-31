@@ -130,14 +130,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
   };
 
   const getDefaultImage = (category: string) => {
-    const defaultImages: { [key: string]: string } = {
-      "Starter Items": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Main Course": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Breads": "https://images.unsplash.com/photo-1574653853027-5a3d8c4e8a8e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Rice": "https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "Dessert": "https://images.unsplash.com/photo-1551024506-0bccd828d307?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-    };
-    return defaultImages[category] || defaultImages["Main Course"];
+    return "/images/image-coming-soon.png";
   };
 
   // Try to resolve a specific image for a known item name when no image_url is present
@@ -169,6 +162,11 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Chicken Kathi Roll")]: "/food_pics/starter/chicken-kaati-roll.png",
         // Pakodas
         [normalizeName("Moong Dal Pakoda")]: "/food_pics/starter/moong-dal-pakoda.png",
+        // Aloo Chat variants
+        [normalizeName("Aloo Chat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Aloo Chaat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Alu Chat")]: "/food_pics/starter/aloo-chat.png",
+        [normalizeName("Alu Chaat")]: "/food_pics/starter/aloo-chat.png",
         // Babycorn Chilli variants
         [normalizeName("Babycorn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
         [normalizeName("Baby Corn Chilli")]: "/food_pics/starter/babycorn-chilli.png",
@@ -214,7 +212,17 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Vegetable Puff")]: "/food_pics/starter/veg-puff.png",
         [normalizeName("Veg Puffs")]: "/food_pics/starter/veg-puff.png",
         // Fish Fry variants
-        [normalizeName("Fish Fry")]: "/food_pics/starter/fish-fry.png"
+        [normalizeName("Fish Fry")]: "/food_pics/starter/fish-fry.png",
+        // Momo variants
+        [normalizeName("Veg Momos")]: "/food_pics/starter/veg-momos.png",
+        [normalizeName("Veg Momo")]: "/food_pics/starter/veg-momos.png",
+        [normalizeName("Vegetable Momos")]: "/food_pics/starter/veg-momos.png",
+        [normalizeName("Fried Veg Momos")]: "/food_pics/starter/fried-veg-momos.png",
+        [normalizeName("Fried Veg Momo")]: "/food_pics/starter/fried-veg-momos.png",
+        [normalizeName("Chicken Momos")]: "/food_pics/starter/chicken-momos.png",
+        [normalizeName("Chicken Momo")]: "/food_pics/starter/chicken-momos.png",
+        [normalizeName("Fried Chicken Momos")]: "/food_pics/starter/fried-chicken-momos.png",
+        [normalizeName("Fried Chicken Momo")]: "/food_pics/starter/fried-chicken-momos.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -390,6 +398,24 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         (normalizedItem.includes("moong") || normalizedItem.includes("mung")) &&
         (normalizedItem.includes("pakod") || normalizedItem.includes("pakor") || normalizedItem.includes("pak"));
       if (isMoongDalPakoda) return "/food_pics/starter/moong-dal-pakoda.png";
+      
+      // Momo variants - check for momo in the name
+      if (normalizedItem.includes("momo")) {
+        if (normalizedItem.includes("fried")) {
+          // Fried variants
+          if (normalizedItem.includes("chicken")) {
+            return "/food_pics/starter/fried-chicken-momos.png";
+          }
+          // Fried veg momos
+          return "/food_pics/starter/fried-veg-momos.png";
+        }
+        if (normalizedItem.includes("chicken")) {
+          // Regular chicken momos
+          return "/food_pics/starter/chicken-momos.png";
+        }
+        // Default to veg momos
+        return "/food_pics/starter/veg-momos.png";
+      }
     }
     
     return undefined;

@@ -151,7 +151,7 @@ const MultiMenuItemSelector = ({
       }
     }
     
-    return itemImageMap[categoryName]?.[itemName] || "/placeholder.svg"
+    return itemImageMap[categoryName]?.[itemName] || "/images/image-coming-soon.png"
   }
 
   return (
@@ -216,7 +216,7 @@ const MultiMenuItemSelector = ({
                           alt={item.name}
                           className="w-6 h-6 object-cover rounded"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder.svg"
+                            (e.target as HTMLImageElement).src = "/images/image-coming-soon.png"
                           }}
                         />
                         <span>{item.name}</span>
@@ -240,7 +240,7 @@ const MultiMenuItemSelector = ({
                 alt={item.name}
                 className="w-4 h-4 object-cover rounded"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder.svg"
+                  (e.target as HTMLImageElement).src = "/images/image-coming-soon.png"
                 }}
               />
               <span className="text-xs">{item.name}</span>

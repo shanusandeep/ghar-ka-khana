@@ -151,7 +151,7 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
       }
     }
     
-    return itemImageMap[categoryName]?.[itemName] || "/placeholder.svg"
+    return itemImageMap[categoryName]?.[itemName] || "/images/image-coming-soon.png"
   }
 
   const toggleReviewExpansion = (reviewId: string) => {
@@ -302,9 +302,9 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
                             src={getItemImage({ menu_items: item })}
                             alt={item.name}
                             className="w-6 h-6 object-cover rounded"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/placeholder.svg"
-                            }}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/images/image-coming-soon.png"
+                              }}
                           />
                           <span className="text-xs font-medium text-gray-900">{item.name}</span>
                         </div>
