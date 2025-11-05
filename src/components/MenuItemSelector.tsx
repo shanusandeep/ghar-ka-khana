@@ -115,6 +115,7 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
         "gajar ka halwa": "/food_pics/desert/gajar-ka-halwa.png",
         "kalakand": "/food_pics/desert/kalakand.png",
         "gulab jamun": "/food_pics/desert/gulab-jamun.png",
+        "gulab jamun shots": "/food_pics/desert/gulab-jamun-shots.png",
         "moong dal halwa": "/food_pics/desert/moong-dal-halwa.png",
         "fruit custard": "/food_pics/desert/fruit-custard.png",
         "baklava": "/food_pics/desert/baklava.png",

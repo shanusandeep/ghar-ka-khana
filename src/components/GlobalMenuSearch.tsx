@@ -351,6 +351,11 @@ export function GlobalMenuSearch({ isOpen, onClose }: GlobalMenuSearchProps) {
         [normalizeName("Gulab Jamoon")]: "/food_pics/desert/gulab-jamun.png",
         [normalizeName("Gulabjamun")]: "/food_pics/desert/gulab-jamun.png",
         [normalizeName("Gulab Jaman")]: "/food_pics/desert/gulab-jamun.png",
+        // Gulab Jamun Shots variants
+        [normalizeName("Gulab Jamun Shots")]: "/food_pics/desert/gulab-jamun-shots.png",
+        [normalizeName("Gulab Jamoon Shots")]: "/food_pics/desert/gulab-jamun-shots.png",
+        [normalizeName("Gulabjamun Shots")]: "/food_pics/desert/gulab-jamun-shots.png",
+        [normalizeName("Gulab Jamun Shot")]: "/food_pics/desert/gulab-jamun-shots.png",
         // Baklava variants
         [normalizeName("Baklava")]: "/food_pics/desert/baklava.png",
         [normalizeName("Baklawa")]: "/food_pics/desert/baklava.png",

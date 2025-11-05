@@ -256,6 +256,7 @@ const ReviewManagement = () => {
         "gajarkahalwa": "/food_pics/desert/gajar-ka-halwa.png",
         "kalakand": "/food_pics/desert/kalakand.png",
         "gulabjamun": "/food_pics/desert/gulab-jamun.png",
+        "gulabjamunshots": "/food_pics/desert/gulab-jamun-shots.png",
         "moongdalhalwa": "/food_pics/desert/moong-dal-halwa.png",
         "fruitcustard": "/food_pics/desert/fruit-custard.png",
         "baklava": "/food_pics/desert/baklava.png",
