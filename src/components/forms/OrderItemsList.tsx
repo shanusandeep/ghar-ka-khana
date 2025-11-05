@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Plus, Minus } from 'lucide-react'
 
 interface OrderItem {
@@ -27,6 +28,23 @@ const OrderItemsList = ({ orderItems, setOrderItems }: OrderItemsListProps) => {
     updated[index].quantity = quantity
     updated[index].total_price = updated[index].unit_price * quantity
     setOrderItems(updated)
+  }
+
+  const handleQuantityInputChange = (index: number, value: string) => {
+    // Allow empty string for clearing
+    if (value === '') {
+      const updated = [...orderItems]
+      updated[index].quantity = 1
+      updated[index].total_price = updated[index].unit_price
+      setOrderItems(updated)
+      return
+    }
+
+    // Parse the number and validate
+    const quantity = parseInt(value, 10)
+    if (!isNaN(quantity) && quantity >= 1) {
+      updateQuantity(index, quantity)
+    }
   }
 
   const removeItem = (index: number) => {
@@ -65,7 +83,13 @@ const OrderItemsList = ({ orderItems, setOrderItems }: OrderItemsListProps) => {
               >
                 <Minus className="w-4 h-4" />
               </Button>
-              <span className="w-8 text-center">{item.quantity}</span>
+              <Input
+                type="number"
+                min="1"
+                value={item.quantity}
+                onChange={(e) => handleQuantityInputChange(index, e.target.value)}
+                className="w-20 text-center"
+              />
               <Button
                 type="button"
                 size="sm"

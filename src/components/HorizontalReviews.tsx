@@ -193,6 +193,7 @@ const HorizontalReviews = () => {
         "rasmalai": "/food_pics/desert/rasmalai.png",
         "gajarkahalwa": "/food_pics/desert/gajar-ka-halwa.png",
         "kalakand": "/food_pics/desert/kalakand.png",
+        "gulabjamun": "/food_pics/desert/gulab-jamun.png",
         "moongdalhalwa": "/food_pics/desert/moong-dal-halwa.png",
         "fruitcustard": "/food_pics/desert/fruit-custard.png",
         "baklava": "/food_pics/desert/baklava.png",

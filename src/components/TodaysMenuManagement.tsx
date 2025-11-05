@@ -123,7 +123,6 @@ CREATE TRIGGER trigger_update_todays_menu_updated_at
     try {
       await todaysMenuApi.add(menuItemId, currentDate)
       await loadData()
-      setIsAddDialogOpen(false)
       toast({
         title: "Success",
         description: "Item added to today's menu"
