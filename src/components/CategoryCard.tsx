@@ -27,7 +27,7 @@ const CategoryCard = ({ category, icon, description, route, gradient }: Category
         </div>
         
         <div className="p-4 flex items-center justify-between bg-white">
-          <span className="text-gray-700 font-medium">View Menu</span>
+          <span className="text-gray-700 font-medium">Full Menu</span>
           <ChevronRight className="w-5 h-5 text-orange-500" />
         </div>
       </CardContent>

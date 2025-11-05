@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Star, Clock, MapPin, Users, Utensils } from "lucide-react";
+import { Star, Clock, MapPin, Users, Utensils, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  
   const scrollToMenu = () => {
     const menuSection = document.getElementById('menu-heading');
     if (menuSection) {
@@ -32,23 +35,33 @@ const HeroSection = () => {
             fresh ingredients, and time-honored recipes.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col gap-4 justify-center mb-12">
             <Button
               onClick={() => window.open("https://chat.whatsapp.com/DT2GAo2yfrJFRpCv6EMBbW", "_blank")}
               size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+              className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2 w-full sm:w-auto"
             >
               <Users className="w-7 h-7" />
               Join Whatsapp Group
             </Button>
-            <Button
-              onClick={scrollToMenu}
-              size="lg"
-              className="bg-white text-orange-600 hover:bg-orange-50 px-8 py-4 text-lg rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
-            >
-              <Utensils className="w-7 h-7" />
-              View Menu
-            </Button>
+            <div className="flex flex-row gap-4">
+              <Button
+                onClick={() => navigate('/todays-menu')}
+                size="lg"
+                className="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-gray-900 font-semibold px-6 py-4 text-lg rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2 flex-1"
+              >
+                <Sparkles className="w-6 h-6" />
+                Today's Menu
+              </Button>
+              <Button
+                onClick={scrollToMenu}
+                size="lg"
+                className="bg-white text-orange-600 hover:bg-orange-50 px-6 py-4 text-lg rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2 flex-1"
+              >
+                <Utensils className="w-6 h-6" />
+                Full Menu
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
