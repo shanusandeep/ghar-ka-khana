@@ -222,7 +222,9 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Chicken Momos")]: "/food_pics/starter/chicken-momos.png",
         [normalizeName("Chicken Momo")]: "/food_pics/starter/chicken-momos.png",
         [normalizeName("Fried Chicken Momos")]: "/food_pics/starter/fried-chicken-momos.png",
-        [normalizeName("Fried Chicken Momo")]: "/food_pics/starter/fried-chicken-momos.png"
+        [normalizeName("Fried Chicken Momo")]: "/food_pics/starter/fried-chicken-momos.png",
+        [normalizeName("Sev Khamni")]: "/food_pics/starter/Sev Khamni.png",
+        [normalizeName("Sev Khamani")]: "/food_pics/starter/Sev Khamni.png"
       },
       "breads": {
         [normalizeName("Aloo Paratha")]: "/food_pics/breads/aloo-paratha.png",
@@ -241,6 +243,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         [normalizeName("Bhatura")]: "/food_pics/breads/bhatura.png",
         [normalizeName("Bhature")]: "/food_pics/breads/bhatura.png",
         [normalizeName("Baati")]: "/food_pics/breads/Baati.png",
+        [normalizeName("Litti")]: "/food_pics/breads/Litti.png",
         // Sattu Paratha variants
         [normalizeName("Sattu Paratha")]: "/food_pics/breads/sattu-paratha.png",
         [normalizeName("Sattu Ka Paratha")]: "/food_pics/breads/sattu-paratha.png",
@@ -389,7 +392,9 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
         // Mutton Roganjosh variants
         [normalizeName("Mutton Roganjosh")]: "/food_pics/main_course/mutton-roganjosh.png",
         [normalizeName("Mutton Rogan Josh")]: "/food_pics/main_course/mutton-roganjosh.png",
-        [normalizeName("Mutton Rogan Gosh")]: "/food_pics/main_course/mutton-roganjosh.png"
+        [normalizeName("Mutton Rogan Gosh")]: "/food_pics/main_course/mutton-roganjosh.png",
+        [normalizeName("Litti Chokha")]: "/food_pics/main_course/Litti Chokha.png",
+        [normalizeName("Navratan Korma")]: "/food_pics/main_course/Navratan Korma.png"
       }
     };
 

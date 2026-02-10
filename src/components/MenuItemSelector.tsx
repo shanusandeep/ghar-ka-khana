@@ -73,7 +73,9 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
         "bharva karela": "/food_pics/main_course/bharva-karela.png",
         "baigan kalonji": "/food_pics/main_course/baigan-kalonji.png",
         "butter chicken": "/food_pics/main_course/butter-chicken.png",
-        "mutton roganjosh": "/food_pics/main_course/mutton-roganjosh.png"
+        "mutton roganjosh": "/food_pics/main_course/mutton-roganjosh.png",
+        "litti chokha": "/food_pics/main_course/Litti Chokha.png",
+        "navratan korma": "/food_pics/main_course/Navratan Korma.png"
       },
       "starter items": {
         "chhole bhature": "/food_pics/starter/chhole-bhature.png",
@@ -85,7 +87,8 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
         "moong dal pakoda": "/food_pics/starter/moong-dal-pakoda.png",
         "aloo chat": "/food_pics/starter/aloo-chat.png",
         "babycorn chilli": "/food_pics/starter/babycorn-chilli.png",
-        "fish fry": "/food_pics/starter/fish-fry.png"
+        "fish fry": "/food_pics/starter/fish-fry.png",
+        "sev khamni": "/food_pics/starter/Sev Khamni.png"
       },
       "breads": {
         "roti": "/food_pics/breads/roti.png",
@@ -98,7 +101,8 @@ const MenuItemSelector = ({ value, onValueChange, placeholder = "Select a menu i
         "thepla": "/food_pics/breads/thepla.png",
         "poori": "/food_pics/breads/poori.png",
         "bhatura": "/food_pics/breads/bhatura.png",
-        "baati": "/food_pics/breads/Baati.png"
+        "baati": "/food_pics/breads/Baati.png",
+        "litti": "/food_pics/breads/Litti.png"
       },
       "rice": {
         "chicken biryani": "/food_pics/rice/chicken-biryani.png",

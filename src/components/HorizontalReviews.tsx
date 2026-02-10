@@ -144,7 +144,9 @@ const HorizontalReviews = () => {
         "bharvakarela": "/food_pics/main_course/bharva-karela.png",
         "baigankalonji": "/food_pics/main_course/baigan-kalonji.png",
         "chickenchilli": "/food_pics/main_course/chicken-chilli.png",
-        "vegnoodles": "/food_pics/main_course/veg-noodles.png"
+        "vegnoodles": "/food_pics/main_course/veg-noodles.png",
+        "littichokha": "/food_pics/main_course/Litti Chokha.png",
+        "navratankorma": "/food_pics/main_course/Navratan Korma.png"
       },
       "starter items": {
         "chholebhature": "/food_pics/starter/chhole-bhature.png",
@@ -164,7 +166,8 @@ const HorizontalReviews = () => {
         "vegpuff": "/food_pics/starter/veg-puff.png",
         "vegsliders": "/food_pics/starter/veg-sliders.png",
         "vadapav": "/food_pics/starter/vada-pav.png",
-        "babycornchilli": "/food_pics/starter/babycorn-chilli.png"
+        "babycornchilli": "/food_pics/starter/babycorn-chilli.png",
+        "sevkhamni": "/food_pics/starter/Sev Khamni.png"
       },
       "breads": {
         "roti": "/food_pics/breads/roti.png",
@@ -177,7 +180,8 @@ const HorizontalReviews = () => {
         "thepla": "/food_pics/breads/thepla.png",
         "poori": "/food_pics/breads/poori.png",
         "bhatura": "/food_pics/breads/bhatura.png",
-        "baati": "/food_pics/breads/Baati.png"
+        "baati": "/food_pics/breads/Baati.png",
+        "litti": "/food_pics/breads/Litti.png"
       },
       "rice": {
         "chickenbiryani": "/food_pics/rice/chicken-biryani.png",
