@@ -36,10 +36,8 @@ const PreparationDashboard = () => {
   const loadPreparationSummary = async () => {
     setLoading(true)
     try {
-      console.log('Loading preparation summary for date:', selectedDate)
       const data = await ordersApi.getPreparationSummary(selectedDate)
-      console.log('Preparation summary data:', data)
-      
+
       // Add default status to items with proper typing
       const itemsWithStatus: PreparationItem[] = (data as ApiPreparationItem[]).map((item: ApiPreparationItem) => ({
         item_name: item.item_name,

@@ -64,7 +64,7 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
     }
   }
 
-  const getItemImage = (review: Review) => {
+  const getItemImage = (review: Pick<Review, 'menu_items'>) => {
     if (review.menu_items?.image_url) return review.menu_items.image_url
     
     // Fallback to category-based image mapping (same logic as MenuItemSelector)
@@ -182,7 +182,7 @@ const ReviewsDisplay = ({ limit, showTitle = true }: ReviewsDisplayProps) => {
         price += ` / $${item.price_per_plate} per plate`
       }
     } else {
-      const prices = []
+      const prices: string[] = []
       if (item.price_per_plate) prices.push(`$${item.price_per_plate}`)
       if (item.price_half_tray) prices.push(`$${item.price_half_tray}`)
       if (item.price_full_tray) prices.push(`$${item.price_full_tray}`)

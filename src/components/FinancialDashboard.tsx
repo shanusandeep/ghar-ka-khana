@@ -272,7 +272,7 @@ const FinancialDashboard = () => {
     setDailyStats(stats)
   }
 
-  const handleFilterChange = (key: keyof FilterState, value: string) => {
+  const handleFilterChange = (key: keyof FilterState, value: string | undefined) => {
     const newFilterState = { ...filterState, [key]: value }
     setFilterState(newFilterState)
   }

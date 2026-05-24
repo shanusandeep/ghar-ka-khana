@@ -77,8 +77,7 @@ const RecipeFinder = () => {
           const parsedRecipe = JSON.parse(cleanedText);
           setRecipe(parsedRecipe);
         } catch (parseError) {
-          console.error('Parse error:', parseError);
-          console.log('Raw response:', recipeText);
+          console.error('Parse error:', parseError, 'raw response:', recipeText);
           setError("Failed to parse recipe data. Please try again.");
         }
       }

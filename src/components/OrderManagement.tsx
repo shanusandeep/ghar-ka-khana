@@ -388,21 +388,7 @@ const OrderManagement = () => {
       upcomingMatch = orderDate > today && !isNaN(orderDate.getTime())
       
       // When showing upcoming orders, ignore status filter to show all future orders
-      // This ensures we see all upcoming orders regardless of their current status
       statusMatch = true
-      
-      // Debug: Log filtering decisions
-      console.log('Filter check:', {
-        id: order.id,
-        delivery_date: order.delivery_date,
-        parsed_date: orderDate.toISOString(),
-        today: today.toISOString(),
-        upcomingMatch: upcomingMatch,
-        statusMatch: statusMatch,
-        dateMatch: dateMatch,
-        isValidDate: !isNaN(orderDate.getTime()),
-        finalResult: statusMatch && dateMatch && upcomingMatch
-      })
     }
     
     // Handle specific date filter (only when not showing upcoming only)
@@ -527,8 +513,8 @@ const OrderManagement = () => {
                     <label className="block text-xs font-medium mb-1">Date</label>
                     <Calendar
                       mode="single"
-                      selected={dateFilter}
-                      onSelect={setDateFilter}
+                      selected={dateFilter ?? undefined}
+                      onSelect={(d) => setDateFilter(d ?? null)}
                       className="rounded-md border"
                       disabled={showUpcomingOnly}
                     />

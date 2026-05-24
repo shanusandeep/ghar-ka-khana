@@ -333,8 +333,8 @@ const TodaysMenu = () => {
     const menuItem = item.menu_items;
     if (!menuItem) return "Price not available";
 
-    const prices = [];
-    
+    const prices: string[] = [];
+
     if (menuItem.price_per_piece && menuItem.pieces_per_plate) {
       prices.push(`$${menuItem.price_per_piece} per piece`);
       if (menuItem.price_per_plate) {

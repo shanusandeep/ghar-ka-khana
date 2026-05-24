@@ -104,28 +104,20 @@ const ReviewManagement = () => {
   }
 
   const handleDelete = async () => {
-    if (!selectedReview) {
-      console.error('No selected review for deletion')
-      return
-    }
-    
-    console.log('Starting delete process for review:', selectedReview.id)
-    
+    if (!selectedReview) return
+
     try {
       setActionLoading(selectedReview.id)
-      console.log('Calling reviewsApi.delete with ID:', selectedReview.id)
       await reviewsApi.delete(selectedReview.id)
-      console.log('Delete API call successful')
-      
+
       toast({
         title: "Review deleted",
         description: "The review has been permanently deleted.",
       })
-      
+
       setShowDeleteDialog(false)
       setSelectedReview(null)
       await loadReviews()
-      console.log('Review list reloaded')
     } catch (error) {
       console.error('Error deleting review:', error)
       toast({
@@ -175,7 +167,7 @@ const ReviewManagement = () => {
     }
   }
 
-  const getItemImage = (review: Review) => {
+  const getItemImage = (review: Pick<Review, 'menu_items'>) => {
     if (review.menu_items?.image_url) return review.menu_items.image_url
     
     // Fallback to category-based image mapping (same logic as other components)
@@ -283,7 +275,7 @@ const ReviewManagement = () => {
         price += ` / $${item.price_per_plate} per plate`
       }
     } else {
-      const prices = []
+      const prices: string[] = []
       if (item.price_per_plate) prices.push(`$${item.price_per_plate}`)
       if (item.price_half_tray) prices.push(`$${item.price_half_tray}`)
       if (item.price_full_tray) prices.push(`$${item.price_full_tray}`)
@@ -426,7 +418,6 @@ const ReviewManagement = () => {
               size="sm"
               variant="outline"
               onClick={() => {
-                console.log('Delete button clicked for review:', review.id)
                 setSelectedReview(review)
                 setShowDeleteDialog(true)
               }}
@@ -443,7 +434,6 @@ const ReviewManagement = () => {
               size="sm"
               variant="outline"
               onClick={() => {
-                console.log('Delete button clicked for review (approved/rejected):', review.id)
                 setSelectedReview(review)
                 setShowDeleteDialog(true)
               }}

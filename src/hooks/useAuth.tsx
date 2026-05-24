@@ -40,44 +40,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
       if (session?.user) {
-        // TEMPORARY: Skip profile fetch and set default admin profile
-        setProfile({
-          id: session.user.id,
-          email: session.user.email!,
-          role: 'admin',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        setLoading(false)
+        fetchProfile(session.user.id)
         clearTimeout(timeoutId)
-        // Uncomment below to re-enable profile fetching once we fix the issue
-        // fetchProfile(session.user.id)
       } else {
         setLoading(false)
       }
-      clearTimeout(timeoutId) // Clear timeout if we get a response
-    }).catch((error) => {
+      clearTimeout(timeoutId)
+    }).catch(() => {
       setLoading(false)
       clearTimeout(timeoutId)
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-
+      async (_event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
         if (session?.user) {
-          // TEMPORARY: Skip profile fetch and set default admin profile
-          setProfile({
-            id: session.user.id,
-            email: session.user.email!,
-            role: 'admin',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          // Uncomment below to re-enable profile fetching once we fix the issue
-          // await fetchProfile(session.user.id)
+          await fetchProfile(session.user.id)
         } else {
           setProfile(null)
           setLoading(false)
@@ -92,27 +71,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const fetchProfile = async (userId: string) => {
-    console.log('fetchProfile: Starting for user:', userId)
-    
     try {
-      // Add timeout using Promise.race
       const fetchPromise = supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single()
-      
+
       const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
       )
-      
+
       const { data, error } = await Promise.race([fetchPromise, timeoutPromise])
 
-      console.log('fetchProfile: Query result:', { data, error })
-
       if (error && error.code === 'PGRST116') {
-        console.log('fetchProfile: Profile not found, creating new one')
-        // Profile doesn't exist, create one
+        // No profile row yet — create one with default admin role
         const { data: userData } = await supabase.auth.getUser()
         if (userData.user) {
           const newProfile = {
@@ -120,15 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: userData.user.email!,
             role: 'admin' as const
           }
-          
-          console.log('fetchProfile: Inserting new profile:', newProfile)
           const { data: createdProfile, error: createError } = await supabase
             .from('profiles')
             .insert(newProfile)
             .select()
             .single()
-
-          console.log('fetchProfile: Insert result:', { createdProfile, createError })
 
           if (!createError) {
             setProfile(createdProfile)
@@ -137,7 +106,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } else if (!error) {
-        console.log('fetchProfile: Setting profile:', data)
         setProfile(data)
       } else {
         console.error('Error fetching profile:', error)
@@ -145,8 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Error fetching profile (possibly timeout):', error)
     } finally {
-      console.log('fetchProfile: Setting loading to false')
-      // Always set loading to false, regardless of success or failure
       setLoading(false)
     }
   }

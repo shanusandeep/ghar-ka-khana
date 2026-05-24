@@ -86,9 +86,9 @@ const PageHeader = ({
               </Button>
             )}
             
-            <HamburgerMenu 
-              activeSection={activeSection} 
-              onMenuClick={onMenuClick}
+            <HamburgerMenu
+              activeSection={activeSection}
+              onMenuClick={onMenuClick || (() => {})}
             />
           </div>
         </div>

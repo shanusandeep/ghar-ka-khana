@@ -48,7 +48,6 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
   // Update form fields when item ID changes (more stable than entire item object)
   useEffect(() => {
     if (item && !isUserTyping.current) {
-      console.log('Item ID changed, updating form fields:', item.id)
       setName(item.name || '')
       setDescription(item.description || '')
       setCategoryId(item.category_id || '')
@@ -87,9 +86,7 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    console.log('🔄 Form submitted with description:', description)
-    
+
     if (!name.trim() || !categoryId) {
       toast({
         title: "Error",
@@ -129,41 +126,27 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
         display_order: displayOrder ? parseInt(displayOrder) : 0
       }
 
-      console.log('📝 Submitting item data:', itemData)
-      console.log('📝 Description value being saved:', currentDescription)
-      console.log('📝 Description from state:', description.trim())
-      console.log('📝 Description from ref:', descriptionRef.current?.value)
-
       if (isEditing) {
-        console.log('📝 Updating item with ID:', item.id)
-        const result = await menuItemsApi.update(item.id, itemData)
-        console.log('✅ Update result:', result)
+        await menuItemsApi.update(item.id, itemData)
         toast({
           title: "Success",
           description: "Menu item updated successfully"
         })
       } else {
-        console.log('📝 Creating new item')
-        const result = await menuItemsApi.create(itemData)
-        console.log('✅ Create result:', result)
+        await menuItemsApi.create(itemData)
         toast({
           title: "Success",
           description: "Menu item created successfully"
         })
       }
-      
+
       onItemSaved()
       onClose()
-    } catch (error) {
-      console.error('❌ Error saving menu item:', error)
-      console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      })
+    } catch (error: any) {
+      console.error('Error saving menu item:', error)
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} menu item: ${error.message}`,
+        description: `Failed to ${isEditing ? 'update' : 'create'} menu item: ${error?.message ?? 'Unknown error'}`,
         variant: "destructive"
       })
     } finally {
@@ -214,7 +197,6 @@ const MenuItemForm = ({ item, onItemSaved, onClose }: MenuItemFormProps) => {
               id="description"
               defaultValue={description}
               onChange={(e) => {
-                console.log('Description changing:', e.target.value)
                 isUserTyping.current = true
                 setDescription(e.target.value)
               }}

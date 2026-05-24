@@ -52,6 +52,8 @@ export interface MenuItem {
   display_order: number
   created_at: string
   updated_at: string
+  // Populated when the query joins menu_categories
+  menu_categories?: { name: string }
 }
 
 export interface Customer {
@@ -131,6 +133,15 @@ export interface Review {
       }
     }
   }[]
+  // Some callers flatten a single related menu item here for convenience
+  menu_items?: {
+    id?: string
+    name?: string
+    image_url?: string
+    menu_categories?: {
+      name?: string
+    }
+  }
 }
 
 export interface ReviewMenuItem {

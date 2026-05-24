@@ -221,7 +221,7 @@ const HorizontalReviews = () => {
         price += ` / $${item.price_per_plate} per plate`
       }
     } else {
-      const prices = []
+      const prices: string[] = []
       if (item.price_per_plate) prices.push(`$${item.price_per_plate}`)
       if (item.price_half_tray) prices.push(`$${item.price_half_tray}`)
       if (item.price_full_tray) prices.push(`$${item.price_full_tray}`)

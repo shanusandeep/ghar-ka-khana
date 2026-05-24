@@ -35,16 +35,8 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
     }
 
     setIsSubmitting(true)
-    
+
     try {
-      console.log('Submitting review with data:', {
-        full_name: fullName.trim(),
-        review_text: reviewText.trim(),
-        rating: rating > 0 ? rating : undefined,
-        menu_item_ids: selectedMenuItemIds.length > 0 ? selectedMenuItemIds : undefined,
-        status: 'pending'
-      })
-      
       await reviewsApi.create({
         full_name: fullName.trim(),
         review_text: reviewText.trim(),

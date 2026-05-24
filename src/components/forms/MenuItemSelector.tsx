@@ -71,19 +71,18 @@ const MenuItemSelector = ({ menuItems, orderItems, setOrderItems, topOrderItems 
   }
 
   const getAvailableSizes = (item: MenuItem) => {
-    const sizes = []
-    
-    // Prioritize piece-based pricing for items that have it
+    const sizes: { type: string; label: string; price: number; minOrder?: number }[] = []
+
     if (item.price_per_piece) {
       const minOrder = item.min_piece_order || 1
-      sizes.push({ 
-        type: 'piece', 
-        label: `${minOrder} Piece${minOrder > 1 ? 's' : ''}`, 
+      sizes.push({
+        type: 'piece',
+        label: `${minOrder} Piece${minOrder > 1 ? 's' : ''}`,
         price: item.price_per_piece,
-        minOrder 
+        minOrder
       })
     }
-    
+
     if (item.price_per_plate) sizes.push({ type: 'plate', label: 'Plate', price: item.price_per_plate })
     if (item.price_half_tray) sizes.push({ type: 'half_tray', label: 'Half Tray', price: item.price_half_tray })
     if (item.price_full_tray) sizes.push({ type: 'full_tray', label: 'Full Tray', price: item.price_full_tray })

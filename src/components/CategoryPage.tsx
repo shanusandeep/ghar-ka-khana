@@ -31,9 +31,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
   const loadMenuItems = async () => {
     try {
       setLoading(true);
-      console.log('🔍 CategoryPage: Looking for category name:', categoryName);
       const data = await menuItemsApi.getByCategoryName(categoryName);
-      console.log('📊 CategoryPage: Found items:', data);
       setMenuItems(data);
     } catch (error) {
       console.error('❌ Error loading menu items:', error);
@@ -92,7 +90,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
   };
 
   const formatPrice = (item: MenuItem) => {
-    const prices = [];
+    const prices: string[] = [];
     
     // Handle piece-based pricing for breads
     if (item.price_per_piece && item.pieces_per_plate) {
@@ -113,7 +111,7 @@ const CategoryPage = ({ categoryName, bgGradient = "from-orange-50 to-amber-50" 
   };
 
   const formatNote = (item: MenuItem) => {
-    const notes = [];
+    const notes: string[] = [];
     
     // Handle piece-based pricing notes for breads
     if (item.price_per_piece && item.pieces_per_plate && item.min_piece_order) {

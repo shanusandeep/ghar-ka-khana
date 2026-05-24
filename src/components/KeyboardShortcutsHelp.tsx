@@ -21,7 +21,7 @@ const KeyboardShortcutsHelp = ({ shortcuts }: KeyboardShortcutsHelpProps) => {
   const [open, setOpen] = useState(false)
 
   const formatShortcut = (shortcut: KeyboardShortcut) => {
-    const keys = []
+    const keys: string[] = []
     if (shortcut.ctrlKey) keys.push('Ctrl')
     if (shortcut.altKey) keys.push('Alt')
     if (shortcut.shiftKey) keys.push('Shift')

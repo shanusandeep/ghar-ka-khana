@@ -1,5 +1,7 @@
 
-import { supabase, supabaseAnon, MenuCategory, MenuItem, Customer, Order, OrderItem, TodaysMenu } from '@/config/supabase'
+import { supabase, supabaseAnon, MenuCategory, MenuItem, Customer, Order, OrderItem, TodaysMenu, Review } from '@/config/supabase'
+
+export type { MenuCategory, MenuItem, Customer, Order, OrderItem, TodaysMenu, Review } from '@/config/supabase'
 
 // Menu Categories API
 export const menuCategoriesApi = {
@@ -75,8 +77,6 @@ export const menuItemsApi = {
   },
 
   getByCategoryName: async (categoryName: string) => {
-    console.log('🔍 API: Searching for category name:', categoryName);
-    
     const { data, error } = await supabase
       .from('menu_items')
       .select(`
@@ -86,10 +86,7 @@ export const menuItemsApi = {
       .eq('menu_categories.name', categoryName)
       .eq('is_available', true)
       .order('display_order')
-    
-    console.log('📊 API: Found menu items:', data);
-    console.log('❌ API: Error (if any):', error);
-    
+
     if (error) throw error
     return data as MenuItem[]
   },
@@ -224,8 +221,6 @@ export const ordersApi = {
   },
 
   getPreparationSummary: async (date: string) => {
-    console.log('API: Getting preparation summary for date:', date)
-    
     const { data, error } = await supabase
       .from('order_items')
       .select(`
@@ -236,10 +231,7 @@ export const ordersApi = {
       `)
       .eq('orders.delivery_date', date)
       .in('orders.status', ['received'])
-    
-    console.log('API: Raw order_items data:', data)
-    console.log('API: Query error:', error)
-    
+
     if (error) throw error
     
     // Group by item and size type
@@ -578,16 +570,13 @@ export const reviewsApi = {
     return data as Review[]
   },
 
-  create: async (review: { 
+  create: async (review: {
     full_name: string
     review_text: string
     rating?: number
     status: 'pending' | 'approved' | 'rejected'
     menu_item_ids?: string[]
   }) => {
-    console.log('API: Creating review with data:', review)
-    
-    // Create the review using anonymous client
     const { data: reviewData, error: reviewError } = await supabaseAnon
       .from('reviews')
       .insert({
@@ -598,35 +587,26 @@ export const reviewsApi = {
       })
       .select()
       .single()
-    
+
     if (reviewError) {
-      console.error('API: Error creating review:', reviewError)
+      console.error('Error creating review:', reviewError)
       throw reviewError
     }
-    
-    console.log('API: Review created successfully:', reviewData)
-    
-    // If menu items are provided, create the junction table entries
+
     if (review.menu_item_ids && review.menu_item_ids.length > 0) {
-      console.log('API: Creating junction entries for menu items:', review.menu_item_ids)
-      
       const junctionEntries = review.menu_item_ids.map(menu_item_id => ({
         review_id: reviewData.id,
         menu_item_id
       }))
-      
-      console.log('API: Junction entries to insert:', junctionEntries)
-      
+
       const { error: junctionError } = await supabaseAnon
         .from('review_menu_items')
         .insert(junctionEntries)
-      
+
       if (junctionError) {
-        console.error('API: Error creating junction entries:', junctionError)
+        console.error('Error creating review menu item links:', junctionError)
         throw junctionError
       }
-      
-      console.log('API: Junction entries created successfully')
     }
     
     // Fetch the complete review with menu items using anonymous client

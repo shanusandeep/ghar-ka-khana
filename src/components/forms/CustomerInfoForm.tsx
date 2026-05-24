@@ -64,20 +64,16 @@ const CustomerInfoForm = ({
   const loadTopCustomers = async () => {
     try {
       const data = await customersApi.getAll()
-      console.log('Loaded customers:', data) // Debug log
-      
+
       if (!data || data.length === 0) {
-        console.warn('No customers found in database')
         setCustomers([])
         setFilteredCustomers([])
         return
       }
-      
-      // Sort by most recent orders or alphabetically
+
       const sortedCustomers = data.sort((a, b) => a.name.localeCompare(b.name))
       setCustomers(sortedCustomers)
-      setFilteredCustomers(sortedCustomers.slice(0, 15)) // Show top 15 by default
-      console.log('Filtered customers set:', sortedCustomers.slice(0, 15)) // Debug log
+      setFilteredCustomers(sortedCustomers.slice(0, 15))
     } catch (error) {
       console.error('Error loading customers:', error)
       toast({
