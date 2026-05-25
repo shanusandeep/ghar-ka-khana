@@ -153,19 +153,16 @@ create_backup() {
 deploy_to_server() {
     print_status "Deploying to server..."
     
-    # Upload build files to server
+    # Upload build files to server.
+    # IMPORTANT: source here is $BUILD_FOLDER (dist/), so .js IS the bundle and
+    # MUST be transferred. Earlier versions of this script excluded *.js, which
+    # silently broke production (nginx fell back to index.html, MIME error in
+    # the browser). Keep these excludes scoped to obvious source/meta files only.
     rsync_with_password -avz --delete \
         --exclude='.git' \
         --exclude='node_modules' \
-        --exclude='src' \
-        --exclude='public' \
-        --exclude='*.md' \
-        --exclude='*.json' \
-        --exclude='*.ts' \
-        --exclude='*.js' \
-        --exclude='*.sh' \
-        --exclude='*.config.*' \
         --exclude='.env*' \
+        --exclude='*.sh' \
         $BUILD_FOLDER/ $USERNAME@$SERVER:$REMOTE_PATH/
     
     print_success "Files uploaded to server"

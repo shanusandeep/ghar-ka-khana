@@ -225,18 +225,13 @@ deploy_to_server() {
     
     print_status "Uploading files to server..."
     
-    # Upload build files to server with progress
+    # Upload build files to server with progress.
+    # Source is $BUILD_FOLDER (dist/) — .js IS the production bundle. Previous
+    # excludes filtered out .js / .json / *.config.* which silently broke prod
+    # (nginx fell back to index.html, MIME error in browser).
     rsync_with_password -avz --progress --delete \
         --exclude='.git' \
         --exclude='node_modules' \
-        --exclude='src' \
-        --exclude='public' \
-        --exclude='*.md' \
-        --exclude='*.json' \
-        --exclude='*.ts' \
-        --exclude='*.js' \
-        --exclude='*.sh' \
-        --exclude='*.config.*' \
         --exclude='.env*' \
         --exclude='deploy*.sh' \
         $BUILD_FOLDER/ $USERNAME@$SERVER:$REMOTE_PATH/
